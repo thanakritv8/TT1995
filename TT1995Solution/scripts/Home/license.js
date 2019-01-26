@@ -1,5 +1,5 @@
 ﻿var itemEditing = [];
-var i = 0;
+
 $(function () {
     $.ajax({
         type: "POST",
@@ -8,8 +8,8 @@ $(function () {
         dataType: "json",
         success: function (data) {
             data.forEach(function (item) {
-                i++;
-                console.log(item);
+                
+                //console.log(item);
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
                     if (item.dataField == "license_date") {
                         itemEditing.push({
@@ -30,18 +30,32 @@ $(function () {
                 }
                 
             });
-            //itemEditing.push({
-            //    template: function (data, itemElement) {
-            //        itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
-            //            multiple: true,
-            //            allowedFileExtensions: [".jpg", ".jpeg", ".png"]
-            //        }));
-            //    },
-            //    name: "dxPic",
-            //    label: {
-            //        text: "รูปรถ"
-            //    },
-            //});
+            itemEditing.push({
+                template: function (data, itemElement) {
+                    itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
+                        multiple: true,
+                        allowedFileExtensions: [".jpg", ".jpeg", ".png"]
+                    }));
+                },
+                name: "dxPic",
+                label: {
+                    text: "รูปรถ"
+                },
+                colSpan:3,
+            });
+            itemEditing.push({
+                template: function (data, itemElement) {
+                    itemElement.append($("<div>").attr("id", "dxPdf").dxFileUploader({
+                        multiple: true,
+                        allowedFileExtensions: [".pdf"]
+                    }));
+                },
+                name: "dxPdf",
+                label: {
+                    text: "ไฟล์ Pdf"
+                },
+                colSpan: 3,
+            });
             
             dataGrid.option('columns', data);
         }
@@ -112,7 +126,7 @@ $(function () {
             //console.log(e);
         },
         onEditingStart: function (e) {
-            //console.log(e);
+            console.log(e);
         },
         onRowUpdating: function (e) {
             //var strPath = document.getElementById('dxPic');
