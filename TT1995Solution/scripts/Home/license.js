@@ -1,10 +1,48 @@
-﻿$(function () {
+﻿var itemEditing = [];
+var i = 0;
+$(function () {
     $.ajax({
         type: "POST",
         url: "../Home/GetColumnChooser",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            data.forEach(function (item) {
+                i++;
+                console.log(item);
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
+                    if (item.dataField == "license_date") {
+                        itemEditing.push({
+                            colSpan: item.colSpan,
+                            label: {
+                                text: "วันจดทะเบียน"
+                            },
+                            editorType: "dxDateBox",
+                            
+                        });
+                    } else {
+                        itemEditing.push({
+                            colSpan: item.colSpan,
+                            dataField: item.dataField,
+                            width: "100%",
+                        });
+                    }
+                }
+                
+            });
+            //itemEditing.push({
+            //    template: function (data, itemElement) {
+            //        itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
+            //            multiple: true,
+            //            allowedFileExtensions: [".jpg", ".jpeg", ".png"]
+            //        }));
+            //    },
+            //    name: "dxPic",
+            //    label: {
+            //        text: "รูปรถ"
+            //    },
+            //});
+            
             dataGrid.option('columns', data);
         }
     });
@@ -20,7 +58,6 @@
     });
 
     var dataGrid = $("#gridContainer").dxDataGrid({
-        
         searchPanel: {
             visible: true,
             width: 240,
@@ -47,25 +84,14 @@
             allowAdding: true,
             form: {
                 
-                items: ["number_car", "license_car", "province", "type_fuel",
-                    {
-                        template: function (data, itemElement) {
-                            itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
-                                multiple: true,
-                                allowedFileExtensions: [".jpg", ".jpeg", ".png"]
-                            }));
-                        },
-                        name: "dxPic",
-                        label: {
-                            text: "รูปรถ"
-                        },
-                    }]
+                items: itemEditing,
+                colCount: 6,
                 
             },
             popup: {
-                title: "เล่มทะเบียน",
+                title: "รายการจดทะเบียน",
                 showTitle: true,
-                width: "80%",
+                width: "70%",
                 position: { my: "center", at: "center", of: window },
 
             },

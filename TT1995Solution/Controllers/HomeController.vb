@@ -9,7 +9,7 @@ Namespace Controllers
         ' GET: Home
         Function Index() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View()
+                Return View("../Home/License")
             Else
                 Return View("../Account/Login")
             End If
@@ -34,7 +34,7 @@ Namespace Controllers
         Public Function GetColumnChooser() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
             'Dim _SQL As String = "SELECT cc1.column_id, cc1.name_column AS dataField, cc1.display AS caption, cc1.data_type AS dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible,0) AS visible FROM [TT1995].[dbo].[config_column] AS cc1 LEFT JOIN [TT1995].[dbo].[chooser_column] AS cc2 ON cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
-            Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed FROM [TT1995].[dbo].[config_column] WHERE name_column <> 'license_id'"
+            Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, colSpan FROM [TT1995].[dbo].[config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
