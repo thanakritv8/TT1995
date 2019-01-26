@@ -13,26 +13,31 @@
     <script src="https://cdn3.devexpress.com/jslib/18.2.4/js/dx.all.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.2/jszip.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <style>
+        .bg-custom {
+            background-color: rgb(0,128,0);
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand navbar-dark bg-light static-top">
-        <a class="navbar-brand mr-1 text-muted" href="~/Home/Index">Document Management System</a>
+    <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
+        <a class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
         <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
             <i class="fas fa-bars" style="color:rgb(16,91,172)"></i>
         </button> 
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(0,79,162)">
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)">
             <li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
-                    <span Class="text-light"> Document</span>
+                    <span Class="text-light"> ทะเบียน</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/License">QMS</a>
-                    <a Then Class="dropdown-item" href="#">ISO14001-2015</a>
-                    <a Class="dropdown-item" href="#">IATF16949-2016</a>
+                    <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
+                    <a Then Class="dropdown-item" href="#">ภาษี</a>
+                    <a Class="dropdown-item" href="#">บันทึกเจ้าหน้าที่</a>
                 </div>
             </li>
             <li Class="nav-item">
@@ -45,14 +50,19 @@
         End If
         <!-- Sidebar -->
 
-        <div Class="container body-content">
-            @RenderBody()
+        <div id="content-wrapper" class="mt-0">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
 
             @If Session("StatusLogin") = "1" Then
-            @<hr />
-            @<footer>
-                <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-            </footer>
+                @<footer Class="sticky-footer">
+                    <div Class="container my-auto">
+                        <div Class="copyright text-center my-auto">
+                            <span> Copyright © Your Website 2018</span>
+                        </div>
+                    </div>
+                </footer>
             End If
         </div>
     </div>

@@ -2,7 +2,7 @@
     ViewData("Title") = "License"
 End Code
 
-<div class="mt-2" id="gridContainer"></div>
+<div class="mt-3" id="gridContainer"></div>
 
 <script src="~/scripts/Home/license.js"></script>
 

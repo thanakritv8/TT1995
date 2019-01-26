@@ -1,17 +1,26 @@
 ﻿$(function () {
-    $("#gridContainer").dxDataGrid({
-        dataSource: customers,
-        columns: [
-            {
-                dataField: "CompanyName",
-            }, "City", "State", {
-                dataField: "Phone",
-                width: 120,
-                validationRules: [{ type: "required" }]
-            }, {
-                dataField: "Fax",
-                visible: false
-            }],
+    $.ajax({
+        type: "POST",
+        url: "../Home/GetColumnChooser",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            dataGrid.option('columns', data);
+        }
+    });
+
+    $.ajax({
+        type: "POST",
+        url: "../Home/GetLicense",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            dataGrid.option('dataSource', data);
+        }
+    });
+
+    var dataGrid = $("#gridContainer").dxDataGrid({
+        
         searchPanel: {
             visible: true,
             width: 240,
@@ -37,44 +46,34 @@
             allowDeleting: true,
             allowAdding: true,
             form: {
-                items: [{
-                    itemType: "group",
-                    caption: "Personal Data",
-                    items: [
-                        { dataField: "Prefix" },
-                        { dataField: "Full_Name" },
-                        { dataField: "Position" }
-                    ]
-                }, {
-                    itemType: "group",
-                    caption: "Contacts",
-                    items: ["Email", "Skype",
+                
+                items: ["number_car", "license_car", "province", "type_fuel",
                     {
                         template: function (data, itemElement) {
-                            itemElement.append($("<div>").attr("id", "dxfu1").dxFileUploader({
+                            itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
                                 multiple: true,
-                                allowedFileExtensions: [".jpg", ".jpeg", ".pdf", ".png"]
+                                allowedFileExtensions: [".jpg", ".jpeg", ".png"]
                             }));
                         },
-                        name: "dxfu1",
+                        name: "dxPic",
                         label: {
-                            text: "Two"
+                            text: "รูปรถ"
                         },
                     }]
-                }]
+                
             },
             popup: {
-                title: "Employee Info",
+                title: "เล่มทะเบียน",
                 showTitle: true,
-                width: 700,
-                position: { my: "top", at: "top", of: window },
+                width: "80%",
+                position: { my: "center", at: "center", of: window },
 
             },
             useIcons: true,
         },
         "export": {
             enabled: true,
-            fileName: "Employees",
+            fileName: "License",
         },
         filterRow: {
             visible: true,
@@ -84,22 +83,42 @@
             visible: true
         },
         onCellClick: function (e) {
-            console.log(e);
+            //console.log(e);
         },
         onEditingStart: function (e) {
-            console.log(e);
+            //console.log(e);
         },
         onRowUpdating: function (e) {
-            logEvent(e);
+            //var strPath = document.getElementById('dxPic');
+            console.log(e);
+            //console.log(strPath);
         },
         onRowUpdated: function (e) {
-            logEvent(e);
+            //console.log(e);
         },
 
-    });
+    }).dxDataGrid('instance');
 
 
 });
+
+var employee = {
+    "ID": 1,
+    "FirstName": "John",
+    "LastName": "Heart",
+    "CompanyName": "Super Mart of the West",
+    "Position": "CEO",
+    "OfficeNo": "901",
+    "BirthDate": new Date(1964, 2, 16),
+    "HireDate": new Date(1995, 0, 15),
+    "Address": "351 S Hill St.",
+    "City": "Los Angeles",
+    "State": "CA",
+    "Zipcode": "90013",
+    "Phone": "+1(213) 555-9392",
+    "Email": "jheart@dx-email.com",
+    "Skype": "jheart_DX_skype"
+};
 
 var customers = [{
     "ID": 1,
