@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Three Trans (1995)</title>
     <link rel="stylesheet" type="text/css" href="~/Content/sb-admin.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script>window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))</script>
@@ -59,7 +59,7 @@
                 @<footer Class="sticky-footer">
                     <div Class="container my-auto">
                         <div Class="copyright text-center my-auto">
-                            <span> Copyright © Your Website 2018</span>
+                            <span> Copyright © Your Website 2019</span>
                         </div>
                     </div>
                 </footer>

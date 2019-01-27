@@ -17,7 +17,17 @@ $(function () {
                             },
                             editorType: "dxDateBox",                            
                         });
-                    } else {
+                    } else if (item.dataField == "number_car") {
+                        itemEditing.push({
+                            colSpan: item.colSpan,
+                            dataField: item.dataField,
+                            width: "100%",
+                            editorOptions: {
+                                disabled: false
+                            },
+                        });
+                        
+                    }else {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
@@ -93,7 +103,6 @@ $(function () {
             allowDeleting: true,
             allowAdding: true,
             form: {
-                
                 items: itemEditing,
                 colCount: 6,                
             },
@@ -102,7 +111,6 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
-
             },
             useIcons: true,
         },
@@ -117,20 +125,14 @@ $(function () {
         headerFilter: {
             visible: true
         },
-        onCellClick: function (e) {
-            //console.log(e);
-        },
-        onEditingStart: function (e) {
-            //console.log(e);
-        },
         onRowUpdating: function (e) {
             fnUpdateLicense(e.newData, e.key.license_id);
         },
-        onRowUpdated: function (e) {
-            //console.log(e);
-        },
         onRowInserting: function (e) {
             fnInsertLicense(e.data);
+        },
+        onRowRemoving: function (e) {
+            fnDeleteLicense(e.key.license_id);
         },
 
     }).dxDataGrid('instance');
@@ -155,6 +157,20 @@ $(function () {
             url: "../Home/UpdateLicense",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
+            dataType: "json",
+            success: function (data) {
+                //dataGrid.option('dataSource', data);
+            }
+        });
+    }
+
+    function fnDeleteLicense(keyItem) {
+        console.log(keyItem);
+        $.ajax({
+            type: "POST",
+            url: "../Home/DeleteLicense",
+            contentType: "application/json; charset=utf-8",
+            data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
             success: function (data) {
                 //dataGrid.option('dataSource', data);
