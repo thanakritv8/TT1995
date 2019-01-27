@@ -42,9 +42,9 @@ C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\bin\System.Web.Webpages.Razor.xml
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\bin\System.Web.Helpers.xml
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\bin\System.Web.Mvc.xml
-C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.vbprojResolveAssemblyReference.cache
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.Resources.resources
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.vbproj.GenerateResource.Cache
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.dll
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.xml
 C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.pdb
+C:\Users\thanakrit.j\Documents\Visual Studio 2015\Projects\TT1995Solution\TT1995Solution\obj\Debug\TT1995Solution.vbprojResolveAssemblyReference.cache

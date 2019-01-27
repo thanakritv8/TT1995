@@ -164,7 +164,7 @@ Namespace Controllers
                 End If
                 file.SaveAs(pathServer)
 
-                Dim _SQL As String = "INSERT INTO [TT1995].[dbo].[files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,'" & file.FileName & "','.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
+                Dim _SQL As String = "INSERT INTO [TT1995].[dbo].[files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,N'" & file.FileName & "',N'.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
                 objDB.ExecuteSQL(_SQL, cn)
             Next
             objDB.DisconnectDB(cn)
@@ -185,6 +185,30 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
+        Public Function DeleteFile(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
+            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[files] WHERE file_id = " & keyId
+            Dim DtFile As DataTable = objDB.SelectSQL(_SQL, cn)
+            If DtFile.Rows.Count > 0 Then
+                Dim PathServer As String = Server.MapPath(DtFile.Rows(0)("path_file"))
+                If System.IO.File.Exists(PathServer) = True Then
+                    System.IO.File.Delete(PathServer)
+                End If
+                _SQL = "DELETE [TT1995].[dbo].[files] WHERE file_id = " & keyId
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 
 #End Region
 

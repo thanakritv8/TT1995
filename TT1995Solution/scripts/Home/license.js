@@ -6,6 +6,7 @@ var fileDataPic;
 var idItem = '';
 var name = '';
 var idFK = '';
+var gbE;
 var contextMenuItemsFolder = [
         { text: 'New File' }
 ];
@@ -19,6 +20,7 @@ $(function () {
         onClick: function() { 
             DevExpress.ui.notify("The " + idFK + " button was clicked");
             fnInsertFiles(fileDataPic);
+            
         }
     });
     $.ajax({
@@ -120,7 +122,7 @@ $(function () {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
 
-    $(".custom-file").dxFileUploader({
+    var cf =  $(".custom-file").dxFileUploader({
         multiple: true,
         allowedFileExtensions: [".jpg", ".jpeg", ".png"],
         accept: "image/*",
@@ -133,10 +135,11 @@ $(function () {
                     fileDataPic.append('file', file);
                 });
                 fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('type', 'pic');
+                fileDataPic.append('type', idFile);
             }
         },
-    });
+    }).dxFileUploader('instance')
+
     getContextMenu();
     function getContextMenu() {
         $("#context-menu").dxContextMenu({
@@ -146,11 +149,22 @@ $(function () {
             onItemClick: function (e) {
                 if (!e.itemData.items) {
                     if (e.itemData.text == "New File") {
+                        if (idFile == "pdf") {
+                            cf.option("allowedFileExtensions", [".pdf"]);
+                            cf.option("accept", ".pdf");
+                        } else {
+                            cf.option("allowedFileExtensions", [".jpg", ".jpeg", ".png"]);
+                            cf.option("accept", "image/*");
+                        }
                         $("#mdNewFile").modal();
                     } else if (e.itemData.text == "Delete") {
-                        document.getElementById('idDelete').innerHTML = idItem;
-                        document.getElementById('lbDelete').value = name;
-                        $("#mdDelete").modal();
+                        var result = DevExpress.ui.dialog.confirm("Are you sure?", "Confirm delete");
+                        result.done(function (dialogResult) {
+                            if (dialogResult) {
+                                console.log(idFile);
+                                fnDeleteFiles(idFile);
+                            }
+                        });
                     }
                 }
             }
@@ -288,6 +302,7 @@ $(function () {
                     e.component.collapseAll(-1);
                 } else {
                     cRowClick = 0;
+                    gbE = e;
                     e.component.collapseAll(-1);
                     e.component.expandRow(e.key);
                     idRowClick = e.key.license_id;
@@ -351,7 +366,6 @@ $(function () {
     }
 
     function fnInsertFiles(fileUpload) {
-        console.log("rtyui");
         $.ajax({
             type: "POST",
             url: "../Home/InsertFile",
@@ -360,7 +374,31 @@ $(function () {
             contentType: false,
             processData: false,
             success: function (data) {
+                gbE.component.collapseAll(-1);
+                gbE.component.expandRow(gbE.key);
                 fileDataPic = new FormData();
+                $("#mdNewFile").modal('hide');
+            },
+            error: function (error) {
+
+            }
+        });
+    }
+
+    function fnDeleteFiles(file_id) {
+        console.log(file_id);
+        $.ajax({
+            type: "POST",
+            url: "../Home/DeleteFile",
+            contentType: "application/json; charset=utf-8",
+            data: "{keyId: '" + file_id + "'}",
+            dataType: 'json',
+            success: function (data) {
+                if (data[0].Status == 1) {
+                    gbE.component.collapseAll(-1);
+                    gbE.component.expandRow(gbE.key);
+                    DevExpress.ui.notify("ลบไฟล์เรียบร้อยแล้ว", "error");
+                }
             },
             error: function (error) {
 
