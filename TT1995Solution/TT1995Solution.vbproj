@@ -145,6 +145,9 @@
     <Content Include="Content\sb-admin.min.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="Img\folder.png" />
+    <Content Include="Img\pdf.png" />
+    <Content Include="Img\pictures.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\sb-admin.min.js" />

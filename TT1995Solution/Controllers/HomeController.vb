@@ -28,10 +28,8 @@ Namespace Controllers
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
             Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id] FROM [TT1995].[dbo].[license] ORDER BY number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows
-                                                        Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(
-                                                                Function(col) col.ColumnName, Function(col) dr(col)
-                                                            ))
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetColumnChooser() As String
@@ -39,7 +37,16 @@ Namespace Controllers
             'Dim _SQL As String = "SELECT cc1.column_id, cc1.name_column AS dataField, cc1.display AS caption, cc1.data_type AS dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible,0) AS visible FROM [TT1995].[dbo].[config_column] AS cc1 LEFT JOIN [TT1995].[dbo].[chooser_column] AS cc2 ON cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
             Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, format, colSpan FROM [TT1995].[dbo].[config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetFiles() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
+            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[files] WHERE table_id = 1"
+            Dim DtFiles As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtFiles.Rows Select DtFiles.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function InsertColumnChooser(ByVal ColumnId As Integer) As String
@@ -79,6 +86,7 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("0")
             End If
+            objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
@@ -127,7 +135,40 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("0")
             End If
+            objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFile() As String
+            Dim fk_id As String = String.Empty
+            Dim type As String = String.Empty
+            For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                If Request.Form.AllKeys(i) = "fk_id" Then
+                    fk_id = Request.Form(i)
+                ElseIf Request.Form.AllKeys(i) = "type" Then
+                    type = Request.Form(i)
+                End If
+            Next
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
+            For i As Integer = 0 To Request.Files.Count - 1
+                Dim file = Request.Files(i)
+                Dim PathFile As String = "/Files/License/" & fk_id & "/" & type & "/" & file.FileName
+                Dim PathFK As String = Server.MapPath("~/Files/License/" & fk_id)
+                Dim PathType As String = Server.MapPath("~/Files/License/" & fk_id & "/" & type)
+                Dim pathServer As String = Server.MapPath("~" & PathFile)
+                If (Not System.IO.Directory.Exists(PathFK)) Then
+                    System.IO.Directory.CreateDirectory(PathFK)
+                End If
+                If (Not System.IO.Directory.Exists(PathType)) Then
+                    System.IO.Directory.CreateDirectory(PathType)
+                End If
+                file.SaveAs(pathServer)
+
+                Dim _SQL As String = "INSERT INTO [TT1995].[dbo].[files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,'" & file.FileName & "','.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
+                objDB.ExecuteSQL(_SQL, cn)
+            Next
+            objDB.DisconnectDB(cn)
+            Return 0
         End Function
 
         Public Function DeleteLicense(ByVal keyId As String) As String
@@ -140,6 +181,7 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("0")
             End If
+            objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 

@@ -1,6 +1,26 @@
 ﻿var itemEditing = [];
+var idRowClick = '';
+var cRowClick = 0;
+var fileDataPdf;
+var fileDataPic;
+var idItem = '';
+var name = '';
+var idFK = '';
+var contextMenuItemsFolder = [
+        { text: 'New File' }
+];
+var contextMenuItemsFile = [
+    { text: 'Delete' }
+];
+var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+    $("#btnSave").dxButton({
+        onClick: function() { 
+            DevExpress.ui.notify("The " + idFK + " button was clicked");
+            fnInsertFiles(fileDataPic);
+        }
+    });
     $.ajax({
         type: "POST",
         url: "../Home/GetColumnChooser",
@@ -18,7 +38,6 @@ $(function () {
                                 disabled: false
                             },
                         });
-                        
                     }else {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -28,32 +47,57 @@ $(function () {
                     }
                 }                
             });
-            itemEditing.push({
-                template: function (data, itemElement) {
-                    itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
-                        multiple: true,
-                        allowedFileExtensions: [".jpg", ".jpeg", ".png"]
-                    }));
-                },
-                name: "dxPic",
-                label: {
-                    text: "รูปรถ"
-                },
-                colSpan:3,
-            });
-            itemEditing.push({
-                template: function (data, itemElement) {
-                    itemElement.append($("<div>").attr("id", "dxPdf").dxFileUploader({
-                        multiple: true,
-                        allowedFileExtensions: [".pdf"]
-                    }));
-                },
-                name: "dxPdf",
-                label: {
-                    text: "ไฟล์ Pdf"
-                },
-                colSpan: 3,
-            });
+            //itemEditing.push({
+            //    template: function (data, itemElement) {
+            //        itemElement.append($("<div>").attr("id", "dxPic").dxFileUploader({
+            //            multiple: true,
+            //            allowedFileExtensions: [".jpg", ".jpeg", ".png"],
+            //            accept: "image/*",
+            //            uploadMode: "useForm",
+            //            onValueChanged: function (e) {
+            //                var files = e.value;
+            //                fileDataPic = new FormData();
+            //                if (files.length > 0) {
+            //                    $.each(files, function (i, file) {
+            //                        fileDataPic.append('file', file);
+            //                    });
+            //                    fileDataPic.append('type', 'pic');
+            //                }
+            //            },
+            //        }));
+            //    },
+            //    name: "dxPic",
+            //    label: {
+            //        text: "รูปรถ"
+            //    },
+            //    colSpan:3,
+            //});
+            //itemEditing.push({
+            //    template: function (data, itemElement) {
+            //        itemElement.append($("<div>").attr("id", "dxPdf").dxFileUploader({
+            //            multiple: true,
+            //            allowedFileExtensions: [".pdf"],
+            //            accept: ".pdf",
+            //            uploadMode: "useForm",
+            //            onValueChanged: function (e) {
+            //                var files = e.value;
+            //                fileDataPdf = new FormData();
+            //                if (files.length > 0) {
+            //                    $.each(files, function (i, file) {
+            //                        fileDataPdf.append('file', file);
+                                    
+            //                    });
+            //                    fileDataPdf.append('type', 'pdf');
+            //                }
+            //            },
+            //        }));
+            //    },
+            //    name: "dxPdf",
+            //    label: {
+            //        text: "ไฟล์ Pdf"
+            //    },
+            //    colSpan: 3,
+            //});
             dataGrid.option('columns', data);
         }
     });
@@ -64,7 +108,6 @@ $(function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            
             for (var i = 0; i < data.length; i++) {
                 var d = parseJsonDate(data[i].license_date);
                 data[i].license_date = d;
@@ -75,6 +118,43 @@ $(function () {
 
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+    }
+
+    $(".custom-file").dxFileUploader({
+        multiple: true,
+        allowedFileExtensions: [".jpg", ".jpeg", ".png"],
+        accept: "image/*",
+        uploadMode: "useForm",
+        onValueChanged: function (e) {
+            var files = e.value;
+            fileDataPic = new FormData();
+            if (files.length > 0) {
+                $.each(files, function (i, file) {
+                    fileDataPic.append('file', file);
+                });
+                fileDataPic.append('fk_id', idFK);
+                fileDataPic.append('type', 'pic');
+            }
+        },
+    });
+    getContextMenu();
+    function getContextMenu() {
+        $("#context-menu").dxContextMenu({
+            dataSource: OptionsMenu,
+            width: 200,
+            target: ".treeview",
+            onItemClick: function (e) {
+                if (!e.itemData.items) {
+                    if (e.itemData.text == "New File") {
+                        $("#mdNewFile").modal();
+                    } else if (e.itemData.text == "Delete") {
+                        document.getElementById('idDelete').innerHTML = idItem;
+                        document.getElementById('lbDelete').value = name;
+                        $("#mdDelete").modal();
+                    }
+                }
+            }
+        });
     }
 
     var dataGrid = $("#gridContainer").dxDataGrid({
@@ -126,7 +206,6 @@ $(function () {
             visible: true
         },
         onRowUpdating: function (e) {
-            console.log(e);
             fnUpdateLicense(e.newData, e.key.license_id);
         },
         onRowInserting: function (e) {
@@ -139,35 +218,98 @@ $(function () {
             enabled: false,
             template: function (container, options) {
                 var currentEmployeeData = options.data;
+                var itemData;
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetFiles",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        data.push({
+                            "file_id": "pdf",
+                            "fk_id": options.key.license_id,
+                            "name_file": "PDF",
+                            "icon": "../Img/folder.png"
+                        });
+                        data.push({
+                            "file_id": "pic",
+                            "fk_id": options.key.license_id,
+                            "name_file": "PICTURE",
+                            "icon": "../Img/folder.png"
+                        });
+                        itemData = data;                       
+                    }
+                });
                 $("<div>")
+                    .addClass("treeview")
                     .dxTreeView({
-                        items: products,
                         dataStructure: "plain",
-                        parentIdExpr: "categoryId",
-                        keyExpr: "ID",
-                        displayExpr: "name",
+                        parentIdExpr: "type_file",
+                        keyExpr: "file_id",
+                        displayExpr: "name_file",
+                        dataSource: new DevExpress.data.DataSource({
+                            store: new DevExpress.data.ArrayStore({
+                                key: "file_id",
+                                data: itemData
+                            }),
+                            filter: ["fk_id", "=", options.key.license_id]
+                        }),
+                        height: "150px",
+                        onItemClick: function (e) {
+                            var item = e.itemData;
+                            if (item.path_file) {
+                                window.open(item.path_file, '_blank');
+                            }
+                        },
+                        onItemContextMenu: function (e) {
+                            var item = e.itemData;
+                            if (item.file_id) {
+                                name = item.name_file
+                                idFK = item.fk_id;
+                                idFile = item.file_id;
+                                if (name == "PDF" || name == "PICTURE") {
+                                    OptionsMenu = contextMenuItemsFolder;
+                                } else {
+                                    OptionsMenu = contextMenuItemsFile;
+                                }
+                                getContextMenu();
+                            }
+                        },
                     }).appendTo(container);
-                
             }
         },
-        onSelectionChanged: function (e) {
-            e.component.collapseAll(-1);
-            e.component.expandRow(e.currentSelectedRowKeys[0]);
+        onRowClick: function (e) {
+            var component = e.component,
+                prevClickTime = component.lastClickTime;
+            component.lastClickTime = new Date();
+            if (prevClickTime && (component.lastClickTime - prevClickTime < 300)) {
+                if (idRowClick == e.key.license_id && cRowClick <= 1) {
+                    e.component.collapseAll(-1);
+                } else {
+                    cRowClick = 0;
+                    e.component.collapseAll(-1);
+                    e.component.expandRow(e.key);
+                    idRowClick = e.key.license_id;
+                }
+                cRowClick++;
+            }
         },
-       
         selection: {
             mode: "single"
         },
-
     }).dxDataGrid('instance');
 
+   
     function fnInsertLicense(dataGrid) {
+        
         $.ajax({
             type: "POST",
             url: "../Home/InsertLicense",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
@@ -207,98 +349,23 @@ $(function () {
             }
         });
     }
-    
-});
 
-var products = [{
-    ID: "1",
-    name: "Stores",
-    expanded: true
-}, {
-    ID: "1_1",
-    categoryId: "1",
-    name: "Super Mart of the West",
-    expanded: true
-}, {
-    ID: "1_1_1",
-    categoryId: "1_1",
-    name: "Video Players"
-}, {
-    ID: "1_1_1_1",
-    categoryId: "1_1_1",
-    name: "HD Video Player",
-    icon: "images/products/1.png",
-    price: 220
-}, {
-    ID: "1_1_1_2",
-    categoryId: "1_1_1",
-    name: "SuperHD Video Player",
-    icon: "images/products/2.png",
-    price: 270
-}, {
-    ID: "1_1_2",
-    categoryId: "1_1",
-    name: "Televisions",
-    expanded: true
-}, {
-    ID: "1_1_2_1",
-    categoryId: "1_1_2",
-    name: "SuperLCD 42",
-    icon: "images/products/7.png",
-    price: 1200
-}, {
-    ID: "1_1_2_2",
-    categoryId: "1_1_2",
-    name: "SuperLED 42",
-    icon: "images/products/5.png",
-    price: 1450
-}, {
-    ID: "1_1_2_3",
-    categoryId: "1_1_2",
-    name: "SuperLED 50",
-    icon: "images/products/4.png",
-    price: 1600
-}, {
-    ID: "1_1_2_4",
-    categoryId: "1_1_2",
-    name: "SuperLCD 55",
-    icon: "images/products/6.png",
-    price: 1750
-}, {
-    ID: "1_1_2_5",
-    categoryId: "1_1_2",
-    name: "SuperLCD 70",
-    icon: "images/products/9.png",
-    price: 4000
-}, {
-    ID: "1_1_3",
-    categoryId: "1_1",
-    name: "Monitors"
-}, {
-    ID: "1_1_3_1",
-    categoryId: "1_1_3",
-    name: "19\"",
-}, {
-    ID: "1_1_3_1_1",
-    categoryId: "1_1_3_1",
-    name: "DesktopLCD 19",
-    icon: "images/products/10.png",
-    price: 160
-}, {
-    ID: "1_1_4",
-    categoryId: "1_1",
-    name: "Projectors"
-}, {
-    ID: "1_1_4_1",
-    categoryId: "1_1_4",
-    name: "Projector Plus",
-    icon: "images/products/14.png",
-    price: 550
-}, {
-    ID: "1_1_4_2",
-    categoryId: "1_1_4",
-    name: "Projector PlusHD",
-    icon: "images/products/15.png",
-    price: 750
-}
-];
+    function fnInsertFiles(fileUpload) {
+        console.log("rtyui");
+        $.ajax({
+            type: "POST",
+            url: "../Home/InsertFile",
+            data: fileUpload,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                fileDataPic = new FormData();
+            },
+            error: function (error) {
+
+            }
+        });
+    }
+
+});
