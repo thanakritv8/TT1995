@@ -26,15 +26,18 @@ Namespace Controllers
 #Region "License"
         Public Function GetLicense() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[license] ORDER BY number_car"
+            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id] FROM [TT1995].[dbo].[license] ORDER BY number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows
+                                                        Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(
+                                                                Function(col) col.ColumnName, Function(col) dr(col)
+                                                            ))
         End Function
 
         Public Function GetColumnChooser() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
             'Dim _SQL As String = "SELECT cc1.column_id, cc1.name_column AS dataField, cc1.display AS caption, cc1.data_type AS dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible,0) AS visible FROM [TT1995].[dbo].[config_column] AS cc1 LEFT JOIN [TT1995].[dbo].[chooser_column] AS cc2 ON cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
-            Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, colSpan FROM [TT1995].[dbo].[config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
+            Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, format, colSpan FROM [TT1995].[dbo].[config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
