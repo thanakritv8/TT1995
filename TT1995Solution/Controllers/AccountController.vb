@@ -34,8 +34,8 @@ Namespace Controllers
         End Function
 
         Public Function CheckLogin(ByVal Username As String, ByVal Password As String) As String
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[account] WHERE username = '" & Username & "' AND password = '" & EncryptSHA256Managed(Password) & "'"
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * FROM [account] WHERE username = '" & Username & "' AND password = '" & EncryptSHA256Managed(Password) & "'"
             Dim DtAccount As DataTable = objDB.SelectSQL(_SQL, cn)
             If DtAccount.Rows.Count > 0 Then
                 Session("StatusLogin") = "1"

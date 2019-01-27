@@ -9,9 +9,9 @@ Public Class objDB
     ''' <param name="strPass"></param>
     ''' <returns></returns>
     ''' <remarks></remarks>
-    Public Shared Function ConnectDB(ByVal strIp As String, ByVal strUser As String, ByVal strPass As String) As SqlConnection
-        Dim conDb_form As String = "Server={0};UID={1};PASSWORD={2};Max Pool Size=4000;Connect Timeout=600;Trusted_Connection=False;"
-        Dim conDb As String = String.Format(conDb_form, strIp, strUser, strPass)
+    Public Shared Function ConnectDB(ByVal strIp As String, ByVal strUser As String, ByVal strPass As String, ByVal DataBase As String) As SqlConnection
+        Dim conDb_form As String = "Server={0};Initial Catalog={3};UID={1};PASSWORD={2};Max Pool Size=4000;Connect Timeout=600;Trusted_Connection=False;"
+        Dim conDb As String = String.Format(conDb_form, strIp, strUser, strPass, DataBase)
         Return New SqlConnection(conDb)
     End Function
 

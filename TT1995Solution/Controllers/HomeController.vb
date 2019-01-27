@@ -25,25 +25,25 @@ Namespace Controllers
 
 #Region "License"
         Public Function GetLicense() As String
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id] FROM [TT1995].[dbo].[license] ORDER BY number_car"
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id] FROM [license] ORDER BY number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetColumnChooser() As String
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            'Dim _SQL As String = "SELECT cc1.column_id, cc1.name_column AS dataField, cc1.display AS caption, cc1.data_type AS dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible,0) AS visible FROM [TT1995].[dbo].[config_column] AS cc1 LEFT JOIN [TT1995].[dbo].[chooser_column] AS cc2 ON cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
-            Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, format, colSpan FROM [TT1995].[dbo].[config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            'Dim _SQL As String = "SELECT cc1.column_id, cc1.name_column AS dataField, cc1.display AS caption, cc1.data_type AS dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible,0) AS visible FROM [config_column] AS cc1 LEFT JOIN [chooser_column] AS cc2 ON cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
+            Dim _SQL As String = "SELECT name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, format, colSpan FROM [config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetFiles() As String
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[files] WHERE table_id = 1"
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * FROM [files] WHERE table_id = 1"
             Dim DtFiles As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtFiles.Rows Select DtFiles.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -52,8 +52,8 @@ Namespace Controllers
         Public Function InsertColumnChooser(ByVal ColumnId As Integer) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[chooser_column] WHERE user_id = " & Session("UserId") & " AND column_id = " & ColumnId
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * FROM [chooser_column] WHERE user_id = " & Session("UserId") & " AND column_id = " & ColumnId
             Dim DtCC As DataTable = objDB.SelectSQL(_SQL, cn)
             ''''''''''''''''''''''''''''''''''
 
@@ -69,10 +69,10 @@ Namespace Controllers
                                       , ByVal license_date As String, ByVal weight_car As String, ByVal weight_lade As String _
                                       , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String, ByVal key As String) As String
 
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim _SQL As String = "UPDATE [TT1995].[dbo].[license] SET "
+            Dim _SQL As String = "UPDATE [license] SET "
             Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type"}
             Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type}
             For n As Integer = 0 To TbLicense.Length - 1
@@ -101,8 +101,8 @@ Namespace Controllers
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "INSERT INTO [TT1995].[dbo].[license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],[create_by_user_id])"
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],[create_by_user_id])"
             _SQL &= " VALUES (" & IIf(number_car Is Nothing, 0, number_car) & ","
             _SQL &= "N'" & IIf(license_car Is Nothing, String.Empty, license_car) & "',"
             _SQL &= "N'" & IIf(province Is Nothing, String.Empty, province) & "',"
@@ -149,7 +149,7 @@ Namespace Controllers
                     type = Request.Form(i)
                 End If
             Next
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             For i As Integer = 0 To Request.Files.Count - 1
                 Dim file = Request.Files(i)
                 Dim PathFile As String = "/Files/License/" & fk_id & "/" & type & "/" & file.FileName
@@ -164,7 +164,7 @@ Namespace Controllers
                 End If
                 file.SaveAs(pathServer)
 
-                Dim _SQL As String = "INSERT INTO [TT1995].[dbo].[files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,N'" & file.FileName & "',N'.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
+                Dim _SQL As String = "INSERT INTO [files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,N'" & file.FileName & "',N'.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
                 objDB.ExecuteSQL(_SQL, cn)
             Next
             objDB.DisconnectDB(cn)
@@ -174,8 +174,8 @@ Namespace Controllers
         Public Function DeleteLicense(ByVal keyId As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "DELETE [TT1995].[dbo].[license] WHERE license_id = " & keyId
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [license] WHERE license_id = " & keyId
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
             Else
@@ -188,15 +188,15 @@ Namespace Controllers
         Public Function DeleteFile(ByVal keyId As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password)
-            Dim _SQL As String = "SELECT * FROM [TT1995].[dbo].[files] WHERE file_id = " & keyId
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * FROM [files] WHERE file_id = " & keyId
             Dim DtFile As DataTable = objDB.SelectSQL(_SQL, cn)
             If DtFile.Rows.Count > 0 Then
                 Dim PathServer As String = Server.MapPath(DtFile.Rows(0)("path_file"))
                 If System.IO.File.Exists(PathServer) = True Then
                     System.IO.File.Delete(PathServer)
                 End If
-                _SQL = "DELETE [TT1995].[dbo].[files] WHERE file_id = " & keyId
+                _SQL = "DELETE [files] WHERE file_id = " & keyId
                 If objDB.ExecuteSQL(_SQL, cn) Then
                     DtJson.Rows.Add("1")
                 Else

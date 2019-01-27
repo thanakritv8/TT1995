@@ -6,7 +6,7 @@ TT1995Solution
 </name>
 </assembly>
 <members>
-<member name="M:TT1995Solution.objDB.ConnectDB(System.String,System.String,System.String)">
+<member name="M:TT1995Solution.objDB.ConnectDB(System.String,System.String,System.String,System.String)">
  <summary>
  Ex. Connect(IPServer,Username,Password)
  </summary>
