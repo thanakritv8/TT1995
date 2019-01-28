@@ -1,0 +1,76 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+TT1995Solution
+</name>
+</assembly>
+<members>
+<member name="M:TT1995Solution.objDB.ConnectDB(System.String,System.String,System.String,System.String)">
+ <summary>
+ Ex. Connect(IPServer,Username,Password)
+ </summary>
+ <param name="strIp"></param>
+ <param name="strUser"></param>
+ <param name="strPass"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:TT1995Solution.objDB.DisconnectDB(System.Data.SqlClient.SqlConnection)">
+ <summary>
+ When close program please disconnect 
+ </summary>
+ <param name="conn"></param>
+ <remarks></remarks>
+</member>
+<member name="M:TT1995Solution.objDB.SelectSQL(System.String,System.Data.SqlClient.SqlConnection)">
+ <summary>
+ Select return datatable
+ </summary>
+ <param name="_SQL"></param>
+ <param name="conn"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:TT1995Solution.objDB.ExecuteSQL(System.String,System.Data.SqlClient.SqlConnection)">
+ <summary>
+ Ex. Insert, Update, Delete, After etc.
+ </summary>
+ <param name="_SQL"></param>
+ <param name="conn"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="T:TT1995Solution.My.MyWebExtension">
+ <summary>
+ Module used to define the properties that are available in the My Namespace for Web projects.
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="P:TT1995Solution.My.MyWebExtension.Computer">
+ <summary>
+ Returns information about the host computer.
+ </summary>
+</member>
+<member name="P:TT1995Solution.My.MyWebExtension.User">
+ <summary>
+ Returns information for the current Web user.
+ </summary>
+</member>
+<member name="P:TT1995Solution.My.MyWebExtension.Request">
+ <summary>
+ Returns Request object.
+ </summary>
+</member>
+<member name="P:TT1995Solution.My.MyWebExtension.Response">
+ <summary>
+ Returns Response object.
+ </summary>
+</member>
+<member name="P:TT1995Solution.My.MyWebExtension.Log">
+ <summary>
+ Returns the Asp log object.
+ </summary>
+</member>
+</members>
+</doc>

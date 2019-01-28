@@ -147,11 +147,13 @@
     <Content Include="Global.asax" />
     <Content Include="Img\folder.png" />
     <Content Include="Img\pdf.png" />
-    <Content Include="Img\pictures.png" />
+    <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\sb-admin.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.vb" />
@@ -200,6 +202,8 @@
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
+    <None Include="My Project\PublishProfiles\AppTT1995 - FTP.pubxml" />
+    <None Include="My Project\PublishProfiles\AppTT1995 - Web Deploy.pubxml" />
     <None Include="My Project\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <CustomToolNamespace>My</CustomToolNamespace>

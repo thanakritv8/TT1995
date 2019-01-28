@@ -130,45 +130,63 @@ Namespace Controllers
             _SQL &= "N'" & IIf(transport_operator Is Nothing, String.Empty, transport_operator) & "',"
             _SQL &= "N'" & IIf(transport_type Is Nothing, String.Empty, transport_type) & "',"
             _SQL &= Session("UserId") & ")"
-            If objDB.ExecuteSQL(_SQL, cn) Then
-                DtJson.Rows.Add("1")
+            If Not number_car Is Nothing Then
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
             Else
-                DtJson.Rows.Add("0")
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function InsertFile() As String
-            Dim fk_id As String = String.Empty
-            Dim type As String = String.Empty
-            For i As Integer = 0 To Request.Form.AllKeys.Length - 1
-                If Request.Form.AllKeys(i) = "fk_id" Then
-                    fk_id = Request.Form(i)
-                ElseIf Request.Form.AllKeys(i) = "type" Then
-                    type = Request.Form(i)
-                End If
-            Next
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            For i As Integer = 0 To Request.Files.Count - 1
-                Dim file = Request.Files(i)
-                Dim PathFile As String = "/Files/License/" & fk_id & "/" & type & "/" & file.FileName
-                Dim PathFK As String = Server.MapPath("~/Files/License/" & fk_id)
-                Dim PathType As String = Server.MapPath("~/Files/License/" & fk_id & "/" & type)
-                Dim pathServer As String = Server.MapPath("~" & PathFile)
-                If (Not System.IO.Directory.Exists(PathFK)) Then
-                    System.IO.Directory.CreateDirectory(PathFK)
-                End If
-                If (Not System.IO.Directory.Exists(PathType)) Then
-                    System.IO.Directory.CreateDirectory(PathType)
-                End If
-                file.SaveAs(pathServer)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim type As String = String.Empty
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "type" Then
+                            type = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    For i As Integer = 0 To Request.Files.Count - 1
+                        Dim file = Request.Files(i)
+                        Dim PathFile As String = "/Files/License/" & fk_id & "/" & type & "/" & file.FileName
+                        Dim PathFK As String = Server.MapPath("~/Files/License/" & fk_id)
+                        Dim PathType As String = Server.MapPath("~/Files/License/" & fk_id & "/" & type)
+                        Dim pathServer As String = Server.MapPath("~" & PathFile)
+                        If (Not System.IO.Directory.Exists(PathFK)) Then
+                            System.IO.Directory.CreateDirectory(PathFK)
+                        End If
+                        If (Not System.IO.Directory.Exists(PathType)) Then
+                            System.IO.Directory.CreateDirectory(PathType)
+                        End If
+                        file.SaveAs(pathServer)
 
-                Dim _SQL As String = "INSERT INTO [files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,N'" & file.FileName & "',N'.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
-                objDB.ExecuteSQL(_SQL, cn)
-            Next
-            objDB.DisconnectDB(cn)
-            Return 0
+                        Dim _SQL As String = "INSERT INTO [files] ([fk_id],[table_id],[name_file],[path_file],[type_file],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,N'" & file.FileName & "',N'.." & PathFile & "','" & type & "','../Img/" & type & ".png'," & Session("UserId") & ")"
+                        objDB.ExecuteSQL(_SQL, cn)
+                    Next
+                    objDB.DisconnectDB(cn)
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+
+
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function DeleteLicense(ByVal keyId As String) As String
