@@ -7,6 +7,10 @@ var idItem = '';
 var name = '';
 var idFK = '';
 var gbE;
+
+var gallery = [];
+var gallerySelect = 0;
+
 var contextMenuItemsFolder = [
         { text: 'New File' }
 ];
@@ -14,12 +18,19 @@ var contextMenuItemsFile = [
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
-
 $(function () {
+
+    var galleryWidget = $("#gallery").dxGallery({
+        dataSource: gallery,
+        loop: true,
+        //showNavButtons: true,
+        showIndicator: true,
+        selectedIndex: gallerySelect
+    }).dxGallery("instance");    
+
     $("#btnSave").dxButton({
         onClick: function () {
             document.getElementById("btnSave").disabled = true;
-            //DevExpress.ui.notify("The " + idFK + " button was clicked");
             fnInsertFiles(fileDataPic);            
         }
     });
@@ -29,7 +40,31 @@ $(function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            var ndata = 0;
             data.forEach(function (item) {
+                //Start Lookup 
+                if (item.dataField == "color_car" || item.dataField == "brand_car" || item.dataField == "province") {
+                    var dataLookup;
+                    $.ajax({
+                        type: "POST",
+                        url: "../Home/GetLookUp",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: "{column_id: '" + item.column_id + "'}",
+                        async: false,
+                        success: function (data) {
+                            dataLookup = data;
+                        }
+                    });
+                    data[ndata].lookup = {
+                        dataSource: dataLookup,
+                        displayExpr: "data_list",
+                        valueExpr: "lookup_id"
+                    }
+                }
+                ndata++;
+                //End Lookup
+                
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
@@ -86,8 +121,7 @@ $(function () {
             //                fileDataPdf = new FormData();
             //                if (files.length > 0) {
             //                    $.each(files, function (i, file) {
-            //                        fileDataPdf.append('file', file);
-                                    
+            //                        fileDataPdf.append('file', file);                               
             //                    });
             //                    fileDataPdf.append('type', 'pdf');
             //                }
@@ -272,9 +306,30 @@ $(function () {
                         }),
                         height: "150px",
                         onItemClick: function (e) {
+                            gallery = [];
                             var item = e.itemData;
                             if (item.path_file) {
-                                window.open(item.path_file, '_blank');
+                                //console.log(item);
+                                itemData.forEach(function (itemFiles) {
+                                    
+                                    //console.log(itemFiles);
+                                    if (itemFiles.path_file && itemFiles.type_file == "pic" && itemFiles.fk_id == item.fk_id) {
+                                        gallery.push(itemFiles.path_file);
+                                    }
+                                });
+                                var nGallery = 0;
+                                gallery.forEach(function (itemFiles) {
+                                    if (itemFiles.path_file == item.path_file) {
+                                        gallerySelect = nGallery;
+                                    }
+                                    nGallery++;
+                                });
+                                if (item.type_file == "pic") {
+                                    galleryWidget.option("dataSource", gallery);
+                                    $("#mdShowPic").modal();
+                                } else {
+                                    window.open(item.path_file, '_blank');
+                                }
                             }
                         },
                         onItemContextMenu: function (e) {
@@ -315,7 +370,7 @@ $(function () {
             mode: "single"
         },
     }).dxDataGrid('instance');
-
+    //galleryWidget.option("dataSource", gallery);
    
     function fnInsertLicense(dataGrid) {
         

@@ -12,6 +12,7 @@ Namespace Controllers
         End Function
 
         Function Login() As ActionResult
+            'Dim Pass As String = EncryptSHA256Managed("user01")
             If Session("StatusLogin") = "1" Then
                 Return View("../Home/Index")
             Else
