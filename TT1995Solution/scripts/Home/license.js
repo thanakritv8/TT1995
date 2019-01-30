@@ -318,14 +318,19 @@ $(function () {
                                     }
                                 });
                                 var nGallery = 0;
+                                console.log(gallery);
                                 gallery.forEach(function (itemFiles) {
-                                    if (itemFiles.path_file == item.path_file) {
+                                    console.log(itemFiles + " = " + item.path_file);
+                                    if (itemFiles == item.path_file) {
                                         gallerySelect = nGallery;
                                     }
                                     nGallery++;
                                 });
                                 if (item.type_file == "pic") {
+                                    console.log(gallerySelect);
                                     galleryWidget.option("dataSource", gallery);
+                                    galleryWidget.option("selectedIndex", gallerySelect);
+                                    
                                     $("#mdShowPic").modal();
                                 } else {
                                     window.open(item.path_file, '_blank');
