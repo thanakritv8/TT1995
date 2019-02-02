@@ -180,12 +180,10 @@ Namespace Controllers
                         objDB.ExecuteSQL(_SQL, cn)
                     Next
                     objDB.DisconnectDB(cn)
-                    DtJson.Rows.Add("1")
+                    DtJson.Rows.Add(fk_id)
                 Else
                     DtJson.Rows.Add("0")
                 End If
-
-
             Catch ex As Exception
                 DtJson.Rows.Add("0")
             End Try

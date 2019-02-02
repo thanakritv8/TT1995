@@ -238,48 +238,15 @@ $(function () {
         masterDetail: {
             enabled: false,
             template: function (container, options) {
-                //Get Files from controller Home/GetFiles
-                var itemData;
-                $.ajax({
-                    type: "POST",
-                    url: "../Home/GetFiles",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    async: false,
-                    success: function (data) {
-                        data.push({
-                            "file_id": "pdf",
-                            "fk_id": options.key.license_id,
-                            "name_file": "PDF",
-                            "icon": "../Img/folder.png"
-                        });
-                        data.push({
-                            "file_id": "pic",
-                            "fk_id": options.key.license_id,
-                            "name_file": "PICTURE",
-                            "icon": "../Img/folder.png"
-                        });
-                        itemData = data;                       
-                    }
-                });
-                //End get Files
-
                 //สร้าง id treeview
                 container.append($('<div id="treeview"></div>'));
+                var itemData = fnGetFiles(options.key.license_id);
                 //เก็บข้อมูล treeview ไว้ในตัวแปรชื่อ treeview
                 treeview = $("#treeview").dxTreeView({
                     dataStructure: "plain",
                     parentIdExpr: "type_file",
                     keyExpr: "file_id",
                     displayExpr: "name_file",
-                    //โชว์ข้อมูล file ใน treeview
-                    dataSource: new DevExpress.data.DataSource({
-                        store: new DevExpress.data.ArrayStore({
-                            key: "file_id",
-                            data: itemData
-                        }),
-                        filter: ["fk_id", "=", options.key.license_id]
-                    }),
                     height: "150px",
                     //คลิกโชว์รูปภาพแบบ Gallery
                     onItemClick: function (e) {
@@ -325,6 +292,7 @@ $(function () {
                     },
                 }).dxTreeView("instance");
                 //จบการสร้าง treeview
+                fnChangeTreeview(options.key.license_id, itemData);
             }
         },
 
@@ -335,43 +303,60 @@ $(function () {
             isFirstClick = false;
         },
         onRowClick: function (e) {
-            
-            console.log(e);
             if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && isFirstClick && rowIndex == e.rowIndex) {
                 dataGrid.clearSelection();
             } else if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && !isFirstClick) {
                 isFirstClick = true;
                 rowIndex = e.rowIndex;
             }
-            
-            //e.component.collapseAll(-1);
-            //dataGrid.clearSelection()
-            //console.log(e);
         },
-
-        //onRowClick: function (e) {
-        //    var component = e.component,
-        //        prevClickTime = component.lastClickTime;
-        //    component.lastClickTime = new Date();
-        //    if (prevClickTime && (component.lastClickTime - prevClickTime < 300)) {
-        //        if (idRowClick == e.key.license_id && cRowClick <= 1) {
-        //            e.component.collapseAll(-1);
-        //        } else {
-        //            cRowClick = 0;
-        //            gbE = e;
-        //            e.component.collapseAll(-1);
-        //            e.component.expandRow(e.key);
-        //            idRowClick = e.key.license_id;
-        //        }
-        //        cRowClick++;
-        //    }
-        //},
         selection: {
             mode: "single"
         },
     }).dxDataGrid('instance');
     //จบการกำหนด dataGrid
    
+    //Get Files from controller Home/GetFiles
+    function fnGetFiles(license_id) {
+        var itemData;
+        $.ajax({
+            type: "POST",
+            url: "../Home/GetFiles",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                data.push({
+                    "file_id": "pdf",
+                    "fk_id": license_id,
+                    "name_file": "PDF",
+                    "icon": "../Img/folder.png"
+                });
+                data.push({
+                    "file_id": "pic",
+                    "fk_id": license_id,
+                    "name_file": "PICTURE",
+                    "icon": "../Img/folder.png"
+                });
+                itemData = data;
+            }
+        });
+        return itemData;
+    }
+    //End get Files
+
+    //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
+    function fnChangeTreeview(license_id, itemData) {
+        var dts = new DevExpress.data.DataSource({
+            store: new DevExpress.data.ArrayStore({
+                key: "file_id",
+                data: itemData
+            }),
+            filter: ["fk_id", "=", license_id]
+        });
+        treeview.option("dataSource", dts);
+    }
+
     //Function Insert ข้อมูลทะเบียน
     function fnInsertLicense(dataGrid) {
         
@@ -432,31 +417,29 @@ $(function () {
 
     //Function Insert file in treeview
     function fnInsertFiles(fileUpload) {
-        console.log(gbE);
-        console.log(gbE.currentSelectedRowKeys[0]);
-        //$.ajax({
-        //    type: "POST",
-        //    url: "../Home/InsertFile",
-        //    data: fileUpload,
-        //    dataType: 'json',
-        //    contentType: false,
-        //    processData: false,
-        //    success: function (data) {
-        //        dataGrid.clearSelection()
-        //        gbE.component.collapseAll(-1);;
-        //        gbE.component.expandRow(gbE.key);
-        //        fileDataPic = new FormData();
-        //        document.getElementById("btnSave").disabled = false;
-        //        $("#mdNewFile").modal('hide');
-        //        if (data[0].Status == "1") {
-        //        } else {
-        //            DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
-        //        }
-        //    },
-        //    error: function (error) {
-        //        DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
-        //    }
-        //});
+        $.ajax({
+            type: "POST",
+            url: "../Home/InsertFile",
+            data: fileUpload,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                fileDataPic = new FormData();
+                document.getElementById("btnSave").disabled = false;
+                $("#mdNewFile").modal('hide');
+               
+                if (data[0].Status != '0') {
+                    var itemData = fnGetFiles(data[0].Status);
+                    fnChangeTreeview(data[0].Status, itemData);
+                } else {
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+                }
+            },
+            error: function (error) {
+                DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+            }
+        });
     }
 
     //Function Delete file in treeview

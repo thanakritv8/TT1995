@@ -6,9 +6,6 @@ End Code
         overflow-y: auto;
         height: 100%;
     }
-    #mdShowPic {
-        
-    }
 </style>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
