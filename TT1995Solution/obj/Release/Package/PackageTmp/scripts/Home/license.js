@@ -34,6 +34,7 @@ $(function () {
             fnInsertFiles(fileDataPic);            
         }
     });
+
     $.ajax({
         type: "POST",
         url: "../Home/GetColumnChooser",
@@ -43,7 +44,7 @@ $(function () {
             var ndata = 0;
             data.forEach(function (item) {
                 //Start Lookup 
-                if (item.dataField == "color_car" || item.dataField == "brand_car" || item.dataField == "province") {
+                if (item.status_lookup != "0") {
                     var dataLookup;
                     $.ajax({
                         type: "POST",
@@ -56,10 +57,11 @@ $(function () {
                             dataLookup = data;
                         }
                     });
+                    console.log(dataLookup);
                     data[ndata].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "data_list",
-                        valueExpr: "lookup_id"
+                        valueExpr: "data_list"
                     }
                 }
                 ndata++;
@@ -134,6 +136,7 @@ $(function () {
             //    },
             //    colSpan: 3,
             //});
+            console.log(data);
             dataGrid.option('columns', data);
         }
     });
@@ -148,6 +151,7 @@ $(function () {
                 var d = parseJsonDate(data[i].license_date);
                 data[i].license_date = d;
             }
+            console.log(data);
             dataGrid.option('dataSource', data);
         }
     });
@@ -375,7 +379,6 @@ $(function () {
             mode: "single"
         },
     }).dxDataGrid('instance');
-    //galleryWidget.option("dataSource", gallery);
    
     function fnInsertLicense(dataGrid) {
         

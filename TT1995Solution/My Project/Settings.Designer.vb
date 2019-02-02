@@ -56,7 +56,7 @@ Namespace My
         
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("dev01")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("sa")>  _
         Public ReadOnly Property Username() As String
             Get
                 Return CType(Me("Username"),String)
@@ -74,7 +74,7 @@ Namespace My
         
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("tt1995.database.windows.net")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("ITLAP043\MSSQLSERVER1")>  _
         Public ReadOnly Property NameServer() As String
             Get
                 Return CType(Me("NameServer"),String)
