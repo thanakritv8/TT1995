@@ -8,6 +8,10 @@ var name = '';
 var idFK = '';
 var gbE;
 
+//ตัวแปรควบคุมการคลิก treeview
+var isFirstClick = false;
+var rowIndex = 0;
+
 //ตัวแปรเก็บรูปภาพ
 var gallery = [];
 var gallerySelect = 0;
@@ -112,7 +116,6 @@ $(function () {
                 var d = parseJsonDate(data[i].license_date);
                 data[i].license_date = d;
             }
-            console.log(data);
             dataGrid.option('dataSource', data);
         }
     });
@@ -161,7 +164,6 @@ $(function () {
                         var result = DevExpress.ui.dialog.confirm("Are you sure?", "Confirm delete");
                         result.done(function (dialogResult) {
                             if (dialogResult) {
-                                console.log(idFile);
                                 fnDeleteFiles(idFile);
                             }
                         });
@@ -262,8 +264,6 @@ $(function () {
                 });
                 //End get Files
 
-                console.log(itemData);
-                console.log(options.key.license_id);
                 //สร้าง id treeview
                 container.append($('<div id="treeview"></div>'));
                 //เก็บข้อมูล treeview ไว้ในตัวแปรชื่อ treeview
@@ -327,35 +327,45 @@ $(function () {
                 //จบการสร้าง treeview
             }
         },
-        //onSelectionChanged: function (e) {
-        //    e.component.collapseAll(-1);
-        //    e.component.expandRow(e.currentSelectedRowKeys[0]);
-        //    console.log(e.currentSelectedRowKeys[0]);
-        //    gbE = e;
-        //},
-        //onRowClick: function (e) {
-        //    e.component.collapseAll(-1);
-        //    dataGrid.clearSelection()
-        //    console.log(e);
-        //},
 
-        onRowClick: function (e) {
-            var component = e.component,
-                prevClickTime = component.lastClickTime;
-            component.lastClickTime = new Date();
-            if (prevClickTime && (component.lastClickTime - prevClickTime < 300)) {
-                if (idRowClick == e.key.license_id && cRowClick <= 1) {
-                    e.component.collapseAll(-1);
-                } else {
-                    cRowClick = 0;
-                    gbE = e;
-                    e.component.collapseAll(-1);
-                    e.component.expandRow(e.key);
-                    idRowClick = e.key.license_id;
-                }
-                cRowClick++;
-            }
+        onSelectionChanged: function (e) {
+            e.component.collapseAll(-1);
+            e.component.expandRow(e.currentSelectedRowKeys[0]);
+            gbE = e;
+            isFirstClick = false;
         },
+        onRowClick: function (e) {
+            
+            console.log(e);
+            if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && isFirstClick && rowIndex == e.rowIndex) {
+                dataGrid.clearSelection();
+            } else if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && !isFirstClick) {
+                isFirstClick = true;
+                rowIndex = e.rowIndex;
+            }
+            
+            //e.component.collapseAll(-1);
+            //dataGrid.clearSelection()
+            //console.log(e);
+        },
+
+        //onRowClick: function (e) {
+        //    var component = e.component,
+        //        prevClickTime = component.lastClickTime;
+        //    component.lastClickTime = new Date();
+        //    if (prevClickTime && (component.lastClickTime - prevClickTime < 300)) {
+        //        if (idRowClick == e.key.license_id && cRowClick <= 1) {
+        //            e.component.collapseAll(-1);
+        //        } else {
+        //            cRowClick = 0;
+        //            gbE = e;
+        //            e.component.collapseAll(-1);
+        //            e.component.expandRow(e.key);
+        //            idRowClick = e.key.license_id;
+        //        }
+        //        cRowClick++;
+        //    }
+        //},
         selection: {
             mode: "single"
         },
@@ -422,29 +432,31 @@ $(function () {
 
     //Function Insert file in treeview
     function fnInsertFiles(fileUpload) {
-        $.ajax({
-            type: "POST",
-            url: "../Home/InsertFile",
-            data: fileUpload,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (data) {
-                dataGrid.clearSelection()
-                gbE.component.collapseAll(-1);;
-                gbE.component.expandRow(gbE.key);
-                fileDataPic = new FormData();
-                document.getElementById("btnSave").disabled = false;
-                $("#mdNewFile").modal('hide');
-                if (data[0].Status == "1") {
-                } else {
-                    DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
-                }
-            },
-            error: function (error) {
-                DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
-            }
-        });
+        console.log(gbE);
+        console.log(gbE.currentSelectedRowKeys[0]);
+        //$.ajax({
+        //    type: "POST",
+        //    url: "../Home/InsertFile",
+        //    data: fileUpload,
+        //    dataType: 'json',
+        //    contentType: false,
+        //    processData: false,
+        //    success: function (data) {
+        //        dataGrid.clearSelection()
+        //        gbE.component.collapseAll(-1);;
+        //        gbE.component.expandRow(gbE.key);
+        //        fileDataPic = new FormData();
+        //        document.getElementById("btnSave").disabled = false;
+        //        $("#mdNewFile").modal('hide');
+        //        if (data[0].Status == "1") {
+        //        } else {
+        //            DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+        //        }
+        //    },
+        //    error: function (error) {
+        //        DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+        //    }
+        //});
     }
 
     //Function Delete file in treeview
