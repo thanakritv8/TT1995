@@ -20,15 +20,15 @@
     </style>
 </head>
 <body>
-    @*<nav class="navbar navbar-expand navbar-dark bg-custom static-top">
+    <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
         <a class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
         <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
             <i class="fas fa-bars" style="color:rgb(16,91,172)"></i>
         </button> 
-    </nav>*@
+    </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(0,79,162)">   @*rgb(34,139,34)*@
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)">   @*rgb(34,139,34)*@
             <li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>

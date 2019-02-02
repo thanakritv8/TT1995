@@ -4,6 +4,7 @@ var cRowClick = 0;
 var fileDataPdf;
 var fileDataPic;
 var idItem = '';
+var idFile;
 var name = '';
 var idFK = '';
 var gbE;
@@ -18,9 +19,13 @@ var gallerySelect = 0;
 
 //คลิกขวาโชว์รายการ
 var contextMenuItemsFolder = [
-        { text: 'New File' }
+    { text: 'New File' },
+    { text: 'New Folder' },
+    { text: 'Rename' },
+    { text: 'Delete' }
 ];
 var contextMenuItemsFile = [
+    { text: 'Rename' },
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
@@ -33,7 +38,37 @@ $(function () {
             fnInsertFiles(fileDataPic);
         }
     });
+    
     //จบการกำหนดปุ่ม
+    $("#btnNewFolder").dxButton({
+        onClick: function () {
+            document.getElementById("btnNewFolder").disabled = true;
+            var folderName = document.getElementById("lbNewFolder").value;
+            if (folderName != "") {
+                fileDataPic = new FormData();
+                fileDataPic.append('fk_id', idFK);
+                fileDataPic.append('parentDirId', idFile);
+                fileDataPic.append('newFolder', folderName);
+                fnInsertFiles(fileDataPic);
+            } else {
+                DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
+            }
+        }
+    });
+
+    $("#btnRename").click(function () {
+        document.getElementById("btnRename").disabled = true;
+        var folderName = document.getElementById("lbRename").value;
+        if (folderName != "") {
+            fileDataPic = new FormData();
+            fileDataPic.append('fk_id', idFK);
+            fileDataPic.append('file_id', idFile);
+            fileDataPic.append('rename', folderName);
+            fnRename(fileDataPic);
+        } else {
+            DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
+        }
+    });
 
     //กำหนดการแสดงรูปภาพที่มาจากการคลิกรูปภาพใน treeview
     var galleryWidget = $("#gallery").dxGallery({
@@ -137,7 +172,7 @@ $(function () {
                     fileDataPic.append('file', file);
                 });
                 fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('type', idFile);
+                fileDataPic.append('parentDirId', idFile);
             }
         },
     }).dxFileUploader('instance');
@@ -160,8 +195,16 @@ $(function () {
                             cf.option("allowedFileExtensions", [".jpg", ".jpeg", ".png"]);
                             cf.option("accept", "image/*");
                         }
+                        cf.reset();
                         $("#mdNewFile").modal();
-                    } else if (e.itemData.text == "Delete") {
+                    } else if (e.itemData.text == "New Folder") {
+                        //console.log(e.file_id);
+                        //document.getElementById('idNewFolder').innerHTML = idItem;
+                        $("#mdNewFolder").modal();
+                    } else if (e.itemData.text == "Rename") {
+                        $("#mdRename").modal();
+                    }
+                    else if (e.itemData.text == "Delete") {
                         var result = DevExpress.ui.dialog.confirm("Are you sure?", "Confirm delete");
                         result.done(function (dialogResult) {
                             if (dialogResult) {
@@ -175,9 +218,21 @@ $(function () {
     }
     //จบการกำหนดรายการคลิกขวา
 
+    //var galleryWidget;
+    //var popup = $("#popup").dxPopup({
+    //    visible: false,
+    //    width: "60%",
+    //    height: "80%",
+    //    contentTemplate: function (content) {
+    //        galleryWidget = $("<div>").appendTo(content).dxGallery({
+    //            loop: true,
+    //            showIndicator: true,
+    //        }).dxGallery("instance");
+    //    }
+    //}).dxPopup("instance");
+
     //ตัวแปร treeview ใช้เพื่อเอาไป update ข้อมูลใน treeview
     var treeview;
-
     //กำหนดการแสดงผลของ datagrid
     var dataGrid = $("#gridContainer").dxDataGrid({
         searchPanel: {
@@ -245,14 +300,16 @@ $(function () {
                 //เก็บข้อมูล treeview ไว้ในตัวแปรชื่อ treeview
                 treeview = $("#treeview").dxTreeView({
                     dataStructure: "plain",
-                    parentIdExpr: "type_file",
+                    parentIdExpr: "parentDirId",
                     keyExpr: "file_id",
                     displayExpr: "name_file",
                     height: "150px",
                     //คลิกโชว์รูปภาพแบบ Gallery
                     onItemClick: function (e) {
                         gallery = [];
+
                         var item = e.itemData;
+
                         if (item.path_file) {
                             itemData.forEach(function (itemFiles) {
                                 if (itemFiles.path_file && itemFiles.type_file == "pic" && itemFiles.fk_id == item.fk_id) {
@@ -269,7 +326,6 @@ $(function () {
                             if (item.type_file == "pic") {
                                 galleryWidget.option("dataSource", gallery);
                                 galleryWidget.option("selectedIndex", gallerySelect);
-
                                 $("#mdShowPic").modal();
                             } else {
                                 window.open(item.path_file, '_blank');
@@ -281,9 +337,10 @@ $(function () {
                         var item = e.itemData;
                         if (item.file_id) {
                             name = item.name_file
+                            var type_file = item.type_file
                             idFK = item.fk_id;
                             idFile = item.file_id;
-                            if (name == "PDF" || name == "PICTURE") {
+                            if (type_file == "folder") {
                                 OptionsMenu = contextMenuItemsFolder;
                             } else {
                                 OptionsMenu = contextMenuItemsFile;
@@ -296,7 +353,6 @@ $(function () {
                 fnChangeTreeview(options.key.license_id, itemData);
             }
         },
-
         onSelectionChanged: function (e) {
             e.component.collapseAll(-1);
             e.component.expandRow(e.currentSelectedRowKeys[0]);
@@ -304,7 +360,9 @@ $(function () {
             isFirstClick = false;
         },
         onRowClick: function (e) {
-            if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && isFirstClick && rowIndex == e.rowIndex) {
+            console.log(e);
+            console.log(gbE);
+            if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
                 dataGrid.clearSelection();
             } else if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && !isFirstClick) {
                 isFirstClick = true;
@@ -328,15 +386,10 @@ $(function () {
             async: false,
             success: function (data) {
                 data.push({
-                    "file_id": "pdf",
+                    "file_id": "root",
                     "fk_id": license_id,
-                    "name_file": "PDF",
-                    "icon": "../Img/folder.png"
-                });
-                data.push({
-                    "file_id": "pic",
-                    "fk_id": license_id,
-                    "name_file": "PICTURE",
+                    "name_file": "Root",
+                    "type_file": "folder",
                     "icon": "../Img/folder.png"
                 });
                 itemData = data;
@@ -348,6 +401,13 @@ $(function () {
 
     //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
     function fnChangeTreeview(license_id, itemData) {
+        var nItem = 0;
+        itemData.forEach(function (item) {
+            if (item.file_id == idFile) {
+                itemData[nItem].expanded = true;
+            }
+            nItem++;
+        })
         var dts = new DevExpress.data.DataSource({
             store: new DevExpress.data.ArrayStore({
                 key: "file_id",
@@ -360,7 +420,6 @@ $(function () {
 
     //Function Insert ข้อมูลทะเบียน
     function fnInsertLicense(dataGrid) {
-        
         $.ajax({
             type: "POST",
             url: "../Home/InsertLicense",
@@ -377,6 +436,7 @@ $(function () {
             }
         });
     }
+    
 
     //Function Update ข้อมูลทะเบียน
     function fnUpdateLicense(newData, keyItem) {
@@ -428,7 +488,8 @@ $(function () {
                 fileDataPic = new FormData();
                 document.getElementById("btnSave").disabled = false;
                 $("#mdNewFile").modal('hide');
-               
+                $("#mdNewFolder").modal('hide');
+                document.getElementById("lbNewFolder").value = '';
                 if (data[0].Status != '0') {
                     var itemData = fnGetFiles(data[0].Status);
                     fnChangeTreeview(data[0].Status, itemData);
@@ -437,9 +498,45 @@ $(function () {
                 }
             },
             error: function (error) {
+                $("#mdNewFile").modal('hide');
+                $("#mdNewFolder").modal('hide');
+                document.getElementById("lbNewFolder").value = '';
                 DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
             }
         });
+    }
+
+    //Function Rename file in treeview
+    function fnRename(fileUpload) {
+        
+            $.ajax({
+                type: "POST",
+                url: "../Home/fnRename",
+                data: fileUpload,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function (data) {
+
+                    if (data[0].Status != '0') {
+                        var itemData = fnGetFiles(data[0].Status);
+                        fnChangeTreeview(data[0].Status, itemData);
+                        
+                    } else {
+                        DevExpress.ui.notify("ไม่สามารถแก้ไขได้", "error");
+                    }
+                    document.getElementById('lbRename').value = '';
+                    $('#mdRename').modal('hide');
+                    document.getElementById("btnRename").disabled = false;
+                },
+                error: function (error) {
+                    DevExpress.ui.notify(error, "error");
+                }
+            });
+        //} else {
+        //    $('#mdNewFolder').modal('hide');
+        //    alert("กรุณากรอกข้อมูลให้ครบ");
+        //}
     }
 
     //Function Delete file in treeview
@@ -452,9 +549,11 @@ $(function () {
             data: "{keyId: '" + file_id + "'}",
             dataType: 'json',
             success: function (data) {
-                if (data[0].Status == 1) {
-                    gbE.component.collapseAll(-1);
-                    gbE.component.expandRow(gbE.key);
+                if (data[0].Status != '0') {
+                    var itemData = fnGetFiles(data[0].Status);
+                    fnChangeTreeview(data[0].Status, itemData);
+                    DevExpress.ui.notify("ลบไฟล์เรียบร้อยแล้ว", "success");
+                } else {
                     DevExpress.ui.notify("ลบไฟล์เรียบร้อยแล้ว", "error");
                 }
             },
