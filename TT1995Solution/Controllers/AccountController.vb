@@ -22,7 +22,7 @@ Namespace Controllers
 
         Function Logout() As ActionResult
             Session.Abandon()
-            Return View("../Account/Login")
+            Return View("../Home/Index")
         End Function
 
         Public Function EncryptSHA256Managed(ByVal StrInput As String) As String
@@ -41,6 +41,7 @@ Namespace Controllers
             If DtAccount.Rows.Count > 0 Then
                 Session("StatusLogin") = "1"
                 Session("UserId") = DtAccount.Rows(0)("user_id")
+                Session("GroupId") = DtAccount.Rows(0)("group_id")
             Else
                 Session("StatusLogin") = "0"
             End If

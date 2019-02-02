@@ -49,6 +49,7 @@ $(function () {
         type: "POST",
         url: "../Home/GetColumnChooser",
         contentType: "application/json; charset=utf-8",
+        data: "{table_id: 1}",
         dataType: "json",
         success: function (data) {
             var ndata = 0;
@@ -398,7 +399,6 @@ $(function () {
 
     //Function Delete ข้อมูลทะเบียน
     function fnDeleteLicense(keyItem) {
-        console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLicense",
@@ -409,7 +409,7 @@ $(function () {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
                 } else {
-                    DevExpress.ui.notify("ไม่สามารถข้อมูลได้", "error");
+                    DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
                 }
             }
         });

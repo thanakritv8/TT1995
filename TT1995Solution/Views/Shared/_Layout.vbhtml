@@ -39,6 +39,18 @@
                     <a Then Class="dropdown-item" href="#">ภาษี</a>
                     <a Class="dropdown-item" href="#">บันทึกเจ้าหน้าที่</a>
                 </div>
+                @if Session("GroupId") = "1" Then
+                @<a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light"> Administrator</span>
+                </a>
+                @<div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="#">Group</a>
+                    <a Then Class="dropdown-item" href="#">Account</a>
+                    <a Then Class="dropdown-item" href="#">Premission</a>
+                    <a Then Class="dropdown-item" href="../Manage/Lookup">Manage Lookup</a>
+                </div>
+                End If
             </li>
             <li Class="nav-item">
                 <a Class="nav-link" href="../Account/Logout">
