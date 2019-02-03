@@ -18,6 +18,10 @@ var gallery = [];
 var gallerySelect = 0;
 
 //คลิกขวาโชว์รายการ
+var contextMenuItemsRoot = [
+    { text: 'New File' },
+    { text: 'New Folder' },
+];
 var contextMenuItemsFolder = [
     { text: 'New File' },
     { text: 'New Folder' },
@@ -309,10 +313,10 @@ $(function () {
                         gallery = [];
 
                         var item = e.itemData;
-
+                        console.log(e);
                         if (item.path_file) {
                             itemData.forEach(function (itemFiles) {
-                                if (itemFiles.path_file && itemFiles.type_file == "pic" && itemFiles.fk_id == item.fk_id) {
+                                if (itemFiles.path_file && itemFiles.type_file == "pic" && itemFiles.parentDirId == item.parentDirId && itemFiles.fk_id == item.fk_id) {
                                     gallery.push(itemFiles.path_file);
                                 }
                             });
@@ -340,7 +344,9 @@ $(function () {
                             var type_file = item.type_file
                             idFK = item.fk_id;
                             idFile = item.file_id;
-                            if (type_file == "folder") {
+                            if (name == "Root") {
+                                OptionsMenu = contextMenuItemsRoot;
+                            }else if (type_file == "folder") {
                                 OptionsMenu = contextMenuItemsFolder;
                             } else {
                                 OptionsMenu = contextMenuItemsFile;
@@ -360,8 +366,6 @@ $(function () {
             isFirstClick = false;
         },
         onRowClick: function (e) {
-            console.log(e);
-            console.log(gbE);
             if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
                 dataGrid.clearSelection();
             } else if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && !isFirstClick) {
@@ -541,7 +545,6 @@ $(function () {
 
     //Function Delete file in treeview
     function fnDeleteFiles(file_id) {
-        console.log(file_id);
         $.ajax({
             type: "POST",
             url: "../Home/DeleteFile",
