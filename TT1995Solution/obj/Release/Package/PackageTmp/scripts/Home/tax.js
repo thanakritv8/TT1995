@@ -42,7 +42,7 @@ $(function () {
             fnInsertFiles(fileDataPic);
         }
     });
-    
+
     //จบการกำหนดปุ่ม
     $("#btnNewFolder").dxButton({
         onClick: function () {
@@ -75,14 +75,6 @@ $(function () {
     });
 
     //กำหนดการแสดงรูปภาพที่มาจากการคลิกรูปภาพใน treeview
-    //var galleryWidget = $("#gallery").dxGallery({
-    //    dataSource: gallery,
-    //    loop: true,
-    //    showIndicator: true,
-    //    selectedIndex: gallerySelect
-    //}).dxGallery("instance");
-
-    //กำหนดการแสดงรูปภาพที่มาจากการคลิกรูปภาพใน treeview
     var galleryWidget = $("<div>").dxGallery({
     }).dxGallery("instance");
     //จบการกำหนดการแสดงรูปภาพ
@@ -112,12 +104,12 @@ $(function () {
         type: "POST",
         url: "../Home/GetColumnChooser",
         contentType: "application/json; charset=utf-8",
-        data: "{table_id: 1}",
+        data: "{table_id: 3}",
         dataType: "json",
         success: function (data) {
             var ndata = 0;
             data.forEach(function (item) {
-                
+
                 //โชว์ Dropdown หน้าเพิ่มและแก้ไข
                 if (item.status_lookup != "0") {
                     var dataLookup;
@@ -140,7 +132,7 @@ $(function () {
                 }
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
-                
+
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
                     if (item.dataField == "number_car") {
@@ -152,7 +144,7 @@ $(function () {
                                 disabled: false
                             },
                         });
-                    }else {
+                    } else {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
@@ -162,9 +154,12 @@ $(function () {
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
-            
+            console.log(data);
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
+        },
+        error: function (error) {
+            console.log(error);
         }
     });
     //จบการกำหนด Column
@@ -172,7 +167,7 @@ $(function () {
     //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
     $.ajax({
         type: "POST",
-        url: "../Home/GetLicense",
+        url: "../Home/GetTax",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -219,8 +214,6 @@ $(function () {
                         cf.reset();
                         $("#mdNewFile").modal();
                     } else if (e.itemData.text == "New Folder") {
-                        //console.log(e.file_id);
-                        //document.getElementById('idNewFolder').innerHTML = idItem;
                         $("#mdNewFolder").modal();
                     } else if (e.itemData.text == "Rename") {
                         $("#mdRename").modal();
@@ -269,10 +262,10 @@ $(function () {
             allowAdding: true,
             form: {
                 items: itemEditing,
-                colCount: 6,                
+                colCount: 4,
             },
             popup: {
-                title: "รายการจดทะเบียน",
+                title: "รายการภาษี",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
@@ -291,13 +284,13 @@ $(function () {
             visible: true
         },
         onRowUpdating: function (e) {
-            fnUpdateLicense(e.newData, e.key.license_id);
+            fnUpdateTax(e.newData, e.key.license_id);
         },
         onRowInserting: function (e) {
-            fnInsertLicense(e.data);
+            fnInsertTax(e.data);
         },
         onRowRemoving: function (e) {
-            fnDeleteLicense(e.key.license_id);
+            fnDeleteTax(e.key.license_id);
         },
         masterDetail: {
             enabled: false,
@@ -315,7 +308,6 @@ $(function () {
                     //คลิกโชว์รูปภาพแบบ Gallery
                     onItemClick: function (e) {
                         gallery = [];
-                        itemData = fnGetFiles(options.key.license_id);
                         var item = e.itemData;
                         console.log(e);
                         if (item.path_file) {
@@ -332,11 +324,9 @@ $(function () {
                                 nGallery++;
                             });
                             if (item.type_file == "pic") {
-                                console.log(itemData);
                                 galleryWidget.option("dataSource", gallery);
                                 galleryWidget.option("selectedIndex", gallerySelect);
                                 $("#popup").dxPopup("show");
-                                //$("#mdShowPic").modal();
                             } else {
                                 window.open(item.path_file, '_blank');
                             }
@@ -352,7 +342,7 @@ $(function () {
                             idFile = item.file_id;
                             if (name == "Root") {
                                 OptionsMenu = contextMenuItemsRoot;
-                            }else if (type_file == "folder") {
+                            } else if (type_file == "folder") {
                                 OptionsMenu = contextMenuItemsFolder;
                             } else {
                                 OptionsMenu = contextMenuItemsFile;
@@ -384,7 +374,7 @@ $(function () {
         },
     }).dxDataGrid('instance');
     //จบการกำหนด dataGrid
-   
+
     //Get Files from controller Home/GetFiles
     function fnGetFiles(license_id) {
         var itemData;
@@ -405,7 +395,6 @@ $(function () {
                 itemData = data;
             }
         });
-        
         return itemData;
     }
     //End get Files
@@ -430,37 +419,38 @@ $(function () {
     }
 
     //Function Insert ข้อมูลทะเบียน
-    function fnInsertLicense(dataGrid) {
+    function fnInsertTax(dataGrid) {
+        console.log(dataGrid);
         $.ajax({
             type: "POST",
-            url: "../Home/InsertLicense",
+            url: "../Home/InsertTax",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
             async: false,
             success: function (data) {
                 if (data[0].Status == "1") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("เพิ่มข้อมูลภาษีเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
             }
         });
     }
-    
+
 
     //Function Update ข้อมูลทะเบียน
-    function fnUpdateLicense(newData, keyItem) {
+    function fnUpdateTax(newData, keyItem) {
         newData.key = keyItem;
         $.ajax({
             type: "POST",
-            url: "../Home/UpdateLicense",
+            url: "../Home/UpdateTax",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("แก้ไขข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("แก้ไขข้อมูลภาษีเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
                 }
@@ -469,10 +459,10 @@ $(function () {
     }
 
     //Function Delete ข้อมูลทะเบียน
-    function fnDeleteLicense(keyItem) {
+    function fnDeleteTax(keyItem) {
         $.ajax({
             type: "POST",
-            url: "../Home/DeleteLicense",
+            url: "../Home/DeleteTax",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
@@ -490,7 +480,7 @@ $(function () {
     function fnInsertFiles(fileUpload) {
         $.ajax({
             type: "POST",
-            url: "../Home/InsertFileLicense",
+            url: "../Home/InsertFileTax",
             data: fileUpload,
             dataType: 'json',
             contentType: false,
@@ -519,42 +509,38 @@ $(function () {
 
     //Function Rename file in treeview
     function fnRename(fileUpload) {
-        
-            $.ajax({
-                type: "POST",
-                url: "../Home/fnRenameLicense",
-                data: fileUpload,
-                dataType: "json",
-                contentType: false,
-                processData: false,
-                success: function (data) {
 
-                    if (data[0].Status != '0') {
-                        var itemData = fnGetFiles(data[0].Status);
-                        fnChangeTreeview(data[0].Status, itemData);
-                        
-                    } else {
-                        DevExpress.ui.notify("ไม่สามารถแก้ไขได้", "error");
-                    }
-                    document.getElementById('lbRename').value = '';
-                    $('#mdRename').modal('hide');
-                    document.getElementById("btnRename").disabled = false;
-                },
-                error: function (error) {
-                    DevExpress.ui.notify(error, "error");
+        $.ajax({
+            type: "POST",
+            url: "../Home/fnRenameTax",
+            data: fileUpload,
+            dataType: "json",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+
+                if (data[0].Status != '0') {
+                    var itemData = fnGetFiles(data[0].Status);
+                    fnChangeTreeview(data[0].Status, itemData);
+
+                } else {
+                    DevExpress.ui.notify("ไม่สามารถแก้ไขได้", "error");
                 }
-            });
-        //} else {
-        //    $('#mdNewFolder').modal('hide');
-        //    alert("กรุณากรอกข้อมูลให้ครบ");
-        //}
+                document.getElementById('lbRename').value = '';
+                $('#mdRename').modal('hide');
+                document.getElementById("btnRename").disabled = false;
+            },
+            error: function (error) {
+                DevExpress.ui.notify(error, "error");
+            }
+        });
     }
 
     //Function Delete file in treeview
     function fnDeleteFiles(file_id) {
         $.ajax({
             type: "POST",
-            url: "../Home/DeleteFileLicense",
+            url: "../Home/DeleteFileTax",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + file_id + "'}",
             dataType: 'json',
@@ -577,11 +563,4 @@ $(function () {
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
-
-    //Function Open Pdf
-    //function pre_pdf(path_file) {
-    //    $('#pre_pdf').attr('href', path_file);
-    //    $('#pre_pdf').EZView();
-    //    $('#pre_pdf').click();
-    //}
 });

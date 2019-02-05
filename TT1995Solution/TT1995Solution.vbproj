@@ -150,6 +150,7 @@
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\license.js" />
+    <Content Include="scripts\Home\tax.js" />
     <Content Include="scripts\Manage\lookup.js" />
     <Content Include="scripts\sb-admin.min.js" />
     <Content Include="Web.config">
@@ -220,6 +221,8 @@
     <Content Include="Views\Home\Index.vbhtml" />
     <Content Include="Views\Account\Login.vbhtml" />
     <Content Include="Views\Manage\Lookup.vbhtml" />
+    <Content Include="Views\Home\Tax.vbhtml" />
+    <Content Include="Views\Home\OfficerRecords.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

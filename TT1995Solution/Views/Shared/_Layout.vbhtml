@@ -36,9 +36,12 @@
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
-                    <a Then Class="dropdown-item" href="#">ภาษี</a>
+                    @*<a Then Class="dropdown-item" href="#">ภาษี</a>*@
+                    <a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>
                     <a Class="dropdown-item" href="#">บันทึกเจ้าหน้าที่</a>
-                </div>
+                </div>                
+            </li>
+            <li Class="nav-item dropdown">                
                 @if Session("GroupId") = "1" Then
                 @<a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>

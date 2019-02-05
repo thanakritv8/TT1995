@@ -1,5 +1,5 @@
 ﻿@Code
-    ViewData("Title") = "License"
+    ViewData("Title") = "Tax"
 End Code
 <style>
     .custom-file {
@@ -15,19 +15,6 @@ End Code
     <div id="popup"></div>
 </div>
 
-@*<div id="popup"></div>*@
-@*<div class="modal" id="mdShowPic">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div id="gallery"></div>
-            </div>
-            
-        </div>
-    </div>
-</div>*@
-
-<!--New File-->
 <div class="modal" id="mdNewFile">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -108,5 +95,5 @@ End Code
     </div>
 </div>
 
-<script src="~/scripts/Home/license.js"></script>
+<script src="~/scripts/Home/tax.js"></script>
 
