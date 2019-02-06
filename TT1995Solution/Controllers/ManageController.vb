@@ -8,7 +8,11 @@ Namespace Controllers
 
         ' GET: Manage
         Function Lookup() As ActionResult
-            Return View()
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
         End Function
 
 #Region "Config Lookup"

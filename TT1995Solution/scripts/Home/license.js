@@ -53,6 +53,7 @@ $(function () {
                 fileDataPic.append('fk_id', idFK);
                 fileDataPic.append('parentDirId', idFile);
                 fileDataPic.append('newFolder', folderName);
+                fileDataPic.append('table_id', 1);
                 fnInsertFiles(fileDataPic);
             } else {
                 DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
@@ -68,6 +69,7 @@ $(function () {
             fileDataPic.append('fk_id', idFK);
             fileDataPic.append('file_id', idFile);
             fileDataPic.append('rename', folderName);
+            fileDataPic.append('table_id', 1);
             fnRename(fileDataPic);
         } else {
             DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
@@ -110,7 +112,7 @@ $(function () {
     //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
     $.ajax({
         type: "POST",
-        url: "../Home/GetColumnChooser",
+        url: "../Home/GetColumnChooserLicense",
         contentType: "application/json; charset=utf-8",
         data: "{table_id: 1}",
         dataType: "json",
@@ -200,6 +202,7 @@ $(function () {
                     fileDataPic.append('file', file);
                 });
                 fileDataPic.append('fk_id', idFK);
+                fileDataPic.append('table_id', 1);
                 fileDataPic.append('parentDirId', idFile);
             }
         },
@@ -393,6 +396,7 @@ $(function () {
             url: "../Home/GetFiles",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            data: "{table_id: 1}",
             async: false,
             success: function (data) {
                 data.push({
