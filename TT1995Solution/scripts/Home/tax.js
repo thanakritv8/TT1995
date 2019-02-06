@@ -92,7 +92,19 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            console.log(e);
+            if (typeof (e.key.tax_id) === "undefined") {
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLastTax",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{license_id: " + e.key.license_id + "}",
+                    async: false,
+                    success: function (data) {
+                        e.key.tax_id = data[0].tax_id;
+                    }
+                });
+            }
             fnUpdateTax(e.newData, e.key.tax_id);
         },
         onRowInserting: function (e) {
@@ -111,6 +123,19 @@ $(function () {
             fnInsertTax(e.data);
         },
         onRowRemoving: function (e) {
+            if (typeof (e.key.tax_id) === "undefined") {
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLastTax",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{license_id: " + e.key.license_id + "}",
+                    async: false,
+                    success: function (data) {
+                        e.key.tax_id = data[0].tax_id;
+                    }
+                });
+            }
             fnDeleteTax(e.key.tax_id);
         },
         masterDetail: {

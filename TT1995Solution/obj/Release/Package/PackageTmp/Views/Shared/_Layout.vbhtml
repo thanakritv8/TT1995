@@ -37,7 +37,7 @@
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
                     <a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>
-                    <a Class="dropdown-item" href="#">บันทึกเจ้าหน้าที่</a>
+                    <a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>
                 </div>                
             </li>
             <li Class="nav-item dropdown">
