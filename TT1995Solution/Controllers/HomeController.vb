@@ -255,18 +255,25 @@ Namespace Controllers
                 End If
 
                 Dim ArrPath() As String = _Path.Split("/")
-                Dim PathNew As String = String.Empty
-                For i As Integer = 0 To ArrPath.Length - 2
-                    If i = ArrPath.Length - 2 Then
-                        PathNew &= ArrPath(i) & "/" & NewNameFull
-                    Else
-                        PathNew &= ArrPath(i) & "/"
-                    End If
-                Next
+                Dim PathOld As String = ("../Files/License/Root/" & fk_id & "/" & _Path)
+                Dim PathNew As String = ("../Files/License/Root/" & fk_id & "/")
+                If ArrPath.Length > 1 Then
+                    For i As Integer = 0 To ArrPath.Length - 2
+                        If i = ArrPath.Length - 2 Then
+                            PathNew &= ArrPath(i) & "/" & NewNameFull
+                        Else
+                            PathNew &= ArrPath(i) & "/"
+                        End If
+                    Next
+                Else
+                    'For child Root
+                    PathNew = ("../Files/License/Root/" & fk_id & "/" & NewNameFull)
+                End If
+
 
                 Dim _SQL As String = "Update files_all Set name_file = N'" & NewNameFull & "', expanded = 1 WHERE file_id = '" & file_id & "'"
                 If objDB.ExecuteSQL(_SQL, cn) Then
-                    _SQL = "Update files_all SET path_file = REPLACE(path_file,N'" & _Path & "', N'" & PathNew & "') WHERE path_file like N'%" & _Path & "%'"
+                    _SQL = "Update files_all SET path_file = REPLACE(path_file,N'" & PathOld & "', N'" & PathNew & "') WHERE path_file like N'%" & PathOld & "%'"
                     objDB.ExecuteSQL(_SQL, cn)
                     DtJson.Rows.Add(fk_id)
                 Else
@@ -347,9 +354,9 @@ Namespace Controllers
         Public Function GetColumnChooserTax(ByVal table_id As Integer) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
-            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            Dim DtTax As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtTax.Rows Select DtTax.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetTax() As String
@@ -519,18 +526,25 @@ Namespace Controllers
                 End If
 
                 Dim ArrPath() As String = _Path.Split("/")
-                Dim PathNew As String = String.Empty
-                For i As Integer = 0 To ArrPath.Length - 2
-                    If i = ArrPath.Length - 2 Then
-                        PathNew &= ArrPath(i) & "/" & NewNameFull
-                    Else
-                        PathNew &= ArrPath(i) & "/"
-                    End If
-                Next
+                Dim PathOld As String = ("../Files/Tax/Root/" & fk_id & "/" & _Path)
+                Dim PathNew As String = ("../Files/Tax/Root/" & fk_id & "/")
+                If ArrPath.Length > 1 Then
+                    For i As Integer = 0 To ArrPath.Length - 2
+                        If i = ArrPath.Length - 2 Then
+                            PathNew &= ArrPath(i) & "/" & NewNameFull
+                        Else
+                            PathNew &= ArrPath(i) & "/"
+                        End If
+                    Next
+                Else
+                    'For child Root
+                    PathNew = ("../Files/Tax/Root/" & fk_id & "/" & NewNameFull)
+                End If
+
 
                 Dim _SQL As String = "Update files_all Set name_file = N'" & NewNameFull & "', expanded = 1 WHERE file_id = '" & file_id & "'"
                 If objDB.ExecuteSQL(_SQL, cn) Then
-                    _SQL = "Update files_all SET path_file = REPLACE(path_file,N'" & _Path & "', N'" & PathNew & "') WHERE path_file like N'%" & _Path & "%'"
+                    _SQL = "Update files_all SET path_file = REPLACE(path_file,N'" & PathOld & "', N'" & PathNew & "') WHERE path_file like N'%" & PathOld & "%'"
                     objDB.ExecuteSQL(_SQL, cn)
                     DtJson.Rows.Add(fk_id)
                 Else
@@ -607,6 +621,266 @@ Namespace Controllers
                 Return View("../Account/Login")
             End If
         End Function
+
+        Public Function GetColumnChooserOR(ByVal table_id As Integer) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetOR() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT o.or_list, o.or_id,o.registrar,o.record_date,l.number_car, l.license_car, l.license_id FROM officer_records as o join license as l on o.license_id = l.license_id"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateOR(ByVal or_id As String, ByVal registrar As String, ByVal record_date As String, ByVal or_list As String) As String
+
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [officer_records] SET "
+            Dim StrTbTax() As String = {"registrar", "record_date", "or_list"}
+            Dim TbTax() As Object = {registrar, record_date, or_list}
+            For n As Integer = 0 To TbTax.Length - 1
+                If Not TbTax(n) Is Nothing Then
+                    _SQL &= StrTbTax(n) & "=N'" & TbTax(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE or_id = " & or_id
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertOR(ByVal license_id As String, ByVal record_date As DateTime, ByVal registrar As String, ByVal or_list As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO officer_records (license_id, registrar, record_date, or_list, create_by_user_id, create_date) VALUES "
+            _SQL &= "('" & license_id & "', N'" & registrar & "', '" & record_date & "', N'" & or_list & "', '" & Session("UserId") & "', GETDATE())"
+            If Not license_id Is Nothing Then
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileOR() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim parentDirId As String = String.Empty
+                Dim newFolder As String = String.Empty
+                Dim table_id As String = String.Empty
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "parentDirId" Then
+                            parentDirId = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "newFolder" Then
+                            newFolder = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "table_id" Then
+                            table_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count = 0 Then
+                        Dim _Path As String = fnGetPath(parentDirId)
+                        Dim pathServer As String = Server.MapPath("~/Files/Officer_Records/Root/" & fk_id & "/" & IIf(_Path = String.Empty, String.Empty, _Path & "/") & newFolder)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim _SQL As String = "INSERT INTO [files_all] ([fk_id],[table_id],[name_file],[type_file],[path_file],[parentDirId],[icon],[create_by_user_id]) VALUES (" & fk_id & "," & table_id & ",N'" & newFolder & "','folder',N'','" & parentDirId & "','../Img/folder.png'," & Session("UserId") & ")"
+                        objDB.ExecuteSQL(_SQL, cn)
+                    Else
+                        'Create File
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            Dim _Path As String = fnGetPath(parentDirId)
+                            Dim PathFile As String = "/Files/Officer_Records/Root/" & fk_id & "/" & IIf(_Path = String.Empty, String.Empty, _Path & "/") & file.FileName
+                            Dim type_file As String = Path.GetExtension(PathFile)
+                            Dim pathServer As String = Server.MapPath("~" & PathFile)
+                            Dim name_icon As String = String.Empty
+
+                            Dim pathCheckId = Server.MapPath("~/Files/Officer_Records/Root/" & fk_id)
+                            If (Not System.IO.Directory.Exists(pathCheckId)) Then
+                                System.IO.Directory.CreateDirectory(pathCheckId)
+                            End If
+
+                            If type_file = ".pdf" Then
+                                name_icon = "pdf"
+                            Else
+                                name_icon = "pic"
+                            End If
+                            file.SaveAs(pathServer)
+                            Dim _SQL As String = "INSERT INTO [files_all] ([fk_id], [table_id], [name_file], [type_file], [path_file], [parentDirId], [icon], [create_by_user_id]) VALUES (" & fk_id & "," & table_id & ", N'" & file.FileName & "','" & name_icon & "',N'.." & PathFile & "','" & parentDirId & "','../Img/" & name_icon & ".png'," & Session("UserId") & ")"
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+                    End If
+
+                    objDB.DisconnectDB(cn)
+                    DtJson.Rows.Add(fk_id)
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function fnRenameOR() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim dtStatus As DataTable = New DataTable
+                Dim file_id As String = String.Empty
+                Dim NewName As String = String.Empty
+                Dim fk_id As String = String.Empty
+
+                dtStatus.Columns.Add("Status")
+                Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                cn.Open()
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "file_id" Then
+                            file_id = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "rename" Then
+                            NewName = Request.Form(i)
+                        End If
+                    Next
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+                Dim _Path As String = fnGetPath(file_id)
+                Dim PathServer As String = Server.MapPath("~/Files/Officer_Records/Root/" & fk_id & "/" & _Path)
+                Try
+                    If Directory.Exists(PathServer) Then
+                        FileIO.FileSystem.RenameDirectory(PathServer, NewName)
+                    Else
+                        If System.IO.File.Exists(PathServer) Then
+                            FileIO.FileSystem.RenameFile(PathServer, NewName & Path.GetExtension(_Path))
+                        End If
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+                Dim LastNameFile As String = Path.GetExtension(_Path)
+                Dim NewNameFull As String = String.Empty
+
+                If LastNameFile = ".pdf" Or LastNameFile = ".png" Or LastNameFile = ".jpg" Then
+                    NewNameFull = NewName & LastNameFile
+                Else
+                    NewNameFull = NewName
+                End If
+
+                Dim ArrPath() As String = _Path.Split("/")
+                Dim PathOld As String = ("../Files/Officer_Records/Root/" & fk_id & "/" & _Path)
+                Dim PathNew As String = ("../Files/Officer_Records/Root/" & fk_id & "/")
+                If ArrPath.Length > 1 Then
+                    For i As Integer = 0 To ArrPath.Length - 2
+                        If i = ArrPath.Length - 2 Then
+                            PathNew &= ArrPath(i) & "/" & NewNameFull
+                        Else
+                            PathNew &= ArrPath(i) & "/"
+                        End If
+                    Next
+                Else
+                    'For child Root
+                    PathNew = ("../Files/Officer_Records/Root/" & fk_id & "/" & NewNameFull)
+                End If
+
+
+                Dim _SQL As String = "Update files_all Set name_file = N'" & NewNameFull & "', expanded = 1 WHERE file_id = '" & file_id & "'"
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    _SQL = "Update files_all SET path_file = REPLACE(path_file,N'" & PathOld & "', N'" & PathNew & "') WHERE path_file like N'%" & PathOld & "%'"
+                    objDB.ExecuteSQL(_SQL, cn)
+                    DtJson.Rows.Add(fk_id)
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteOR(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE officer_records WHERE or_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteFileOR(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "SELECT * FROM files_all WHERE file_id = " & keyId
+            Dim dtFKId As DataTable = objDB.SelectSQL(_SQL, cn)
+            If dtFKId.Rows.Count > 0 Then
+                Dim Path As String = fnGetPath(keyId)
+                Path = "/Files/Officer_Records/Root/" & dtFKId.Rows(0)("fk_id") & "/" & Path
+                Dim PathServer As String = Server.MapPath("~" & Path)
+                If System.IO.File.Exists(PathServer) = True Then
+                    System.IO.File.Delete(PathServer)
+                Else
+                    Directory.Delete(PathServer, True)
+                End If
+                _SQL = "SELECT file_id FROM files_all where file_id = '" & keyId & "'"
+                Dim dtId As DataTable = objDB.SelectSQL(_SQL, cn)
+                While dtId.Rows.Count > 0
+                    Dim id As String = String.Empty
+                    For i As Integer = 0 To dtId.Rows.Count - 1
+                        If i = dtId.Rows.Count - 1 Then
+                            id &= "'" & dtId.Rows(i)("file_id") & "'"
+                        Else
+                            id &= "'" & dtId.Rows(i)("file_id") & "',"
+                        End If
+                    Next
+                    _SQL = "SELECT file_id FROM files_all where parentDirId in (" & id & ")"
+                    dtId = objDB.SelectSQL(_SQL, cn)
+                    _SQL = "DELETE files_all WHERE file_id in (" & id & ")"
+                    objDB.ExecuteSQL(_SQL, cn)
+                End While
+                DtJson.Rows.Add(dtFKId.Rows(0)("fk_id"))
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 #End Region
 
 #Region "Lookup"
@@ -652,9 +926,17 @@ Namespace Controllers
         Public Function GetNumberCar() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "SELECT DISTINCT(number_car) as number_car, license_id FROM license"
-            Dim DtFiles As DataTable = objDB.SelectSQL(_SQL, cn)
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtFiles.Rows Select DtFiles.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetLicenseCar(ByVal license_id As Integer) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT license_car FROM license WHERE license_id = " & license_id
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
 #End Region

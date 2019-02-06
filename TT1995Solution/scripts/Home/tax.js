@@ -96,6 +96,18 @@ $(function () {
             fnUpdateTax(e.newData, e.key.tax_id);
         },
         onRowInserting: function (e) {
+            $.ajax({
+                type: "POST",
+                url: "../Home/GetLicenseCar",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: "{license_id: " + e.data.license_id + "}",
+                async: false,
+                success: function (data) {
+                    e.data.license_car = data[0].license_car;
+                }
+            });
+            //console.log(e.data);
             fnInsertTax(e.data);
         },
         onRowRemoving: function (e) {
@@ -444,6 +456,9 @@ $(function () {
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
+            },
+            error: function (error) {
+                DevExpress.ui.notify("กรุณาตรวจสอบข้อมูล", "error");
             }
         });
     }

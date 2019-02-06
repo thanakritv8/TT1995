@@ -150,6 +150,7 @@
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\license.js" />
+    <Content Include="scripts\Home\officer_records.js" />
     <Content Include="scripts\Home\tax.js" />
     <Content Include="scripts\Manage\lookup.js" />
     <Content Include="scripts\sb-admin.min.js" />

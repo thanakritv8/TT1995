@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
         <a class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
         <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-            <i class="fas fa-bars" style="color:rgb(16,91,172)"></i>
+            <i class="fas fa-bars" style="color:rgb(16,91,172)"></i>   @*16,91,172*@
         </button> 
     </nav>
     <div id="wrapper">
@@ -36,13 +36,34 @@
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
-                    <a Then Class="dropdown-item" href="#">ภาษี</a>
-                    @*<a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>*@
+                    <a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>
                     <a Class="dropdown-item" href="#">บันทึกเจ้าหน้าที่</a>
                 </div>                
             </li>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light"> ประกอบการ</span>
+                </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="#">ภายในประเทศ</a>
+                    <a Then Class="dropdown-item" href="#">ภายนอกประเทศ</a>
+                </div>                
+            </li>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light"> ใบอนุญาต</span>
+                </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="#">กัมพูชา</a>
+                    <a Then Class="dropdown-item" href="#">ลุ่มน้ำโขง</a>
+                    <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
+                    <a Then Class="dropdown-item" href="#">วัตถุอันตราย(วอ.8)</a>
+                </div>                
+            </li>
             <li Class="nav-item dropdown">                
-                @if Session("GroupId") = "9999" Then
+                @if Session("GroupId") = "1" Then
                 @<a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light"> Administrator</span>

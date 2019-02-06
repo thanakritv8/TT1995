@@ -1,13 +1,11 @@
 ﻿var dataColumn = [
-    { dataField: "name_table", caption: "ตาราง", dataType: "string", width: "30%" },
-    { dataField: "name_column", caption: "คอลัมน์", dataType: "string", width: "30%" },
-    { dataField: "data_list", caption: "รายการ", dataType: "string", width: "30%" },
+    { dataField: "table_id", caption: "ตาราง", dataType: "string", width: "30%" },
+    { dataField: "column_id", caption: "คอลัมน์", dataType: "string", width: "30%" },
+    { dataField: "data_list", caption: "รายการ", dataType: "string", width: "30%" }
 ];
 $(function () {
-
-    
-
     var dataGrid = $("#gridContainer").dxDataGrid({
+        column: dataColumn,
         searchPanel: {
             visible: true,
             width: 240,
@@ -33,10 +31,10 @@ $(function () {
             enabled: true,
             fileName: "License",
         },
-        filterRow: {
-            visible: true,
-            applyFilter: "auto"
-        },
+        //filterRow: {
+        //    visible: true,
+        //    applyFilter: "auto"
+        //},
         headerFilter: {
             visible: true
         },
@@ -44,20 +42,21 @@ $(function () {
             fnInsertLookup(e.data);
         },
         onRowRemoving: function (e) {
-            fnDeleteLookup(e.key.license_id);
+            console.log(e);
+            fnDeleteLookup(e.key.lookup_id);
         },
         selection: {
             mode: "single"
         },
     }).dxDataGrid('instance');
 
-    GetColumn();
     function GetColumn() {
         $.ajax({
             type: "POST",
             url: "../Manage/GetTable",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            async: false,
             success: function (data) {
                 dataColumn[0].setCellValue = function (rowData, value) {
                     rowData.table_id = value;
@@ -66,9 +65,8 @@ $(function () {
                 dataColumn[0].lookup = {
                     dataSource: data,
                     valueExpr: "table_id",
-                    displayExpr: "name_table"
+                    displayExpr: "display"
                 }
-                
             }
         });
 
@@ -77,6 +75,7 @@ $(function () {
             url: "../Manage/GetColumn",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            async: false,
             success: function (data) {
                 dataColumn[1].lookup = {
                     dataSource: function (options) {
@@ -86,16 +85,13 @@ $(function () {
                         };
                     },
                     valueExpr: "column_id",
-                    displayExpr: "name_column"
+                    displayExpr: "display"
                 }
-
             }
         });
         console.log(dataColumn);
         dataGrid.option('columns', dataColumn);
     }
-
-    fnGetLookup();
 
     function fnGetLookup() {
         $.ajax({
@@ -106,10 +102,13 @@ $(function () {
             success: function (data) {
                 dataGrid.option('dataSource', data);
                 console.log(data);
-                
             }
         });
     }
+
+    fnGetLookup();
+    GetColumn();
+    
 
     function fnInsertLookup(dataGrid) {
         console.log(JSON.stringify(dataGrid));
