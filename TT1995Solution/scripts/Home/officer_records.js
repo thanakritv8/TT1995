@@ -300,6 +300,7 @@ $(function () {
         contentType: "application/json; charset=utf-8",
         data: "{table_id: 4}",
         dataType: "json",
+        async: false,
         success: function (data) {
             var ndata = 0;
             data.forEach(function (item) {
@@ -330,6 +331,7 @@ $(function () {
                 url: "../Home/GetNumberCar",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
+                async: false,
                 success: function (dataLookup) {
                     data[ndata].lookup = {
                         dataSource: dataLookup,

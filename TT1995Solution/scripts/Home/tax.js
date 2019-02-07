@@ -298,10 +298,31 @@ $(function () {
         contentType: "application/json; charset=utf-8",
         data: "{table_id: 3}",
         dataType: "json",
+        async: false,
         success: function (data) {
             var ndata = 0;
             data.forEach(function (item) {
-
+                //โชว์ Dropdown หน้าเพิ่มและแก้ไข
+                if (item.status_lookup != "0") {
+                    var dataLookup;
+                    $.ajax({
+                        type: "POST",
+                        url: "../Home/GetLookUp",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: "{column_id: '" + item.column_id + "'}",
+                        async: false,
+                        success: function (data) {
+                            dataLookup = data;
+                        }
+                    });
+                    data[ndata].lookup = {
+                        dataSource: dataLookup,
+                        displayExpr: "data_list",
+                        valueExpr: "data_list"
+                    }
+                }
+                
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
                     if (item.dataField == "number_car") {
@@ -321,6 +342,7 @@ $(function () {
                         });
                     }
                 }
+                ndata++;
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
             $.ajax({
@@ -328,8 +350,9 @@ $(function () {
                 url: "../Home/GetNumberCar",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
+                async: false,
                 success: function (dataLookup) {
-                    data[ndata].lookup = {
+                    data[0].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "license_id"
