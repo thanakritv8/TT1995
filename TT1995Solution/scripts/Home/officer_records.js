@@ -82,9 +82,9 @@ $(function () {
             visible: true,
             applyFilter: "auto"
         },
-        headerFilter: {
-            visible: true
-        },
+        //headerFilter: {
+        //    visible: true
+        //},
         onEditingStart: function (e) {
             dataGrid.option('columns[0].allowEditing', false);
         },
@@ -350,7 +350,7 @@ $(function () {
     });
     //จบการกำหนด Column
 
-    //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+    //โชว์ข้อมูลทั้งหมดใน datagrid
     $.ajax({
         type: "POST",
         url: "../Home/GetOR",
@@ -365,7 +365,7 @@ $(function () {
             dataGrid.option('dataSource', data);
         }
     });
-    //จบการโชว์ข้อมูลทะเบียน
+    //จบการโชว์ข้อมูล
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
@@ -468,7 +468,7 @@ $(function () {
         treeview.option("dataSource", dts);
     }
 
-    //Function Insert ข้อมูลทะเบียน
+    //Function Insert ข้อมูล
     function fnInsertOR(dataGrid) {
         console.log(dataGrid);
         $.ajax({
@@ -480,7 +480,7 @@ $(function () {
             async: false,
             success: function (data) {
                 if (data[0].Status == "1") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลภาษีเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("เพิ่มข้อมูลบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
@@ -491,7 +491,7 @@ $(function () {
         });
     }
 
-    //Function Update ข้อมูลทะเบียน
+    //Function Update ข้อมูล
     function fnUpdateOR(newData, keyItem) {
         newData.or_id = keyItem;
         $.ajax({
@@ -502,7 +502,7 @@ $(function () {
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("แก้ไขข้อมูลภาษีเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("แก้ไขข้อมูลบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
                 }
@@ -510,7 +510,7 @@ $(function () {
         });
     }
 
-    //Function Delete ข้อมูลทะเบียน
+    //Function Delete ข้อมูล
     function fnDeleteOR(keyItem) {
         $.ajax({
             type: "POST",
@@ -520,7 +520,7 @@ $(function () {
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("ลบข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("ลบข้อมูลรายการบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
                 }

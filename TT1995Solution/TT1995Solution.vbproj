@@ -149,6 +149,7 @@
     <Content Include="Img\pdf.png" />
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
+    <Content Include="scripts\Home\driver.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\officer_records.js" />
     <Content Include="scripts\Home\tax.js" />
@@ -224,6 +225,7 @@
     <Content Include="Views\Manage\Lookup.vbhtml" />
     <Content Include="Views\Home\Tax.vbhtml" />
     <Content Include="Views\Home\OfficerRecords.vbhtml" />
+    <Content Include="Views\Home\Driver.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

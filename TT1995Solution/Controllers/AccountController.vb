@@ -22,7 +22,7 @@ Namespace Controllers
 
         Function Logout() As ActionResult
             Session.Abandon()
-            Return View("../Home/Index")
+            Return Redirect("../Account/Login")
         End Function
 
         Public Function EncryptSHA256Managed(ByVal StrInput As String) As String

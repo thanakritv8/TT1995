@@ -82,9 +82,9 @@ $(function () {
             visible: true,
             applyFilter: "auto"
         },
-        headerFilter: {
-            visible: true
-        },
+        //headerFilter: {
+        //    visible: true
+        //},
         onEditingStart: function (e) {
             dataGrid.option('columns[0].allowEditing', false);
         },
@@ -369,7 +369,7 @@ $(function () {
     });
     //จบการกำหนด Column
 
-    //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+    //โชว์ข้อมูลภาษีทั้งหมดใน datagrid
     $.ajax({
         type: "POST",
         url: "../Home/GetTax",
@@ -385,7 +385,7 @@ $(function () {
             dataGrid.option('dataSource', data);
         }
     });
-    //จบการโชว์ข้อมูลทะเบียน
+    //จบการโชว์ข้อมูลภาษี
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
@@ -488,7 +488,7 @@ $(function () {
         treeview.option("dataSource", dts);
     }
 
-    //Function Insert ข้อมูลทะเบียน
+    //Function Insert ข้อมูลภาษี
     function fnInsertTax(dataGrid) {
         console.log(dataGrid);
         $.ajax({
@@ -511,7 +511,7 @@ $(function () {
         });
     }
 
-    //Function Update ข้อมูลทะเบียน
+    //Function Update ข้อมูลภาษี
     function fnUpdateTax(newData, keyItem) {
         newData.tax_id = keyItem;
         console.log(keyItem);
@@ -531,7 +531,7 @@ $(function () {
         });
     }
 
-    //Function Delete ข้อมูลทะเบียน
+    //Function Delete ข้อมูลภาษี
     function fnDeleteTax(keyItem) {
         $.ajax({
             type: "POST",
@@ -541,7 +541,7 @@ $(function () {
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("ลบข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("ลบข้อมูลรายการบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
                 }

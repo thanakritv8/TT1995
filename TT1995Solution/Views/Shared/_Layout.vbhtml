@@ -38,6 +38,7 @@
                     <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
                     <a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>
                     <a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>
+                    <a Class="dropdown-item" href="../Home/Driver">พขร</a>
                 </div>                
             </li>
             <li Class="nav-item dropdown">
