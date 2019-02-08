@@ -150,8 +150,10 @@
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\driver.js" />
+    <Content Include="scripts\Home\gpsCompany.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\officer_records.js" />
+    <Content Include="scripts\Home\proInsCom.js" />
     <Content Include="scripts\Home\tax.js" />
     <Content Include="scripts\Manage\lookup.js" />
     <Content Include="scripts\sb-admin.min.js" />
@@ -162,6 +164,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.vb" />
     <Compile Include="Controllers\AccountController.vb" />
+    <Compile Include="Controllers\GlobalFunction.vb" />
     <Compile Include="Controllers\HomeController.vb" />
     <Compile Include="Controllers\ManageController.vb" />
     <Compile Include="Global.asax.vb">
@@ -226,6 +229,8 @@
     <Content Include="Views\Home\Tax.vbhtml" />
     <Content Include="Views\Home\OfficerRecords.vbhtml" />
     <Content Include="Views\Home\Driver.vbhtml" />
+    <Content Include="Views\Home\GpsCompany.vbhtml" />
+    <Content Include="Views\Home\ProInsCom.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -236,6 +241,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Files\License\" />
+    <Folder Include="Views\GlobalFunction\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

@@ -38,7 +38,7 @@
                     <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
                     <a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>
                     <a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>
-                    @*<a Class="dropdown-item" href="../Home/Driver">พขร</a>*@
+                    <a Class="dropdown-item" href="../Home/Driver">พขร</a>
                 </div>                
             </li>
             <li Class="nav-item dropdown">
@@ -61,6 +61,16 @@
                     <a Then Class="dropdown-item" href="#">ลุ่มน้ำโขง</a>
                     <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
                     <a Then Class="dropdown-item" href="#">วัตถุอันตราย(วอ.8)</a>
+                </div>                
+            </li>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light"> บริษัท</span>
+                </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/ProInsCom">ประกันสินค้า</a>
+                    <a Then Class="dropdown-item" href="../Home/GpsCompany">GPS</a>
                 </div>                
             </li>
             <li Class="nav-item dropdown">                
