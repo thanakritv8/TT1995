@@ -179,8 +179,10 @@ $(function () {
         dataType: "json",
         success: function (data) {
             for (var i = 0; i < data.length; i++) {
-                var d = parseJsonDate(data[i].license_date);
-                data[i].license_date = d;
+                var d1 = parseJsonDate(data[i].license_date);
+                data[i].license_date = d1;
+                var d2 = parseJsonDate(data[i].license_expiration);
+                data[i].license_expiration = d2;
             }
             dataGrid.option('dataSource', data);
         }
@@ -579,7 +581,10 @@ $(function () {
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts
     function parseJsonDate(jsonDateString) {
-        return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+        console.log(jsonDateString);
+        if (jsonDateString != null) {
+            return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+        }
     }
 
     //Function Open Pdf
