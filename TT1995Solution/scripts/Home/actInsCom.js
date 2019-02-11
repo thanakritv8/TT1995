@@ -1,7 +1,7 @@
 ﻿var itemEditing = [];
 var columnHide = [];
-var gbTableId = '5';
-var tableName = "product_insurance_company";
+var gbTableId = '8';
+var tableName = "act_insurance_company";
 var idFile;
 var data_lookup_number_car;
 
@@ -27,7 +27,7 @@ $(function () {
     //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
     $.ajax({
         type: "POST",
-        url: "../Home/GetPICData",
+        url: "../Home/GetAICData",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -79,7 +79,7 @@ $(function () {
                 colCount: 6,
             },
             popup: {
-                title: "รายการบริษัทประกันสินค้า",
+                title: "รายการบริษัทประกัน พรบ",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
@@ -98,13 +98,13 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[5].allowEditing', false);
+            dataGrid.option('columns[1].allowEditing', false);
         },
         onInitNewRow: function (e) {
-            dataGrid.option('columns[5].allowEditing', true);
+            dataGrid.option('columns[1].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdatePIC(e.newData, e.key.pic_id);
+            fnUpdateAIC(e.newData, e.key.aic_id);
         },
         onRowInserting: function (e) {
             $.ajax({
@@ -118,17 +118,17 @@ $(function () {
                     e.data.license_car = data[0].license_car;
                 }
             });
-            e.data.pic_id = fnInsertPIC(e.data);
+            e.data.aic_id = fnInsertAIC(e.data);
         },
         onRowRemoving: function (e) {
-            fnDeletePIC(e.key.pic_id);
+            fnDeleteAIC(e.key.aic_id);
         },
         masterDetail: {
             enabled: false,
             template: function (container, options) {
                 //สร้าง id treeview
                 container.append($('<div id="treeview"></div>'));
-                var itemData = fnGetFiles(options.key.pic_id, gbTableId);
+                var itemData = fnGetFiles(options.key.aic_id, gbTableId);
                 //console.log(itemData);
                 //เก็บข้อมูล treeview ไว้ในตัวแปรชื่อ treeview
                 treeview = $("#treeview").dxTreeView({
@@ -140,7 +140,7 @@ $(function () {
                     //คลิกโชว์รูปภาพแบบ Gallery
                     onItemClick: function (e) {
                         gallery = [];
-                        itemData = fnGetFiles(options.key.pic_id, gbTableId);
+                        itemData = fnGetFiles(options.key.aic_id, gbTableId);
                         var item = e.itemData;
                         //console.log(e);
                         if (item.path_file) {
@@ -186,7 +186,7 @@ $(function () {
                     },
                 }).dxTreeView("instance");
                 //จบการสร้าง treeview
-                fnChangeTreeview(options.key.pic_id, itemData);
+                fnChangeTreeview(options.key.aic_id, itemData);
             }
         },
         onSelectionChanged: function (e) {
@@ -196,9 +196,9 @@ $(function () {
             isFirstClick = false;
         },
         onRowClick: function (e) {
-            if (gbE.currentSelectedRowKeys[0].pic_id == e.key.pic_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
+            if (gbE.currentSelectedRowKeys[0].aic_id == e.key.aic_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
                 dataGrid.clearSelection();
-            } else if (gbE.currentSelectedRowKeys[0].pic_id == e.key.pic_id && !isFirstClick) {
+            } else if (gbE.currentSelectedRowKeys[0].aic_id == e.key.aic_id && !isFirstClick) {
                 isFirstClick = true;
                 rowIndex = e.rowIndex;
             }
@@ -210,7 +210,7 @@ $(function () {
     //จบการกำหนด dataGrid
 
     //Get files where id and IdTable
-    function fnGetFiles(PICId, IdTable) {
+    function fnGetFiles(AICId, IdTable) {
         //alert(PICId + IdTable);
         var itemData;
         $.ajax({
@@ -218,12 +218,12 @@ $(function () {
             url: "../Home/GetFilesTew",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            data: "{Id: " + PICId + ",IdTable: " + IdTable + "}",
+            data: "{Id: " + AICId + ",IdTable: " + IdTable + "}",
             async: false,
             success: function (data) {
                 data.push({
                     "file_id": "root",
-                    "fk_id": PICId,
+                    "fk_id": AICId,
                     "name_file": "Root",
                     "type_file": "folder",
                     "icon": "../Img/folder.png"
@@ -235,7 +235,7 @@ $(function () {
     }
 
     //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
-    function fnChangeTreeview(pic_id, itemData) {
+    function fnChangeTreeview(aic_id, itemData) {
         var nItem = 0;
         itemData.forEach(function (item) {
             if (item.file_id == idFile) {
@@ -248,7 +248,7 @@ $(function () {
                 key: "file_id",
                 data: itemData
             }),
-            filter: ["fk_id", "=", pic_id]
+            filter: ["fk_id", "=", aic_id]
         });
         treeview.option("dataSource", dts);
     }
@@ -289,7 +289,7 @@ $(function () {
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "pic_id") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "aic_id" && item.dataField != "license_id") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -317,7 +317,7 @@ $(function () {
                 async: false,
                 success: function (dataLookup) {
                     data_lookup_number_car = dataLookup;
-                    data[5].lookup = {
+                    data[1].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "number_car"
@@ -333,12 +333,12 @@ $(function () {
     //จบการกำหนด Column
 
     //Function Update ข้อมูล gps_company
-    function fnUpdatePIC(newData, keyItem) {
+    function fnUpdateAIC(newData, keyItem) {
         //console.log(keyItem);
         newData.key = keyItem;
         $.ajax({
             type: "POST",
-            url: "../Home/UpdatePIC",
+            url: "../Home/UpdateAIC",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
@@ -354,16 +354,17 @@ $(function () {
     }
 
     //Function Insert ข้อมูล gps_company
-    function fnInsertPIC(dataGrid) {
+    function fnInsertAIC(dataGrid) {
         var returnId = 0;
         $.ajax({
             type: "POST",
-            url: "../Home/InsertPIC",
+            url: "../Home/InsertAIC",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
             async: false,
             success: function (data) {
+                console.log(data);
                 if (data[0].Status != "0") {
                     DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
@@ -376,10 +377,10 @@ $(function () {
     }
 
     //Function Delete ข้อมูล gps_company
-    function fnDeletePIC(keyItem) {
+    function fnDeleteAIC(keyItem) {
         $.ajax({
             type: "POST",
-            url: "../Home/DeletePIC",
+            url: "../Home/DeleteAIC",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
@@ -430,12 +431,12 @@ $(function () {
             document.getElementById("btnNewFolder").disabled = true;
             var folderName = document.getElementById("lbNewFolder").value;
             if (folderName != "") {
-                fileDataPic = new FormData();
-                fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('parentDirId', idFile);
-                fileDataPic.append('newFolder', folderName);
-                fileDataPic.append('tableId', gbTableId);
-                fnInsertFiles(fileDataPic);
+                fileDataAic = new FormData();
+                fileDataAic.append('fk_id', idFK);
+                fileDataAic.append('parentDirId', idFile);
+                fileDataAic.append('newFolder', folderName);
+                fileDataAic.append('tableId', gbTableId);
+                fnInsertFiles(fileDataAic);
             } else {
                 DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
                 document.getElementById("btnNewFolder").disabled = false;
@@ -453,7 +454,7 @@ $(function () {
             contentType: false,
             processData: false,
             success: function (data) {
-                fileDataPic = new FormData();
+                fileDataAic = new FormData();
                 document.getElementById("btnSave").disabled = false;
                 $("#mdNewFile").modal('hide');
                 $("#mdNewFolder").modal('hide');
@@ -483,15 +484,15 @@ $(function () {
         uploadMode: "useForm",
         onValueChanged: function (e) {
             var files = e.value;
-            fileDataPic = new FormData();
+            fileDataAic = new FormData();
             if (files.length > 0) {
                 $.each(files, function (i, file) {
-                    fileDataPic.append('file', file);
+                    fileDataAic.append('file', file);
                 });
-                fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('parentDirId', idFile);
-                fileDataPic.append('newFolder', "");
-                fileDataPic.append('tableId', gbTableId);
+                fileDataAic.append('fk_id', idFK);
+                fileDataAic.append('parentDirId', idFile);
+                fileDataAic.append('newFolder', "");
+                fileDataAic.append('tableId', gbTableId);
             }
         },
     }).dxFileUploader('instance');
@@ -501,7 +502,7 @@ $(function () {
     $("#btnSave").dxButton({
         onClick: function () {
             document.getElementById("btnSave").disabled = true;
-            fnInsertFiles(fileDataPic);
+            fnInsertFiles(fileDataAic);
         }
     });
 
@@ -535,7 +536,7 @@ $(function () {
 
         $.ajax({
             type: "POST",
-            url: "../Home/fnRenamePIC",
+            url: "../Home/fnRenameAIC",
             data: fileUpload,
             dataType: "json",
             contentType: false,
@@ -564,11 +565,11 @@ $(function () {
         document.getElementById("btnRename").disabled = true;
         var folderName = document.getElementById("lbRename").value;
         if (folderName != "") {
-            fileDataPic = new FormData();
-            fileDataPic.append('fk_id', idFK);
-            fileDataPic.append('file_id', idFile);
-            fileDataPic.append('rename', folderName);
-            fnRename(fileDataPic);
+            fileDataAic = new FormData();
+            fileDataAic.append('fk_id', idFK);
+            fileDataAic.append('file_id', idFile);
+            fileDataAic.append('rename', folderName);
+            fnRename(fileDataAic);
         } else {
             DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
         }
@@ -580,7 +581,7 @@ $(function () {
             type: "POST",
             url: "../Home/DeleteFile",
             contentType: "application/json; charset=utf-8",
-            data: "{keyId: '" + file_id + "',FolderName:'Product_insurance_company'}",
+            data: "{keyId: '" + file_id + "',FolderName:'Main_insurance_company'}",
             dataType: 'json',
             success: function (data) {
                 if (data[0].Status != '0') {

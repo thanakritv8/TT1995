@@ -65,4 +65,17 @@ Public Class objDB
             Return False
         End Try
     End Function
+
+    Public Shared Function ExecuteSQLReturnId(ByVal _SQL As String, ByVal conn As SqlConnection) As Integer
+        If conn.State = ConnectionState.Closed Then
+            conn.Open()
+        End If
+        Dim cmd As New SqlCommand(_SQL, conn)
+        Try
+            Dim Status As Integer = cmd.ExecuteScalar()
+            Return Status
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
 End Class

@@ -149,9 +149,12 @@
     <Content Include="Img\pdf.png" />
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
+    <Content Include="scripts\Home\actInsCom.js" />
     <Content Include="scripts\Home\driver.js" />
     <Content Include="scripts\Home\gpsCompany.js" />
     <Content Include="scripts\Home\license.js" />
+    <Content Include="scripts\Home\licensecambodia.js" />
+    <Content Include="scripts\Home\mainInsCom.js" />
     <Content Include="scripts\Home\officer_records.js" />
     <Content Include="scripts\Home\proInsCom.js" />
     <Content Include="scripts\Home\tax.js" />
@@ -231,6 +234,9 @@
     <Content Include="Views\Home\Driver.vbhtml" />
     <Content Include="Views\Home\GpsCompany.vbhtml" />
     <Content Include="Views\Home\ProInsCom.vbhtml" />
+    <Content Include="Views\Home\LicenseCambodia.vbhtml" />
+    <Content Include="Views\Home\MainInsCom.vbhtml" />
+    <Content Include="Views\Home\ActInsCom.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

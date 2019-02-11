@@ -93,7 +93,7 @@ $(function () {
                     e.data.license_car = data[0].license_car;
                 }
             });
-            fnInsertGpsCompany(e.data);
+            e.data.gc_id = fnInsertGpsCompany(e.data);
         },
         onRowRemoving: function (e) {
             fnDeleteGpsCompany(e.key.gc_id);
@@ -560,6 +560,7 @@ $(function () {
 
     //Function Insert ข้อมูล gps_company
     function fnInsertGpsCompany(dataGrid) {
+        var returnId = 0;
         $.ajax({
             type: "POST",
             url: "../Home/InsertGpsCompany",
@@ -568,13 +569,15 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status == "1") {
+                if (data[0].Status != "0") {
                     DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
             }
         });
+        return returnId;
     }
 
     //Function Delete ข้อมูล gps_company

@@ -42,7 +42,7 @@ Namespace Controllers
 
         Public Function GetLicense() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id] FROM [license] ORDER BY number_car"
+            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status] FROM [license] ORDER BY number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -66,14 +66,16 @@ Namespace Controllers
                                       , ByVal number_engine_point_2 As String, ByVal brand_engine As String, ByVal pump As String _
                                       , ByVal horse_power As String, ByVal shaft As String, ByVal wheel As String, ByVal tire As String _
                                       , ByVal license_date As String, ByVal weight_car As String, ByVal weight_lade As String _
-                                      , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String, ByVal key As String) As String
+                                      , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String, ByVal key As String _
+                                      , ByVal seq As String, ByVal nationality As String, ByVal id_card As String, ByVal address As String _
+                                      , ByVal license_expiration As String, ByVal possessory_right As String, ByVal license_no As String, ByVal license_status As String) As String
 
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [license] SET "
-            Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type"}
-            Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type}
+            Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "[address]", "license_expiration", "possessory_right", "license_no", "license_status"}
+            Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status}
             For n As Integer = 0 To TbLicense.Length - 1
                 If Not TbLicense(n) Is Nothing Then
                     _SQL &= StrTbLicense(n) & "=N'" & TbLicense(n) & "',"
@@ -96,12 +98,14 @@ Namespace Controllers
                                       , ByVal number_engine_point_2 As String, ByVal brand_engine As String, ByVal pump As String _
                                       , ByVal horse_power As String, ByVal shaft As String, ByVal wheel As String, ByVal tire As String _
                                       , ByVal license_date As String, ByVal weight_car As String, ByVal weight_lade As String _
-                                      , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String) As String
+                                      , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String _
+                                      , ByVal seq As String, ByVal nationality As String, ByVal id_card As String, ByVal address As String _
+                                      , ByVal license_expiration As String, ByVal possessory_right As String, ByVal license_no As String, ByVal license_status As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],[create_by_user_id])"
             _SQL &= " VALUES ('" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(license_car Is Nothing, String.Empty, license_car) & "',"
             _SQL &= "N'" & IIf(province Is Nothing, String.Empty, province) & "',"
@@ -128,6 +132,14 @@ Namespace Controllers
             _SQL &= "N'" & IIf(ownership Is Nothing, String.Empty, ownership) & "',"
             _SQL &= "N'" & IIf(transport_operator Is Nothing, String.Empty, transport_operator) & "',"
             _SQL &= "N'" & IIf(transport_type Is Nothing, String.Empty, transport_type) & "',"
+            _SQL &= IIf(seq Is Nothing, 0, seq) & ","
+            _SQL &= "N'" & IIf(nationality Is Nothing, String.Empty, nationality) & "',"
+            _SQL &= "N'" & IIf(id_card Is Nothing, String.Empty, id_card) & "',"
+            _SQL &= "N'" & IIf(address Is Nothing, String.Empty, address) & "',"
+            _SQL &= "N'" & IIf(license_expiration Is Nothing, String.Empty, license_expiration) & "',"
+            _SQL &= "N'" & IIf(possessory_right Is Nothing, String.Empty, possessory_right) & "',"
+            _SQL &= "N'" & IIf(license_no Is Nothing, String.Empty, license_no) & "',"
+            _SQL &= "N'" & IIf(license_status Is Nothing, String.Empty, license_status) & "',"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
                 If objDB.ExecuteSQL(_SQL, cn) Then
@@ -361,20 +373,20 @@ Namespace Controllers
 
         Public Function GetTax() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT t.tax_id,t.tax_expire,t.tax_startdate,t.tax_rate,t.tax_status,l.number_car, l.license_car, l.license_id FROM tax as t join license as l on t.license_id = l.license_id"
+            Dim _SQL As String = "SELECT t.tax_id,t.tax_expire,t.tax_startdate,t.tax_rate,t.tax_status,l.number_car, l.license_car, l.license_id, t.special_expenses_1, t.special_expenses_2, t.contract_wages FROM tax as t join license as l on t.license_id = l.license_id"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateTax(ByVal tax_id As String, ByVal tax_expire As String, ByVal tax_rate As String, ByVal tax_startdate As String, ByVal tax_status As String) As String
+        Public Function UpdateTax(ByVal tax_id As String, ByVal tax_expire As String, ByVal tax_rate As String, ByVal tax_startdate As String, ByVal tax_status As String, ByVal special_expenses_1 As String, ByVal special_expenses_2 As String, ByVal contract_wages As String) As String
 
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [tax] SET "
-            Dim StrTbTax() As String = {"tax_expire", "tax_rate", "tax_startdate", "tax_status"}
-            Dim TbTax() As Object = {tax_expire, tax_rate, tax_startdate, tax_status}
+            Dim StrTbTax() As String = {"tax_expire", "tax_rate", "tax_startdate", "tax_status", "special_expenses_1", "special_expenses_2", "contract_wages"}
+            Dim TbTax() As Object = {tax_expire, tax_rate, tax_startdate, tax_status, special_expenses_1, special_expenses_2, contract_wages}
             For n As Integer = 0 To TbTax.Length - 1
                 If Not TbTax(n) Is Nothing Then
                     _SQL &= StrTbTax(n) & "=N'" & TbTax(n) & "',"
@@ -390,13 +402,13 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertTax(ByVal license_id As String, ByVal tax_expire As DateTime, ByVal tax_rate As String, ByVal tax_startdate As DateTime, ByVal tax_status As String) As String
+        Public Function InsertTax(ByVal license_id As String, ByVal tax_expire As DateTime, ByVal tax_rate As String, ByVal tax_startdate As DateTime, ByVal tax_status As String, ByVal special_expenses_1 As String, ByVal special_expenses_2 As String, ByVal contract_wages As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO tax (tax_expire, tax_startdate, tax_rate, tax_status, license_id, create_by_user_id, create_date) VALUES "
-            _SQL &= "('" & tax_expire & "', '" & tax_startdate & "', '" & tax_rate & "', N'" & tax_status & "', '" & license_id & "', '" & Session("UserId") & "', GETDATE())"
+            Dim _SQL As String = "INSERT INTO tax (tax_expire, tax_startdate, tax_rate, tax_status, license_id, create_by_user_id, create_date, special_expenses_1, special_expenses_2, contract_wages) VALUES "
+            _SQL &= "('" & tax_expire & "', '" & tax_startdate & "', '" & tax_rate & "', N'" & tax_status & "', '" & license_id & "', '" & Session("UserId") & "', GETDATE(), " & special_expenses_1 & ", " & special_expenses_2 & ", " & contract_wages & ")"
             If Not license_id Is Nothing Then
                 If objDB.ExecuteSQL(_SQL, cn) Then
                     DtJson.Rows.Add("1")
@@ -990,6 +1002,17 @@ Namespace Controllers
 
 #End Region
 
+#Region "LicenseCambodia"
+        Function LicenseCambodia() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+#End Region
+
 #Region "Utility"
 
         Private Function fnGetPath(ByVal Id As String) As String
@@ -1043,8 +1066,8 @@ Namespace Controllers
         'Global Function(Tew)
         Dim GbFn As GlobalFunction = New GlobalFunction
 
-#Region "Gps Company (Tew)"
-        Function GpsCompany() As ActionResult
+#Region "Act Insurance Company (Tew)"
+        Function ActInsCom() As ActionResult
             If Session("StatusLogin") = "1" Then
                 Return View()
             Else
@@ -1052,29 +1075,29 @@ Namespace Controllers
             End If
         End Function
 
-        'Get data of table gps_company
-        Public Function GetGpsCompanyData() As String
-            Return GbFn.GetData("SELECT * FROM [dbo].[gps_company] gc , [dbo].[license] li where gc.license_id = li.license_id order by li.number_car")
+        'Get data of table Main Insurance Company
+        Public Function GetAICData() As String
+            Return GbFn.GetData("SELECT * FROM [dbo].[act_insurance_company] aic , [dbo].[license] li where aic.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
-        Public Function fnRenameGpsCompany() As String
-            Return GbFn.fnRename(Request, "Gps_company")
+        Public Function fnRenameAIC() As String
+            Return GbFn.fnRename(Request, "act_insurance_company")
         End Function
-        Public Function UpdateGpsCompany(ByVal number_car As String, ByVal reading_data As String, ByVal usage As String _
-                                      , ByVal price As String, ByVal note As String, ByVal key As String) As String
+        Public Function UpdateAIC(ByVal number_car As String, ByVal type As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
+                                      , ByVal note As String, ByVal key As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim _SQL As String = "UPDATE [gps_company] SET "
-            Dim StrTbGpsCompany() As String = {"number_car", "reading_data", "usage", "price", "note"}
-            Dim TbGpsCompany() As Object = {number_car, reading_data, usage, price, note}
-            For n As Integer = 0 To TbGpsCompany.Length - 1
-                If Not TbGpsCompany(n) Is Nothing Then
-                    _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+            Dim _SQL As String = "UPDATE [act_insurance_company] SET "
+            Dim StrTbAIC() As String = {"type", "price", "protection", "protection_limit", "note"}
+            Dim TbAIC() As Object = {type, price, protection, protection_limit, note}
+            For n As Integer = 0 To TbAIC.Length - 1
+                If Not TbAIC(n) Is Nothing Then
+                    _SQL &= StrTbAIC(n) & "=N'" & TbAIC(n) & "',"
                 End If
             Next
-            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE gc_id = " & key
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE aic_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
             Else
@@ -1083,27 +1106,25 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
-        Public Function InsertGpsCompany(ByVal number_car As String, ByVal reading_data As String, ByVal usage As String _
-                                      , ByVal price As String, ByVal note As String, ByVal key As String) As String
+        Public Function InsertAIC(ByVal number_car As String, ByVal type As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
+                                      , ByVal note As String, ByVal key As String) As String
 
             Dim DtJson As DataTable = New DataTable
+
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [gps_company] ([license_id],[reading_data],[usage],[price],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [act_insurance_company] ([license_id],[type],[price],[protection],[protection_limit],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.aic_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
-            _SQL &= "N'" & IIf(reading_data Is Nothing, String.Empty, reading_data) & "',"
-            _SQL &= "N'" & IIf(usage Is Nothing, String.Empty, usage) & "',"
+            _SQL &= "N'" & IIf(type Is Nothing, String.Empty, type) & "',"
             _SQL &= "N'" & IIf(price Is Nothing, String.Empty, price) & "',"
+            _SQL &= "N'" & IIf(protection Is Nothing, String.Empty, protection) & "',"
+            _SQL &= "N'" & IIf(protection_limit Is Nothing, String.Empty, protection_limit) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -1111,11 +1132,11 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
-        Public Function DeleteGpsCompany(ByVal keyId As String) As String
+        Public Function DeleteAIC(ByVal keyId As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "DELETE [gps_company] WHERE gc_id = " & keyId
+            Dim _SQL As String = "DELETE [act_insurance_company] WHERE aic_id = " & keyId
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
             Else
@@ -1124,6 +1145,91 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
+
+
+#End Region
+
+#Region "Main Insurance Company (Tew)"
+        Function MainInsCom() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table Main Insurance Company
+        Public Function GetMICData() As String
+            Return GbFn.GetData("SELECT * FROM [dbo].[main_insurance_company] mic , [dbo].[license] li where mic.license_id = li.license_id order by li.number_car")
+        End Function
+
+        'Rename Folder or Files(pic,pdf)
+        Public Function fnRenameMIC() As String
+            Return GbFn.fnRename(Request, "main_insurance_company")
+        End Function
+        Public Function UpdateMIC(ByVal number_car As String, ByVal type As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
+                                      , ByVal extension_insurance As String, ByVal note As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [main_insurance_company] SET "
+            Dim StrTbMIC() As String = {"type", "price", "protection", "protection_limit", "extension_insurance", "note"}
+            Dim TbMIC() As Object = {type, price, protection, protection_limit, extension_insurance, note}
+            For n As Integer = 0 To TbMIC.Length - 1
+                If Not TbMIC(n) Is Nothing Then
+                    _SQL &= StrTbMIC(n) & "=N'" & TbMIC(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE mic_id = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function InsertMIC(ByVal number_car As String, ByVal type As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
+                                      , ByVal extension_insurance As String, ByVal note As String, ByVal key As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
+            Dim _SQL As String = "INSERT INTO [main_insurance_company] ([license_id],[type],[price],[protection],[protection_limit],[extension_insurance],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.mic_id"
+            _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
+            _SQL &= "N'" & IIf(type Is Nothing, String.Empty, type) & "',"
+            _SQL &= "N'" & IIf(price Is Nothing, String.Empty, price) & "',"
+            _SQL &= "N'" & IIf(protection Is Nothing, String.Empty, protection) & "',"
+            _SQL &= "N'" & IIf(protection_limit Is Nothing, String.Empty, protection_limit) & "',"
+            _SQL &= "N'" & IIf(extension_insurance Is Nothing, String.Empty, extension_insurance) & "',"
+            _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
+            _SQL &= "getdate(),"
+            _SQL &= Session("UserId") & ")"
+            If Not number_car Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function DeleteMIC(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [main_insurance_company] WHERE mic_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
 
 #End Region
 
@@ -1175,7 +1281,7 @@ Namespace Controllers
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [product_insurance_company] ([license_id],[main_protection_product],[price],[protection_limit],[extension_insurance],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [product_insurance_company] ([license_id],[main_protection_product],[price],[protection_limit],[extension_insurance],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.pic_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(main_protection_product Is Nothing, String.Empty, main_protection_product) & "',"
             _SQL &= "N'" & IIf(price Is Nothing, String.Empty, price) & "',"
@@ -1185,11 +1291,7 @@ Namespace Controllers
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -1211,6 +1313,86 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
+
+#End Region
+
+#Region "Gps Company (Tew)"
+        Function GpsCompany() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table gps_company
+        Public Function GetGpsCompanyData() As String
+            Return GbFn.GetData("SELECT * FROM [dbo].[gps_company] gc , [dbo].[license] li where gc.license_id = li.license_id order by li.number_car")
+        End Function
+
+        'Rename Folder or Files(pic,pdf)
+        Public Function fnRenameGpsCompany() As String
+            Return GbFn.fnRename(Request, "Gps_company")
+        End Function
+        Public Function UpdateGpsCompany(ByVal number_car As String, ByVal reading_data As String, ByVal usage As String _
+                                      , ByVal price As String, ByVal note As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [gps_company] SET "
+            Dim StrTbGpsCompany() As String = {"number_car", "reading_data", "usage", "price", "note"}
+            Dim TbGpsCompany() As Object = {number_car, reading_data, usage, price, note}
+            For n As Integer = 0 To TbGpsCompany.Length - 1
+                If Not TbGpsCompany(n) Is Nothing Then
+                    _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE gc_id = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function InsertGpsCompany(ByVal number_car As String, ByVal reading_data As String, ByVal usage As String _
+                                      , ByVal price As String, ByVal note As String, ByVal key As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
+            Dim _SQL As String = "INSERT INTO [gps_company] ([license_id],[reading_data],[usage],[price],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.gc_id"
+            _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
+            _SQL &= "N'" & IIf(reading_data Is Nothing, String.Empty, reading_data) & "',"
+            _SQL &= "N'" & IIf(usage Is Nothing, String.Empty, usage) & "',"
+            _SQL &= "N'" & IIf(price Is Nothing, String.Empty, price) & "',"
+            _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
+            _SQL &= "getdate(),"
+            _SQL &= Session("UserId") & ")"
+            If Not number_car Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function DeleteGpsCompany(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [gps_company] WHERE gc_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 
 #End Region
 
