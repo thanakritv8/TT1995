@@ -34,36 +34,40 @@
         //    visible: true
         //},
         onRowInserting: function (e) {
-            console.log(e);
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCar",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{license_id: " + e.data.license_id_head + "}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car_head = data[0].license_car;
-                }
-            });
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCar",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{license_id: " + e.data.license_id_tail + "}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car_tail = data[0].license_car;
-                }
-            });
-            fnInsertDriver(e.data);
+            //console.log(e);
+            //$.ajax({
+            //    type: "POST",
+            //    url: "../Home/GetLicenseCar",
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    data: "{license_id: " + e.data.license_id_head + "}",
+            //    async: false,
+            //    success: function (data) {
+            //        e.data.license_car_head = data[0].license_car;
+            //    }
+            //});
+            //$.ajax({
+            //    type: "POST",
+            //    url: "../Home/GetLicenseCar",
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    data: "{license_id: " + e.data.license_id_tail + "}",
+            //    async: false,
+            //    success: function (data) {
+            //        e.data.license_car_tail = data[0].license_car;
+            //    }
+            //});
+
+            e.data.driver_id = fnInsertDriver(e.data);
+            console.log(e.data.driver_id);
+            //fnInsertDriver(e.data);
         },
         onRowUpdating: function (e) {
+            console.log(e.key.driver_id);
             fnUpdateDriver(e.newData, e.key.driver_id);
         },
         onRowRemoving: function (e) {
-            fnDeleteDriver(e.key.lookup_id);
+            fnDeleteDriver(e.key.driver_id);
         },
         selection: {
             mode: "single"
@@ -86,14 +90,52 @@
                 dataType: "json",
                 async: false,
                 success: function (dataLookup) {
+                    data[0].setCellValue = function (rowData, value) {
+                        var dataNew = [];
+                        $.each(dataLookup, function () {
+                            if (this.license_id == value) {
+                                dataNew.push(this);
+                            }
+                        });
+                        rowData.license_id_head = value;
+                        rowData.license_car_head = dataNew[0].license_car;
+                    }
                     data[0].lookup = {
                         dataSource: dataLookup,
-                        displayExpr: "license_id",
+                        displayExpr: "number_car",
                         valueExpr: "license_id"
                     }
+                    data[1].allowEditing = false
+
+                    data[2].setCellValue = function (rowData, value) {
+                        var dataNew = [];
+                        
+                        $.each(dataLookup, function () {
+                            if (this.license_id == value) {
+                                dataNew.push(this);
+                            }
+                        });
+                        rowData.license_id_tail = value;
+                        rowData.license_car_tail = dataNew[0].license_car;
+                    }
+
+                    data[2].lookup = {
+                        dataSource: function (options) {
+                            console.log(options);
+                            return {
+                                store: dataLookup,
+                                filter: options.data ? ["!", ["license_id", "=", options.data.license_id_head]] : null
+                            };
+                        },
+                        displayExpr: "number_car",
+                        valueExpr: "license_id"
+                    }
+                    data[3].allowEditing = false
+
                 }
             });
-            console.log(data);
+
+            //console.log(data);
             dataGrid.option('columns', data);
         },
         error: function (error) {
@@ -102,49 +144,49 @@
     });
     //จบการกำหนด Column
 
-    function GetColumn() {
-        $.ajax({
-            type: "POST",
-            url: "../Manage/GetTable",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            async: false,
-            success: function (data) {
-                dataColumn[0].setCellValue = function (rowData, value) {
-                    rowData.table_id = value;
-                    rowData.column_id = null;
-                }
-                dataColumn[0].lookup = {
-                    dataSource: data,
-                    valueExpr: "table_id",
-                    displayExpr: "display"
-                }
-                dataColumn[1].lookup = {
-                    dataSource: function (options) {
-                        return {
-                            store: data,
-                            filter: options.data ? ["table_id", "=", options.data.table_id] : null
-                        };
-                    },
-                    valueExpr: "column_id",
-                    displayExpr: "display"
-                }
-            }
-        });
+    //function GetColumn() {
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "../Manage/GetTable",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (data) {
+    //            dataColumn[0].setCellValue = function (rowData, value) {
+    //                rowData.table_id = value;
+    //                rowData.column_id = null;
+    //            }
+    //            dataColumn[0].lookup = {
+    //                dataSource: data,
+    //                valueExpr: "table_id",
+    //                displayExpr: "display"
+    //            }
+    //            dataColumn[1].lookup = {
+    //                dataSource: function (options) {
+    //                    return {
+    //                        store: data,
+    //                        filter: options.data ? ["table_id", "=", options.data.table_id] : null
+    //                    };
+    //                },
+    //                valueExpr: "column_id",
+    //                displayExpr: "display"
+    //            }
+    //        }
+    //    });
 
-        $.ajax({
-            type: "POST",
-            url: "../Manage/GetColumn",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            async: false,
-            success: function (data) {
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "../Manage/GetColumn",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (data) {
                 
-            }
-        });
-        console.log(dataColumn);
-        dataGrid.option('columns', dataColumn);
-    }
+    //        }
+    //    });
+    //    console.log(dataColumn);
+    //    dataGrid.option('columns', dataColumn);
+    //}
 
     function fnGetDriver() {
         $.ajax({
@@ -168,7 +210,7 @@
 
 
     function fnInsertDriver(dataGrid) {
-        console.log(JSON.stringify(dataGrid));
+        var returnId = 0;
         $.ajax({
             type: "POST",
             url: "../Home/InsertDriver",
@@ -177,13 +219,15 @@
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status == "1") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
                     DevExpress.ui.notify("เพิ่มการค้นหาเรียบร้อยแล้ว", "success");
+                    returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
             }
         });
+        return returnId;
     }
 
     //Function Update ข้อมูล
@@ -196,6 +240,7 @@
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูล พขร เรียบร้อยแล้ว", "success");
@@ -213,6 +258,7 @@
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการค้นหาเรียบร้อยแล้ว", "success");

@@ -105,7 +105,7 @@ Namespace Controllers
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],[create_by_user_id]) OUTPUT Inserted.license_id"
             _SQL &= " VALUES ('" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(license_car Is Nothing, String.Empty, license_car) & "',"
             _SQL &= "N'" & IIf(province Is Nothing, String.Empty, province) & "',"
@@ -142,11 +142,12 @@ Namespace Controllers
             _SQL &= "N'" & IIf(license_status Is Nothing, String.Empty, license_status) & "',"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                '    DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -407,14 +408,15 @@ Namespace Controllers
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO tax (tax_expire, tax_startdate, tax_rate, tax_status, license_id, create_by_user_id, create_date, special_expenses_1, special_expenses_2, contract_wages) VALUES "
+            Dim _SQL As String = "INSERT INTO tax (tax_expire, tax_startdate, tax_rate, tax_status, license_id, create_by_user_id, create_date, special_expenses_1, special_expenses_2, contract_wages) OUTPUT Inserted.tax_id VALUES "
             _SQL &= "('" & tax_expire & "', '" & tax_startdate & "', '" & tax_rate & "', N'" & tax_status & "', '" & license_id & "', '" & Session("UserId") & "', GETDATE(), " & IIf(special_expenses_1 Is Nothing, 0, special_expenses_1) & ", " & IIf(special_expenses_2 Is Nothing, 0, special_expenses_2) & ", " & IIf(special_expenses_2 Is Nothing, 0, contract_wages) & ")"
             If Not license_id Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                '    DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -686,14 +688,15 @@ Namespace Controllers
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO officer_records (license_id, registrar, record_date, or_list, create_by_user_id, create_date) VALUES "
+            Dim _SQL As String = "INSERT INTO officer_records (license_id, registrar, record_date, or_list, create_by_user_id, create_date) OUTPUT Inserted.or_id VALUES "
             _SQL &= "('" & license_id & "', N'" & registrar & "', '" & record_date & "', N'" & or_list & "', '" & Session("UserId") & "', GETDATE())"
             If Not license_id Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                '    DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -966,11 +969,11 @@ Namespace Controllers
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO driver (driver_name, start_work_date, license_id_head, license_id_tail, create_by_user_id) VALUES ('" & driver_name & "', '" & start_work_date & "', " & license_id_head & ", " & license_id_tail & ", '" & Session("UserId") & "')"
-            If objDB.ExecuteSQL(_SQL, cn) Then
-                DtJson.Rows.Add("1")
+            Dim _SQL As String = "INSERT INTO driver (driver_name, start_work_date, license_id_head, license_id_tail, create_by_user_id) OUTPUT Inserted.driver_id VALUES ('" & driver_name & "', '" & start_work_date & "', " & license_id_head & ", " & license_id_tail & ", '" & Session("UserId") & "')"
+            If license_id_head <> Nothing And license_id_tail <> Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
-                DtJson.Rows.Add("0")
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1044,7 +1047,7 @@ Namespace Controllers
 
         Public Function GetNumberCar() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT DISTINCT(number_car) as number_car, license_id FROM license"
+            Dim _SQL As String = "SELECT DISTINCT(number_car) as number_car, license_id, license_car FROM license"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
