@@ -58,6 +58,7 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
+                console.log(data);
                 dataColumn[0].setCellValue = function (rowData, value) {
                     rowData.table_id = value;
                     rowData.column_id = null;
@@ -78,7 +79,9 @@ $(function () {
             async: false,
             success: function (data) {
                 dataColumn[1].lookup = {
+                    
                     dataSource: function (options) {
+                        console.log(options);
                         return {
                             store: data,
                             filter: options.data ? ["table_id", "=", options.data.table_id] : null

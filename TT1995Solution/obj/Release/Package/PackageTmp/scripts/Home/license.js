@@ -77,14 +77,6 @@ $(function () {
     });
 
     //กำหนดการแสดงรูปภาพที่มาจากการคลิกรูปภาพใน treeview
-    //var galleryWidget = $("#gallery").dxGallery({
-    //    dataSource: gallery,
-    //    loop: true,
-    //    showIndicator: true,
-    //    selectedIndex: gallerySelect
-    //}).dxGallery("instance");
-
-    //กำหนดการแสดงรูปภาพที่มาจากการคลิกรูปภาพใน treeview
     var galleryWidget = $("<div>").dxGallery({
     }).dxGallery("instance");
     //จบการกำหนดการแสดงรูปภาพ
@@ -299,7 +291,7 @@ $(function () {
             fnUpdateLicense(e.newData, e.key.license_id);
         },
         onRowInserting: function (e) {
-            fnInsertLicense(e.data);
+            e.data.license_id = fnInsertLicense(e.data);
         },
         onRowRemoving: function (e) {
             fnDeleteLicense(e.key.license_id);
@@ -341,7 +333,6 @@ $(function () {
                                 galleryWidget.option("dataSource", gallery);
                                 galleryWidget.option("selectedIndex", gallerySelect);
                                 $("#popup").dxPopup("show");
-                                //$("#mdShowPic").modal();
                             } else {
                                 window.open(item.path_file, '_blank');
                             }
@@ -437,6 +428,7 @@ $(function () {
 
     //Function Insert ข้อมูลทะเบียน
     function fnInsertLicense(dataGrid) {
+        var returnId = 0;
         $.ajax({
             type: "POST",
             url: "../Home/InsertLicense",
@@ -445,13 +437,16 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status == "1") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
                     DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    returnId = data[0].Status;
+
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
             }
         });
+        return returnId;
     }
     
 

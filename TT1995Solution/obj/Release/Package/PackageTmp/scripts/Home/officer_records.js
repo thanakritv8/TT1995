@@ -91,21 +91,7 @@ $(function () {
         onInitNewRow: function (e) {
             dataGrid.option('columns[0].allowEditing', true);
         },
-        onRowUpdating: function (e) {
-            console.log(e.key.or_id);
-            if (typeof (e.key.or_id) === "undefined") {
-                $.ajax({
-                    type: "POST",
-                    url: "../Home/GetLastOR",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: "{license_id: " + e.key.license_id + "}",
-                    async: false,
-                    success: function (data) {
-                        e.key.or_id = data[0].or_id;
-                    }
-                });
-            }
+        onRowUpdating: function (e) {            
             fnUpdateOR(e.newData, e.key.or_id);
         },
         onRowInserting: function (e) {
@@ -120,24 +106,9 @@ $(function () {
                     e.data.license_car = data[0].license_car;
                 }
             });
-            //console.log(e.data);
-            fnInsertOR(e.data);
+            e.data.or_id = fnInsertOR(e.data);
         },
-        onRowRemoving: function (e) {
-            console.log(e.key.or_id);
-            if (typeof (e.key.or_id) === "undefined") {
-                $.ajax({
-                    type: "POST",
-                    url: "../Home/GetLastOR",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: "{license_id: " + e.key.license_id + "}",
-                    async: false,
-                    success: function (data) {
-                        e.key.or_id = data[0].or_id;
-                    }
-                });
-            }
+        onRowRemoving: function (e) {            
             fnDeleteOR(e.key.or_id);
         },
         masterDetail: {
@@ -470,7 +441,7 @@ $(function () {
 
     //Function Insert ข้อมูล
     function fnInsertOR(dataGrid) {
-        console.log(dataGrid);
+        var returnId = 0;
         $.ajax({
             type: "POST",
             url: "../Home/InsertOR",
@@ -479,8 +450,9 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status == "1") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
                     DevExpress.ui.notify("เพิ่มข้อมูลบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
+                    returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
@@ -489,6 +461,7 @@ $(function () {
                 DevExpress.ui.notify("กรุณาตรวจสอบข้อมูล", "error");
             }
         });
+        return returnId;
     }
 
     //Function Update ข้อมูล

@@ -11,5 +11,5 @@ End Code
     <div class="mt-3 mb-3" id="gridContainer"></div>
 </div>
 
-<script src="~/scripts/Home/licensecambodia.js"></script>
+<script src="~/scripts/Home/license_cambodia.js"></script>
 

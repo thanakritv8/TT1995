@@ -8,6 +8,7 @@ var idFile;
 var name = '';
 var idFK = '';
 var gbE;
+var dataAll;
 
 //ตัวแปรควบคุมการคลิก treeview
 var isFirstClick = false;
@@ -82,29 +83,25 @@ $(function () {
             visible: true,
             applyFilter: "auto"
         },
-        //headerFilter: {
-        //    visible: true
-        //},
         onEditingStart: function (e) {
             dataGrid.option('columns[0].allowEditing', false);
+
         },
         onInitNewRow: function (e) {
             dataGrid.option('columns[0].allowEditing', true);
+            
+            //dataAll = dataGrid.option('columns[0].lookup.dataSource');
+            //var dataFilter = dataGrid.option('dataSource');
+            //console.log(dataAll);
+            //var dataNew = {
+            //    store: dataAll,
+            //    filter: dataAll ? ["!", ["license_id", "=", "11"]] : null
+            //}
+            //console.log(dataNew);
+            //dataGrid.option('columns[0].lookup.dataSource', dataNew);
+            
         },
         onRowUpdating: function (e) {
-            if (typeof (e.key.tax_id) === "undefined") {
-                $.ajax({
-                    type: "POST",
-                    url: "../Home/GetLastTax",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: "{license_id: " + e.key.license_id + "}",
-                    async: false,
-                    success: function (data) {
-                        e.key.tax_id = data[0].tax_id;
-                    }
-                });
-            }
             fnUpdateTax(e.newData, e.key.tax_id);
         },
         onRowInserting: function (e) {
@@ -119,22 +116,9 @@ $(function () {
                     e.data.license_car = data[0].license_car;
                 }
             });
-            fnInsertTax(e.data);
+            e.data.tax_id = fnInsertTax(e.data);
         },
         onRowRemoving: function (e) {
-            if (typeof (e.key.tax_id) === "undefined") {
-                $.ajax({
-                    type: "POST",
-                    url: "../Home/GetLastTax",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: "{license_id: " + e.key.license_id + "}",
-                    async: false,
-                    success: function (data) {
-                        e.key.tax_id = data[0].tax_id;
-                    }
-                });
-            }
             fnDeleteTax(e.key.tax_id);
         },
         masterDetail: {
@@ -441,7 +425,6 @@ $(function () {
 
     //ตัวแปร treeview ใช้เพื่อเอาไป update ข้อมูลใน treeview
     var treeview;
-    
 
     //Get Files from controller Home/GetFiles
     function fnGetFiles(license_id) {
@@ -489,7 +472,7 @@ $(function () {
 
     //Function Insert ข้อมูลภาษี
     function fnInsertTax(dataGrid) {
-        console.log(dataGrid);
+        var returnId = 0;
         $.ajax({
             type: "POST",
             url: "../Home/InsertTax",
@@ -498,8 +481,9 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status == "1") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
                     DevExpress.ui.notify("เพิ่มข้อมูลภาษีเรียบร้อยแล้ว", "success");
+                    returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
@@ -508,6 +492,7 @@ $(function () {
                 DevExpress.ui.notify("กรุณาตรวจสอบข้อมูล", "error");
             }
         });
+        return returnId;
     }
 
     //Function Update ข้อมูลภาษี

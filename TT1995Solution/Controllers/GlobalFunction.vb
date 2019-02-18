@@ -12,7 +12,10 @@ Public Class GlobalFunction
 
     Public Function GetColumnChooser(ByVal gbTableId As Integer) As String
         Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE cc.name_column <> 'gc_id' AND table_id = " & gbTableId & " ORDER BY cc.sort ASC"
+        Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(ccd.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup ,cc.group_field,cc.placeholder,cc.location
+                              FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id inner join config_column_data AS ccd on ccd.cc_id = cc.column_id
+                              WHERE table_id = " & gbTableId & "  
+                              ORDER BY cc.sort ASC"
         Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
         objDB.DisconnectDB(cn)
         Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -34,6 +37,7 @@ Public Class GlobalFunction
             Dim parentDirId As String = String.Empty
             Dim newFolder As String = String.Empty
             Dim tableId As String = String.Empty
+            Dim FolderName As String = String.Empty
             If Request.Form.AllKeys.Length <> 0 Then
                 For i As Integer = 0 To Request.Form.AllKeys.Length - 1
                     If Request.Form.AllKeys(i) = "fk_id" Then
@@ -44,14 +48,10 @@ Public Class GlobalFunction
                         newFolder = Request.Form(i)
                     ElseIf Request.Form.AllKeys(i) = "tableId" Then
                         tableId = Request.Form(i)
+                    ElseIf Request.Form.AllKeys(i) = "tableName" Then
+                        FolderName = Request.Form(i)
                     End If
                 Next
-                Dim FolderName As String = String.Empty
-                If (tableId = 2) Then
-                    FolderName = "Gps_company"
-                ElseIf (tableId = 5) Then
-                    FolderName = "Product_insurance_company"
-                End If
                 Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
                 If Request.Files.Count = 0 Then
                     Dim _Path As String = fnGetPath(parentDirId)

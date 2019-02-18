@@ -42,6 +42,7 @@ Namespace Controllers
                 Session("StatusLogin") = "1"
                 Session("UserId") = DtAccount.Rows(0)("user_id")
                 Session("GroupId") = DtAccount.Rows(0)("group_id")
+                Session("FirstName") = DtAccount.Rows(0)("firstname")
             Else
                 Session("StatusLogin") = "0"
             End If
