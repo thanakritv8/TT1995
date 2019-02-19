@@ -29,9 +29,9 @@
     <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
 
         <a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
-        <Button Class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-            <i Class="fas fa-bars" style="color:rgb(16,91,172)"></i>   @*16,91,172*@
-        </Button>
+        @*<Button Class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
+            <i Class="fas fa-bars" style="color:rgb(16,91,172)"></i>   
+        </Button>*@
         @If Session("StatusLogin") = "1" Then
             @<ul Class="navbar-nav ml-auto">
                 <li Class="nav-item">

@@ -6,6 +6,10 @@ End Code
     #gridContainer {
         width: 100%;
     }
+    .custom-file {
+        overflow-y: auto;
+        height: 100%;
+    }
 </style>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>

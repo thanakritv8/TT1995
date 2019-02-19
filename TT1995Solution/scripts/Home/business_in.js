@@ -1,5 +1,8 @@
 ﻿var itemEditing = [];
+//var itemEditingPermission = [];
 var gbE;
+var fileDataPdf;
+var fileOpen;
 
 //ตัวแปรควบคุมการคลิก treeview
 var isFirstClick = false;
@@ -10,7 +13,7 @@ $(function () {
     $("#btnSave").dxButton({
         onClick: function () {
             document.getElementById("btnSave").disabled = true;
-            fnInsertFiles(fileDataPic);
+            fnInsertFiles(fileDataPdf);
         }
     });
 
@@ -22,21 +25,18 @@ $(function () {
         accept: ".pdf",
         uploadMode: "useForm",
         onValueChanged: function (e) {
+            console.log(gbE.currentSelectedRowKeys[0].business_id);
             var files = e.value;
-            fileDataPic = new FormData();
+            fileDataPdf = new FormData();
             if (files.length > 0) {
                 $.each(files, function (i, file) {
-                    fileDataPic.append('file', file);
+                    fileDataPdf.append('file', file);
                 });
-                fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('table_id', 3);
-                fileDataPic.append('parentDirId', idFile);
+                fileDataPdf.append('fk_id', gbE.currentSelectedRowKeys[0].business_id);
             }
         },
     }).dxFileUploader('instance');
     //จบการกำหนด Upload files
-
-    
 
     var dataGrid = $("#gridContainer").dxDataGrid({
         showBorders: true,
@@ -69,6 +69,8 @@ $(function () {
             e.component.collapseAll(-1);
             e.component.expandRow(e.currentSelectedRowKeys[0]);
             gbE = e;
+            fileOpen = e.currentSelectedRowKeys[0].business_path;
+            console.log(gbE);
             isFirstClick = false;
         },
         onRowClick: function (e) {
@@ -94,30 +96,47 @@ $(function () {
                 container.append($('<div class="gc"></div>'));
                 var gc;
                 gc = $(".gc").dxDataGrid({
+                    showBorders: true,
                     searchPanel: {
                         visible: true,
                         width: 240,
                         placeholder: "Search..."
                     },
-                    groupPanel: {
-                        visible: true
-                    },
+                    //groupPanel: {
+                    //    visible: true
+                    //},
                     editing: {
-                        mode: "row",
+                        mode: "popup",
                         allowDeleting: true,
                         allowAdding: true,
                         useIcons: true,
+                        //form: {
+                        //    items: itemEditingPermission,
+                        //    colCount: 6,
+                        //},
+                        popup: {
+                            title: "รถที่อยู่ในประกอบการภายในประเทศ",
+                            showTitle: true,
+                            width: "70%",
+                            position: { my: "center", at: "center", of: window },
+                        },
                     },
-                    onRowInserting: function (e) {
-                        
-                        e.data.bip_id = fnInsertBusinessPermission(e.data);
+                    onRowInserting: function (e) {                        
+                        e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
+                        e.data.bip_id = fnInsertBusinessInPermission(e.data);
+                    },
+                    onRowRemoving: function (e) {
+                        console.log(e);
+                        fnDeleteBusinessInPermission(e.key.bip_id);
                     },
                     onContentReady: function (e) {
                         var $btnView = $('<div id="btnView" class="mr-2">').dxButton({
                             icon: 'exportpdf', //or your custom icon
                             onClick: function () {
                                 //On Click
-                                window.open('../Path', '_blank');
+                                if (fileOpen != null) {
+                                    window.open(fileOpen, '_blank');
+                                }
                             }
                         });
                         if (e.element.find('#btnView').length == 0)
@@ -149,63 +168,107 @@ $(function () {
                     async: false,
                     success: function (data) {
                         var ndata = 0;
+                        var numType = 0;
                         data.forEach(function (item) {
-                            //////////////////
+
                             if (item.dataField == "bit_name") {
                                 data[ndata].groupIndex = 0;
                             }
+                            if (ndata != 0 && item.dataField != "bit_name") {
+                                data[ndata].allowEditing = false;
+                            } else if (item.dataField == "bit_name") {
+                                numType = ndata;
+                            }
                             ndata++;
+                            //itemEditingPermission.push({
+                            //    colSpan: item.colSpan,
+                            //    dataField: item.dataField,
+                            //    width: "100%",
+                            //    editorOptions: {
+                            //        disabled: false
+                            //    },
+                            //});
                         });
+                        //console.log(itemEditingPermission);
                         $.ajax({
                             type: "POST",
-                            url: "../Home/GetNumberCar",
+                            url: "../Home/GetNumberCarBusiness",
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             async: false,
                             success: function (dataLookup) {
                                 data[0].setCellValue = function (rowData, value) {
+                                    console.log(rowData);
+                                    console.log(value);
                                     var dataNew = [];
                                     $.each(dataLookup, function () {
-                                        if (this.license_id == value) {
+                                        if (this.number_car == value) {
                                             dataNew.push(this);
                                         }
                                     });
-                                    rowData.license_id_head = value;
-                                    rowData.license_car_head = dataNew[0].license_car;
+                                    rowData.number_car = dataNew[0].number_car;
+                                    rowData.license_car = dataNew[0].license_car;
+                                    rowData.brand_car = dataNew[0].brand_car;
+                                    rowData.number_body = dataNew[0].number_body;
+                                    rowData.number_engine = dataNew[0].number_engine;
+                                    console.log(dataNew[0].tax_expire);
+                                    var d1 = parseJsonDate(dataNew[0].tax_expire);
+                                    rowData.tax_expire = d1;
+                                    rowData.style_car = dataNew[0].style_car;
                                 }
+                                
                                 data[0].lookup = {
                                     dataSource: dataLookup,
                                     displayExpr: "number_car",
-                                    valueExpr: "license_id"
-                                }
-                                data[1].allowEditing = false
+                                    valueExpr: "number_car"
+                                };
+                                $.ajax({
+                                    type: "POST",
+                                    url: "../Home/GetBusinessInType",
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (dataType) {
+                                        data[numType].lookup = {
+                                            dataSource: dataType,
+                                            displayExpr: "bit_name",
+                                            valueExpr: "bit_id"
+                                        }
+                                    }
+                                });                                
                             }
                         });
+                        console.log(data);
                         gc.option('columns', data);
-                        $.ajax({
-                            type: "POST",
-                            url: "../Home/GetBusinessInPermission",
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            success: function (data) {
-                                for (var i = 0; i < data.length; i++) {
-                                    var d1 = parseJsonDate(data[i].tax_expire);
-                                    data[i].tax_expire = d1
-                                }
-                                console.log(data);
-                                gc.option('dataSource', data);
-                            }
-                        });
-
                     },
-                    error: function (error) {
-                        console.log(error);
+                    
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetBusinessInPermission",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            
+                            var d1 = parseJsonDate(data[i].tax_expire);
+                            data[i].tax_expire = d1
+                        }
+                        //console.log(data);
+                        var dataTemp = new DevExpress.data.DataSource({
+                            store: new DevExpress.data.ArrayStore({
+                                data: data
+                            }),
+                            filter: ["business_id", "=", gbE.currentSelectedRowKeys[0].business_id]
+                        });
+                        gc.option('dataSource', dataTemp);
+
+                        console.log(gc);
                     }
                 });
             }
         },
-        
-
+       
     }).dxDataGrid('instance');
 
     $.ajax({
@@ -232,6 +295,12 @@ $(function () {
                             dataLookup = data;
                         }
                     });
+                    data[ndata].lookup = {
+                        dataSource: dataLookup,
+                        displayExpr: "data_list",
+                        valueExpr: "data_list"
+                    }
+
                 }
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
@@ -244,6 +313,7 @@ $(function () {
                         },
                     });
                 }
+                ndata++;
             });
             
             dataGrid.option('columns', data);
@@ -295,7 +365,7 @@ $(function () {
         return returnId;
     }
 
-    //Function Update ข้อมูลภาษี
+
     function fnUpdateBusinessIn(newData, keyItem) {
         newData.business_id = keyItem;
         console.log(keyItem);
@@ -315,7 +385,6 @@ $(function () {
         });
     }
 
-    //Function Delete ข้อมูลภาษี
     function fnDeleteBusinessIn(keyItem) {
         $.ajax({
             type: "POST",
@@ -345,17 +414,16 @@ $(function () {
                 fileDataPic = new FormData();
                 document.getElementById("btnSave").disabled = false;
                 $("#mdNewFile").modal('hide');
-                document.getElementById("lbNewFolder").value = '';
+                console.log(data);
                 if (data[0].Status != '0') {
-                    DevExpress.ui.notify("Upload file success.", "error");
+                    fileOpen = data[0].Status;
+                    DevExpress.ui.notify("Upload file success.", "success");
                 } else {
                     DevExpress.ui.notify("Upload file fail", "error");
                 }
             },
             error: function (error) {
                 $("#mdNewFile").modal('hide');
-                $("#mdNewFolder").modal('hide');
-                document.getElementById("lbNewFolder").value = '';
                 DevExpress.ui.notify("Upload file fail", "error");
             }
         });
@@ -363,6 +431,7 @@ $(function () {
 
     function fnInsertBusinessInPermission(dataGrid) {
         var returnId = 0;
+        console.log(dataGrid);
         $.ajax({
             type: "POST",
             url: "../Home/InsertBusinessInPermission",
@@ -372,7 +441,7 @@ $(function () {
             async: false,
             success: function (data) {
                 if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
-                    DevExpress.ui.notify("เพิ่มการค้นหาเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("เพิ่มการรถในประกอบเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
@@ -380,6 +449,23 @@ $(function () {
             }
         });
         return returnId;
+    }
+
+    function fnDeleteBusinessInPermission(keyItem) {
+        $.ajax({
+            type: "POST",
+            url: "../Home/DeleteBusinessInPermission",
+            contentType: "application/json; charset=utf-8",
+            data: "{keyId: '" + keyItem + "'}",
+            dataType: "json",
+            success: function (data) {
+                if (data[0].Status == 1) {
+                    DevExpress.ui.notify("ลบข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                } else {
+                    DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                }
+            }
+        });
     }
 
     function parseJsonDate(jsonDateString) {

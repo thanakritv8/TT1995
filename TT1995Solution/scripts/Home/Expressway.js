@@ -290,7 +290,7 @@ $(function () {
                 dataType: "json",
                 async: false,
                 success: function (dataLookup) {
-                    data[0].lookup = {
+                    data[1].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "license_id"
