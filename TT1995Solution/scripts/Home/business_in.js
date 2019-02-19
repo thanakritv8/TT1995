@@ -99,9 +99,9 @@ $(function () {
                         width: 240,
                         placeholder: "Search..."
                     },
-                    //groupPanel: {
-                    //    visible: true
-                    //},
+                    groupPanel: {
+                        visible: true
+                    },
                     editing: {
                         mode: "row",
                         allowDeleting: true,
@@ -109,18 +109,8 @@ $(function () {
                         useIcons: true,
                     },
                     onRowInserting: function (e) {
-                        $.ajax({
-                            type: "POST",
-                            url: "../Home/GetLicenseCar",
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            data: "{license_id: " + e.data.license_id + "}",
-                            async: false,
-                            success: function (data) {
-                                e.data.license_car = data[0].license_car;
-                            }
-                        });
-                        e.data.tax_id = fnInsertTax(e.data);
+                        
+                        e.data.bip_id = fnInsertBusinessPermission(e.data);
                     },
                     onContentReady: function (e) {
                         var $btnView = $('<div id="btnView" class="mr-2">').dxButton({
@@ -173,15 +163,39 @@ $(function () {
                             dataType: "json",
                             async: false,
                             success: function (dataLookup) {
+                                data[0].setCellValue = function (rowData, value) {
+                                    var dataNew = [];
+                                    $.each(dataLookup, function () {
+                                        if (this.license_id == value) {
+                                            dataNew.push(this);
+                                        }
+                                    });
+                                    rowData.license_id_head = value;
+                                    rowData.license_car_head = dataNew[0].license_car;
+                                }
                                 data[0].lookup = {
                                     dataSource: dataLookup,
                                     displayExpr: "number_car",
                                     valueExpr: "license_id"
                                 }
+                                data[1].allowEditing = false
                             }
                         });
-                        console.log(data);
                         gc.option('columns', data);
+                        $.ajax({
+                            type: "POST",
+                            url: "../Home/GetBusinessInPermission",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                for (var i = 0; i < data.length; i++) {
+                                    var d1 = parseJsonDate(data[i].tax_expire);
+                                    data[i].tax_expire = d1
+                                }
+                                console.log(data);
+                                gc.option('dataSource', data);
+                            }
+                        });
 
                     },
                     error: function (error) {
@@ -240,9 +254,6 @@ $(function () {
         }
     });
 
-    
-
-    //โชว์ข้อมูลภาษีทั้งหมดใน datagrid
     $.ajax({
         type: "POST",
         url: "../Home/GetBusinessIn",
@@ -255,13 +266,11 @@ $(function () {
                 var d2 = parseJsonDate(data[i].business_start);
                 data[i].business_start = d2;
             }
-            console.log(data);
+            //console.log(data);
             dataGrid.option('dataSource', data);
         }
     });
-    //จบการโชว์ข้อมูลภาษี
 
-    //Function Insert ข้อมูลภาษี
     function fnInsertBusinessIn(dataGrid) {
         var returnId = 0;
         $.ajax({

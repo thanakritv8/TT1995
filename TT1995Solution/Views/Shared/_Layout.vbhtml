@@ -107,7 +107,27 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="../Home/GpsCompany">
-                    <span>บริษัท GPS</span>
+                    <span Class="text-light">บริษัท GPS</span>
+                </a>
+            </li>
+            <li Class="nav-item">
+                <a Class="nav-link" href="../Home/Expressway">
+                    <span Class="text-light"> ทางด่วน</span>
+                </a>
+            </li>
+            <li Class="nav-item">
+                <a Class="nav-link" href="../Home/Trackingwork">
+                    <span Class="text-light"> ติดตามงาน</span>
+                </a>
+            </li>
+            <li Class="nav-item">
+                <a Class="nav-link" href="../Home/Installment">
+                    <span Class="text-light"> การผ่อนชำระ</span>
+                </a>
+            </li>
+            <li Class="nav-item">
+                <a Class="nav-link" href="../Home/Gps_car">
+                    <span Class="text-light"> GPS ติดรถ</span>
                 </a>
             </li>
             <li Class="nav-item dropdown">
