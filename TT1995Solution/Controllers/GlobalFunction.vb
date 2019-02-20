@@ -14,7 +14,7 @@ Public Class GlobalFunction
         Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
         Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(ccd.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup ,cc.group_field,cc.placeholder,cc.location
                               FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id inner join config_column_data AS ccd on ccd.cc_id = cc.column_id
-                              WHERE table_id = " & gbTableId & "  
+                              WHERE table_id = " & gbTableId & " and user_id = " & HttpContext.Current.Session("UserId") & "
                               ORDER BY cc.sort ASC"
         Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
         objDB.DisconnectDB(cn)
@@ -236,5 +236,12 @@ Public Class GlobalFunction
             DtJson.Rows.Add("0")
         End Try
         Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+    End Function
+
+    Public Function KeepLog(ByVal ColumnName As String, ByVal Data As String, ByVal _event As String, ByVal IdTable As String, ByVal IdOfTable As String) As Boolean
+        Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        Dim _SQL As String = "INSERT INTO [dbo].[log_all] ([column_id],[_data],[_event],[_table],[id_of_table],[by_user],[_date])
+							  select column_id,N'" & Data & "','" & _event & "'," & IdTable & "," & IdOfTable & "," & HttpContext.Current.Session("UserId") & ",getdate() from config_column where name_column = '" & ColumnName & "' and table_id = " & IdTable & ""
+        Return objDB.ExecuteSQL(_SQL, cn)
     End Function
 End Class

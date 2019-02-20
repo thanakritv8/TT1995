@@ -94,6 +94,40 @@
                         allowAdding: true,
                         useIcons: true,
                     },
+                    onContentReady: function (e) {
+                        var $btnView = $('<div id="btnView" class="mr-3">').dxButton({
+                            icon: 'exportpdf', //or your custom icon
+                            onClick: function () {
+                                //On Click
+                            }
+                        });
+                        if (e.element.find('#btnView').length == 0)
+                            e.element
+                                .find('.dx-toolbar-after')
+                                .prepend($btnView);
+
+                        var $btnUpdate = $('<div id="btnUpdate" class="mr-3">').dxButton({
+                            icon: 'upload', //or your custom icon
+                            onClick: function () {
+                                //On Click
+                            }
+                        });
+                        if (e.element.find('#btnUpdate').length == 0)
+                            e.element
+                                .find('.dx-toolbar-after')
+                                .prepend($btnUpdate);
+
+                        //var $btnDelete = $('<div id="btnDelete" class="mr-3">').dxButton({
+                        //    icon: 'trash', //or your custom icon
+                        //    onClick: function () {
+                        //        //On Click
+                        //    }
+                        //});
+                        //if (e.element.find('#btnDelete').length == 0)
+                        //    e.element
+                        //        .find('.dx-toolbar-after')
+                        //        .prepend($btnDelete);
+                    },
                     columns: [{
                         dataField: "CompanyName",
                         caption: "เบอร์รถหัว",
@@ -113,7 +147,8 @@
                     showBorders: true
                 }).dxDataGrid("instance");
             }
-        }
+        },
+        
     });
 
 

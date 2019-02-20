@@ -4,6 +4,10 @@ var gbTableId = '5';
 var tableName = "product_insurance_company";
 var idFile;
 var data_lookup_number_car;
+var _dataSource;
+var dataGridAll;
+var dataLookupFilter;
+var gbE;
 
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
@@ -23,33 +27,42 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+    function getDataPic() {
+        var dataValue = [];
+        //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetPICData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
 
-    //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
-    $.ajax({
-        type: "POST",
-        url: "../Home/GetPICData",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            ////console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                var d = parseJsonDate(data[i].create_date);
-                data[i].create_date = d;
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
+                }
             }
-            console.log(data);
-            dataGrid.option('dataSource', data);
-        }
-    });
-    //จบการโชว์ข้อมูลทะเบียน
+        }).responseJSON;
+        //จบการโชว์ข้อมูลทะเบียน
+    }
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
 
+    dataGridAll = getDataPic();
+    //console.log(dataGridAll);
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        onContentReady: function (e) {
+            filter();
+        },
+        dataSource: getDataPic(),
         searchPanel: {
             visible: true,
             width: 240,
@@ -83,6 +96,9 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                onHidden: function (e) {
+                    setDefaultNumberCar();
+                }
             },
             useIcons: true,
         },
@@ -98,10 +114,18 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[5].allowEditing', false);
+            dataGrid.option('columns[1].allowEditing', false);
         },
         onInitNewRow: function (e) {
-            dataGrid.option('columns[5].allowEditing', true);
+            var arr = {
+                dataSource: dataLookupFilter,
+                displayExpr: "number_car",
+                valueExpr: "number_car"
+            }
+
+            dataGrid.option('columns[1].lookup', arr);
+
+            dataGrid.option('columns[1].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdatePIC(e.newData, e.key.pic_id);
@@ -116,12 +140,30 @@ $(function () {
                 async: false,
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
+                    e.data.license_id = data[0].license_id;
                 }
             });
             e.data.pic_id = fnInsertPIC(e.data);
+
+            //ตัด number_car ออก
+            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+            filter();
+            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
             fnDeletePIC(e.key.pic_id);
+
+            //กรองอาเรย์
+            dataGridAll.forEach(function (filterdata) {
+                dataGridAll = dataGridAll.filter(function (arr) {
+                    return arr.license_id != e.key.license_id;
+                });
+            });
+
+            //push array
+            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+
+            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -262,6 +304,7 @@ $(function () {
         dataType: "json",
         async: false,
         success: function (data) {
+            console.log(data);
             var ndata = 0;
             data.forEach(function (item) {
 
@@ -306,6 +349,7 @@ $(function () {
                             width: "100%",
                         });
                     }
+
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
@@ -317,7 +361,7 @@ $(function () {
                 async: false,
                 success: function (dataLookup) {
                     data_lookup_number_car = dataLookup;
-                    data[5].lookup = {
+                    data[1].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "number_car"
@@ -325,7 +369,7 @@ $(function () {
 
                 }
             });
-            console.log(data);
+            _dataSource = data[1].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
@@ -355,6 +399,7 @@ $(function () {
 
     //Function Insert ข้อมูล gps_company
     function fnInsertPIC(dataGrid) {
+        console.log(dataGrid);
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -435,6 +480,7 @@ $(function () {
                 fileDataPic.append('parentDirId', idFile);
                 fileDataPic.append('newFolder', folderName);
                 fileDataPic.append('tableId', gbTableId);
+                fileDataPic.append('tableName', tableName);
                 fnInsertFiles(fileDataPic);
             } else {
                 DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
@@ -492,6 +538,7 @@ $(function () {
                 fileDataPic.append('parentDirId', idFile);
                 fileDataPic.append('newFolder', "");
                 fileDataPic.append('tableId', gbTableId);
+                fileDataPic.append('tableName', tableName);
             }
         },
     }).dxFileUploader('instance');
@@ -580,7 +627,7 @@ $(function () {
             type: "POST",
             url: "../Home/DeleteFile",
             contentType: "application/json; charset=utf-8",
-            data: "{keyId: '" + file_id + "',FolderName:'Product_insurance_company'}",
+            data: "{keyId: '" + file_id + "',FolderName:'" + tableName + "'}",
             dataType: 'json',
             success: function (data) {
                 if (data[0].Status != '0') {
@@ -596,5 +643,64 @@ $(function () {
             }
         });
     }
+
+    function filter() {
+        //เซ็ตอาเรย์เริ่มต้น
+        var dataLookupAll = dataGrid._options.columns[1].lookup.dataSource;
+        //เซ็ตอาเรย์ที่จะกรอง
+        var filter = dataGridAll;
+        //กรองอาเรย์
+        filter.forEach(function (filterdata) {
+            dataLookupAll = dataLookupAll.filter(function (arr) {
+                return arr.license_id != filterdata.license_id;
+            });
+        });
+        dataLookupFilter = dataLookupAll;
+    }
+    //event button close 
+    //$(document).on("dxclick", ".dx-closebutton", function () {
+    //    setDefaultNumberCar();
+    //});
+
+    function setDefaultNumberCar() {
+        var arr = {
+            dataSource: _dataSource,
+            displayExpr: "number_car",
+            valueExpr: "number_car"
+        }
+        dataGrid.option('columns[1].lookup', arr);
+    }
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
 
 });

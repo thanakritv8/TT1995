@@ -91,5 +91,7 @@ End Code
 <div class="widget-container">
     <div id="popup"></div>
 </div>
+<div id="popup_data"></div>
+<div id="popup_history"></div>
 <script src="~/scripts/Home/mainInsCom.js"></script>
 

@@ -3,6 +3,10 @@ var columnHide = [];
 var gbTableId = '2';
 var tableName = "gps_company";
 var idFile;
+var _dataSource;
+var dataGridFull;
+var dataLookupFilter;
+var gbE;
 
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
@@ -22,8 +26,40 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+
+    function getDataGc() {
+        var dataValue = [];
+        //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetGpsCompanyData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].create_date);
+                    data[i].create_date = d;
+                }
+            }
+        }).responseJSON;
+        //จบการโชว์ข้อมูลทะเบียน
+    }
+
+    //Function Convert ตัวแปรประเภท Type date ของ javascripts
+    function parseJsonDate(jsonDateString) {
+        return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+    }
+
+    dataGridAll = getDataGc();
+    console.log(dataGridAll);
+
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        dataSource: getDataGc(),
+        onContentReady: function (e) {
+            filter();
+        },
         searchPanel: {
             visible: true,
             width: 240,
@@ -57,6 +93,9 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                onHidden: function (e) {
+                        setDefaultNumberCar();
+                }
             },
             useIcons: true,
         },
@@ -72,10 +111,18 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[0].allowEditing', false);
+            dataGrid.option('columns[1].allowEditing', false);
         },
         onInitNewRow: function (e) {
-            dataGrid.option('columns[0].allowEditing', true);
+            var arr = {
+                dataSource: dataLookupFilter,
+                displayExpr: "number_car",
+                valueExpr: "number_car"
+            }
+
+            dataGrid.option('columns[1].lookup', arr);
+
+            dataGrid.option('columns[1].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateGpsCompany(e.newData, e.key.gc_id);
@@ -91,12 +138,30 @@ $(function () {
                 async: false,
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
+                    e.data.license_id = data[0].license_id;
                 }
             });
             e.data.gc_id = fnInsertGpsCompany(e.data);
+
+            //ตัด number_car ออก
+            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+            filter();
+            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
             fnDeleteGpsCompany(e.key.gc_id);
+
+            //กรองอาเรย์
+            dataGridAll.forEach(function (filterdata) {
+                dataGridAll = dataGridAll.filter(function (arr) {
+                    return arr.license_id != e.key.license_id;
+                });
+            });
+
+            //push array
+            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+
+            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -184,26 +249,47 @@ $(function () {
     }).dxDataGrid('instance');
     //จบการกำหนด dataGrid
 
-    //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
-    $.ajax({
-        type: "POST",
-        url: "../Home/GetGpsCompanyData",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                var d = parseJsonDate(data[i].create_date);
-                data[i].create_date = d;
+    //Get files where id and IdTable
+    function fnGetFiles(GpsCompanyId, IdTable) {
+        var itemData;
+        $.ajax({
+            type: "POST",
+            url: "../Home/GetFilesTew",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{Id: " + GpsCompanyId + ",IdTable: " + IdTable + "}",
+            async: false,
+            success: function (data) {
+                data.push({
+                    "file_id": "root",
+                    "fk_id": GpsCompanyId,
+                    "name_file": "Root",
+                    "type_file": "folder",
+                    "icon": "../Img/folder.png"
+                });
+                itemData = data;
             }
-            dataGrid.option('dataSource', data);
-        }
-    });
-    //จบการโชว์ข้อมูลทะเบียน
+        });
+        return itemData;
+    }
 
-    //Function Convert ตัวแปรประเภท Type date ของ javascripts
-    function parseJsonDate(jsonDateString) {
-        return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+    //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
+    function fnChangeTreeview(gc_id, itemData) {
+        var nItem = 0;
+        itemData.forEach(function (item) {
+            if (item.file_id == idFile) {
+                itemData[nItem].expanded = true;
+            }
+            nItem++;
+        })
+        var dts = new DevExpress.data.DataSource({
+            store: new DevExpress.data.ArrayStore({
+                key: "file_id",
+                data: itemData
+            }),
+            filter: ["fk_id", "=", gc_id]
+        });
+        treeview.option("dataSource", dts);
     }
 
     //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
@@ -213,6 +299,7 @@ $(function () {
         contentType: "application/json; charset=utf-8",
         data: "{gbTableId: '" + gbTableId + "'}",
         dataType: "json",
+        async: false,
         success: function (data) {
             var ndata = 0;
             data.forEach(function (item) {
@@ -269,7 +356,7 @@ $(function () {
                 async: false,
                 success: function (dataLookup) {
                     data_lookup_number_car = dataLookup;
-                    data[0].lookup = {
+                    data[1].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "number_car"
@@ -277,55 +364,12 @@ $(function () {
 
                 }
             });
-            console.log(data);
+            _dataSource = data[1].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
     });
     //จบการกำหนด Column
-
-    //Get files where id and IdTable
-    function fnGetFiles(GpsCompanyId, IdTable) {
-        var itemData;
-        $.ajax({
-            type: "POST",
-            url: "../Home/GetFilesTew",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: "{Id: " + GpsCompanyId + ",IdTable: " + IdTable + "}",
-            async: false,
-            success: function (data) {
-                data.push({
-                    "file_id": "root",
-                    "fk_id": GpsCompanyId,
-                    "name_file": "Root",
-                    "type_file": "folder",
-                    "icon": "../Img/folder.png"
-                });
-                itemData = data;
-            }
-        });
-        return itemData;
-    }
-
-    //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
-    function fnChangeTreeview(gc_id, itemData) {
-        var nItem = 0;
-        itemData.forEach(function (item) {
-            if (item.file_id == idFile) {
-                itemData[nItem].expanded = true;
-            }
-            nItem++;
-        })
-        var dts = new DevExpress.data.DataSource({
-            store: new DevExpress.data.ArrayStore({
-                key: "file_id",
-                data: itemData
-            }),
-            filter: ["fk_id", "=", gc_id]
-        });
-        treeview.option("dataSource", dts);
-    }
 
     //กำหนดรายการคลิกขวาใน treeview และเงื่อนไขกรณีที่มีการคลิกเลือกรายการ
     getContextMenu();
@@ -364,12 +408,13 @@ $(function () {
             document.getElementById("btnNewFolder").disabled = true;
             var folderName = document.getElementById("lbNewFolder").value;
             if (folderName != "") {
-                fileDataPic = new FormData();
-                fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('parentDirId', idFile);
-                fileDataPic.append('newFolder', folderName);
-                fileDataPic.append('tableId', gbTableId);
-                fnInsertFiles(fileDataPic);
+                fileDataGPS = new FormData();
+                fileDataGPS.append('fk_id', idFK);
+                fileDataGPS.append('parentDirId', idFile);
+                fileDataGPS.append('newFolder', folderName);
+                fileDataGPS.append('tableId', gbTableId);
+                fileDataGPS.append('tableName', tableName);
+                fnInsertFiles(fileDataGPS);
             } else {
                 DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
                 document.getElementById("btnNewFolder").disabled = false;
@@ -390,7 +435,7 @@ $(function () {
             type: "POST",
             url: "../Home/DeleteFile",
             contentType: "application/json; charset=utf-8",
-            data: "{keyId: '" + file_id + "',FolderName:'Gps_company'}",
+            data: "{keyId: '" + file_id + "',FolderName:'" + tableName + "'}",
             dataType: 'json',
             success: function (data) {
                 if (data[0].Status != '0') {
@@ -412,11 +457,11 @@ $(function () {
         document.getElementById("btnRename").disabled = true;
         var folderName = document.getElementById("lbRename").value;
         if (folderName != "") {
-            fileDataPic = new FormData();
-            fileDataPic.append('fk_id', idFK);
-            fileDataPic.append('file_id', idFile);
-            fileDataPic.append('rename', folderName);
-            fnRename(fileDataPic);
+            fileDataGPS = new FormData();
+            fileDataGPS.append('fk_id', idFK);
+            fileDataGPS.append('file_id', idFile);
+            fileDataGPS.append('rename', folderName);
+            fnRename(fileDataGPS);
         } else {
             DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
         }
@@ -455,7 +500,7 @@ $(function () {
     $("#btnSave").dxButton({
         onClick: function () {
             document.getElementById("btnSave").disabled = true;
-            fnInsertFiles(fileDataPic);
+            fnInsertFiles(fileDataGPS);
         }
     });
 
@@ -469,7 +514,7 @@ $(function () {
             contentType: false,
             processData: false,
             success: function (data) {
-                fileDataPic = new FormData();
+                fileDataGPS = new FormData();
                 document.getElementById("btnSave").disabled = false;
                 $("#mdNewFile").modal('hide');
                 $("#mdNewFolder").modal('hide');
@@ -499,15 +544,16 @@ $(function () {
         uploadMode: "useForm",
         onValueChanged: function (e) {
             var files = e.value;
-            fileDataPic = new FormData();
+            fileDataGPS = new FormData();
             if (files.length > 0) {
                 $.each(files, function (i, file) {
-                    fileDataPic.append('file', file);
+                    fileDataGPS.append('file', file);
                 });
-                fileDataPic.append('fk_id', idFK);
-                fileDataPic.append('parentDirId', idFile);
-                fileDataPic.append('newFolder', "");
-                fileDataPic.append('tableId', gbTableId);
+                fileDataGPS.append('fk_id', idFK);
+                fileDataGPS.append('parentDirId', idFile);
+                fileDataGPS.append('newFolder', "");
+                fileDataGPS.append('tableId', gbTableId);
+                fileDataGPS.append('tableName', tableName);
             }
         },
     }).dxFileUploader('instance');
@@ -560,6 +606,7 @@ $(function () {
 
     //Function Insert ข้อมูล gps_company
     function fnInsertGpsCompany(dataGrid) {
+        console.log(dataGrid);
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -597,5 +644,60 @@ $(function () {
             }
         });
     }
+
+    function filter() {
+        //เซ็ตอาเรย์เริ่มต้น
+        var dataLookupAll = dataGrid._options.columns[1].lookup.dataSource;
+        //เซ็ตอาเรย์ที่จะกรอง
+        var filter = dataGridAll;
+        //กรองอาเรย์
+        filter.forEach(function (filterdata) {
+            dataLookupAll = dataLookupAll.filter(function (arr) {
+                return arr.license_id != filterdata.license_id;
+            });
+        });
+        dataLookupFilter = dataLookupAll;
+    }
+
+    function setDefaultNumberCar() {
+        var arr = {
+            dataSource: _dataSource,
+            displayExpr: "number_car",
+            valueExpr: "number_car"
+        }
+        dataGrid.option('columns[1].lookup', arr);
+    }
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
 
 });

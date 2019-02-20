@@ -1317,7 +1317,7 @@ Namespace Controllers
 
         'Get data of table Main Insurance Company
         Public Function GetAICData() As String
-            Return GbFn.GetData("SELECT * FROM [dbo].[act_insurance_company] aic , [dbo].[license] li where aic.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[act_insurance_company] aic , [dbo].[license] li where aic.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -1326,7 +1326,7 @@ Namespace Controllers
         End Function
         Public Function UpdateAIC(ByVal number_car As String, ByVal name As String, ByVal start_date As String, ByVal end_date As String, ByVal first_damages As String _
                                   , ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1336,6 +1336,7 @@ Namespace Controllers
             For n As Integer = 0 To TbAIC.Length - 1
                 If Not TbAIC(n) Is Nothing Then
                     _SQL &= StrTbAIC(n) & "=N'" & TbAIC(n) & "',"
+                    GbFn.KeepLog(StrTbAIC(n), TbAIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE aic_id = " & key
@@ -1349,7 +1350,7 @@ Namespace Controllers
         End Function
         Public Function InsertAIC(ByVal number_car As String, ByVal name As String, ByVal start_date As String, ByVal end_date As String, ByVal first_damages As String _
                                   , ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
 
@@ -1375,7 +1376,14 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbAIC() As String = {"name", "start_date", "end_date", "first_damages", "current_cowrie", "previous_cowrie", "price", "protection", "protection_limit", "note"}
+            Dim TbAIC() As Object = {name, start_date, end_date, first_damages, current_cowrie, previous_cowrie, price, protection, protection_limit, note}
+            For n As Integer = 0 To TbAIC.Length - 1
+                If Not TbAIC(n) Is Nothing Then
+                    _SQL &= StrTbAIC(n) & "=N'" & TbAIC(n) & "',"
+                    GbFn.KeepLog(StrTbAIC(n), TbAIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -1439,6 +1447,7 @@ Namespace Controllers
                                     ,IIF ( ISNUMERIC ( mic.[t3_1_2_b] )	=1		, CONVERT(varchar, CAST(mic.[t3_1_2_b]	AS money ), 1), mic.[t3_1_2_b] )	as [t3_1_2_b]
                                     ,IIF ( ISNUMERIC ( mic.[t3_2_1] )		=1		, CONVERT(varchar, CAST(mic.[t3_2_1]	AS money ), 1), mic.[t3_2_1] )		as [t3_2_1]
                                     ,IIF ( ISNUMERIC ( mic.[t3_3_1] )		=1		, CONVERT(varchar, CAST(mic.[t3_3_1]	AS money ), 1), mic.[t3_3_1] )		as [t3_3_1]
+                                    ,N'ประวัติ' as history
 	                                FROM [dbo].[main_insurance_company] mic , [dbo].[license] li where mic.license_id = li.license_id order by li.number_car
                             ")
         End Function
@@ -1451,7 +1460,7 @@ Namespace Controllers
                                   , ByVal start_date As String, ByVal end_date As String, ByVal type As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
                                   , ByVal extension_insurance As String, ByVal note As String, ByVal key As String, ByVal t1_1_1 As String, ByVal t1_1_2 As String, ByVal t1_2_1 As String _
                                   , ByVal t1_2_2 As String, ByVal t2_1_1 As String, ByVal t2_1_2 As String, ByVal t2_2_1 As String, ByVal t3_1_1_a As String, ByVal t3_1_1_b As String _
-                                  , ByVal t3_1_2_a As String, ByVal t3_1_2_b As String, ByVal t3_2_1 As String, ByVal t3_3_1 As String) As String
+                                  , ByVal t3_1_2_a As String, ByVal t3_1_2_b As String, ByVal t3_2_1 As String, ByVal t3_3_1 As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1461,6 +1470,7 @@ Namespace Controllers
             For n As Integer = 0 To TbMIC.Length - 1
                 If Not TbMIC(n) Is Nothing Then
                     _SQL &= StrTbMIC(n) & " = N'" & TbMIC(n) & "',"
+                    GbFn.KeepLog(StrTbMIC(n), TbMIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE mic_id = " & key
@@ -1476,7 +1486,7 @@ Namespace Controllers
                                   , ByVal start_date As String, ByVal end_date As String, ByVal type As String, ByVal price As String, ByVal protection As String, ByVal protection_limit As String _
                                   , ByVal extension_insurance As String, ByVal note As String, ByVal key As String, ByVal t1_1_1 As String, ByVal t1_1_2 As String, ByVal t1_2_1 As String _
                                   , ByVal t1_2_2 As String, ByVal t2_1_1 As String, ByVal t2_1_2 As String, ByVal t2_2_1 As String, ByVal t3_1_1_a As String, ByVal t3_1_1_b As String _
-                                  , ByVal t3_1_2_a As String, ByVal t3_1_2_b As String, ByVal t3_2_1 As String, ByVal t3_3_1 As String) As String
+                                  , ByVal t3_1_2_a As String, ByVal t3_1_2_b As String, ByVal t3_2_1 As String, ByVal t3_3_1 As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
 
@@ -1522,6 +1532,14 @@ Namespace Controllers
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
 
+            Dim StrTbMIC() As String = {"insurance_company", "first_damages", "insurance_number", "assured", "start_date", "end_date", "type", "price", "protection", "protection_limit", "extension_insurance", "note", "t1_1_1", "t1_1_2", "t1_2_1", "t1_2_2", "t2_1_1", "t2_1_2", "t2_2_1", "t3_1_1_a", "t3_1_1_b", "t3_1_2_a", "t3_1_2_b", "t3_2_1", "t3_3_1"}
+            Dim TbMIC() As Object = {insurance_company, first_damages, insurance_number, assured, start_date, end_date, type, price, protection, protection_limit, extension_insurance, note, t1_1_1, t1_1_2, t1_2_1, t1_2_2, t2_1_1, t2_1_2, t2_2_1, t3_1_1_a, t3_1_1_b, t3_1_2_a, t3_1_2_b, t3_2_1, t3_3_1}
+            For n As Integer = 0 To TbMIC.Length - 1
+                If Not TbMIC(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbMIC(n), TbMIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -1553,7 +1571,7 @@ Namespace Controllers
 
         'Get data of table Product Insurance Company
         Public Function GetPICData() As String
-            Return GbFn.GetData("SELECT * FROM [dbo].[product_insurance_company] pic , [dbo].[license] li where pic.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[product_insurance_company] pic , [dbo].[license] li where pic.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -1562,7 +1580,7 @@ Namespace Controllers
         End Function
         Public Function UpdatePIC(ByVal number_car As String, ByVal first_damages As String, ByVal current_cowrie As String, ByVal previous_cowrie As String,
                                   ByVal start_date As String, ByVal end_date As String, ByVal main_protection_product As String, ByVal price As String, ByVal protection_limit As String _
-                                      , ByVal extension_insurance As String, ByVal note As String, ByVal key As String) As String
+                                      , ByVal extension_insurance As String, ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1572,6 +1590,7 @@ Namespace Controllers
             For n As Integer = 0 To TbPIC.Length - 1
                 If Not TbPIC(n) Is Nothing Then
                     _SQL &= StrTbPIC(n) & "=N'" & TbPIC(n) & "',"
+                    GbFn.KeepLog(StrTbPIC(n), TbPIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE pic_id = " & key
@@ -1585,7 +1604,7 @@ Namespace Controllers
         End Function
         Public Function InsertPIC(ByVal number_car As String, ByVal first_damages As String, ByVal current_cowrie As String, ByVal previous_cowrie As String,
                                   ByVal start_date As String, ByVal end_date As String, ByVal main_protection_product As String, ByVal price As String, ByVal protection_limit As String _
-                                      , ByVal extension_insurance As String, ByVal note As String, ByVal key As String) As String
+                                      , ByVal extension_insurance As String, ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
 
@@ -1611,6 +1630,14 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
+
+            Dim StrTbPIC() As String = {"first_damages", "current_cowrie", "previous_cowrie", "start_date", "end_date", "main_protection_product", "price", "protection_limit", "extension_insurance", "note"}
+            Dim TbPIC() As Object = {first_damages, current_cowrie, previous_cowrie, start_date, end_date, main_protection_product, price, protection_limit, extension_insurance, note}
+            For n As Integer = 0 To TbPIC.Length - 1
+                If Not TbPIC(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbPIC(n), TbPIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1643,7 +1670,7 @@ Namespace Controllers
 
         'Get data of table gps_company
         Public Function GetGpsCompanyData() As String
-            Return GbFn.GetData("SELECT * FROM [dbo].[gps_company] gc , [dbo].[license] li where gc.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[gps_company] gc , [dbo].[license] li where gc.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -1652,7 +1679,8 @@ Namespace Controllers
         End Function
         Public Function UpdateGpsCompany(ByVal number_car As String, ByVal number_sim As String, ByVal number_book As String, ByVal company As String _
                                          , ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal expire_date As String _
-                                         , ByVal reading_data As String, ByVal usage As String, ByVal price As String, ByVal note As String, ByVal key As String) As String
+                                         , ByVal reading_data As String, ByVal usage As String, ByVal price As String, ByVal note As String _
+                                         , ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1662,6 +1690,7 @@ Namespace Controllers
             For n As Integer = 0 To TbGpsCompany.Length - 1
                 If Not TbGpsCompany(n) Is Nothing Then
                     _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+                    GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE gc_id = " & key
@@ -1673,9 +1702,11 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
+
         Public Function InsertGpsCompany(ByVal number_car As String, ByVal number_sim As String, ByVal number_book As String, ByVal company As String _
                                          , ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal expire_date As String _
-                                         , ByVal reading_data As String, ByVal usage As String, ByVal price As String, ByVal note As String, ByVal key As String) As String
+                                         , ByVal reading_data As String, ByVal usage As String, ByVal price As String, ByVal note As String _
+                                         , ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1701,6 +1732,14 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
+            Dim StrTbGpsCompany() As String = {"number_sim", "number_book", "company", "type", "model", "number_serial", "expire_date", "reading_data", "usage", "price", "note"}
+            Dim TbGpsCompany() As Object = {number_sim, number_book, company, type, model, number_serial, expire_date, reading_data, usage, price, note}
+            For n As Integer = 0 To TbGpsCompany.Length - 1
+                If Not TbGpsCompany(n) Is Nothing Then
+                    _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+                    GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1722,6 +1761,13 @@ Namespace Controllers
 #End Region
 
 #Region "Function Tew"
+
+        Public Function getHistory(ByVal table As String, ByVal idOfTable As String) As String
+            Return GbFn.GetData("select Row_Number() Over ( Order By la._date desc ) As row,la._event,cc.display as column_display,la._data,ac.firstname,la._date 
+                                    from log_all la inner join config_column cc on cc.column_id = la.column_id inner join account ac on ac.user_id = la.by_user 
+                                    where la.id_of_table = '" & idOfTable & "' and la._table = " & table & " order by la._date desc
+                                ")
+        End Function
 
         'Config Column Data
         Public Sub SetDataOfConfigColumnData()

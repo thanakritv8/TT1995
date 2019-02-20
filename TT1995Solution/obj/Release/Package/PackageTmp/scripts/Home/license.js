@@ -440,7 +440,6 @@ $(function () {
                 if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
                     DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
-
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }

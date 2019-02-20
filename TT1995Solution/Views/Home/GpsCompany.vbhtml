@@ -6,6 +6,9 @@ End Code
         overflow-y: auto;
         height: 100%;
     }
+    #gridHistory {
+        height: 440px;
+    }
 </style>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
@@ -91,4 +94,6 @@ End Code
 <div class="widget-container">
     <div id="popup"></div>
 </div>
+<div id="popup_history"></div>
+
 <script src="~/scripts/Home/gpsCompany.js"></script>

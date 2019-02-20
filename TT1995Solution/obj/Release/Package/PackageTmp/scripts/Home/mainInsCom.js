@@ -1,9 +1,13 @@
-﻿var itemEditing = [];
+﻿var itemEditing = [[], [], [], []];
 var columnHide = [];
 var gbTableId = '7';
 var tableName = "main_insurance_company";
 var idFile;
 var data_lookup_number_car;
+var _dataSource;
+var dataGridAll;
+var dataLookupFilter;
+var gbE;
 
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
@@ -22,37 +26,58 @@ var contextMenuItemsFile = [
 ];
 var OptionsMenu = contextMenuItemsFolder;
 
+var feed = {
+    cellTemplate: function (container, options) {
+        $('<a/>').addClass('dx-link')
+            .text('Command')
+            .on('dxclick', function () {
+                //Do something with options.data;
+            })
+            .appendTo(container);
+    }
+};
+
 $(function () {
 
-    //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
-    $.ajax({
-        type: "POST",
-        url: "../Home/GetMICData",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            ////console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                var d = parseJsonDate(data[i].create_date);
-                data[i].create_date = d;
+    function getDataMic() {
+        var dataValue = [];
+        //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetMICData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
+
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
+                }
             }
-            console.log(data);
-            dataGrid.option('dataSource', data);
-        }
-    });
-    //จบการโชว์ข้อมูลทะเบียน
+        }).responseJSON;
+        //จบการโชว์ข้อมูลทะเบียน
+    }
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
 
+    dataGridAll = getDataMic();
+    //console.log(dataGridAll);
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        onContentReady: function (e) {
+            filter();
+        },
+        dataSource: getDataMic(),
         searchPanel: {
             visible: true,
-            width: 240,
+            width: 100,
             placeholder: "Search..."
         },
         showBorders: true,
@@ -75,14 +100,33 @@ $(function () {
             allowDeleting: true,
             allowAdding: true,
             form: {
-                items: itemEditing,
-                colCount: 6,
+                colCount: 2,
+                items: [{
+                    itemType: "group",
+                    caption: "ความผิดชอบต่อบุคคลภายนอก",
+                    items: itemEditing[1]
+                }, {
+                    itemType: "group",
+                    caption: "รถยนต์สูญหาย เสียหาย ไฟไหม้",
+                    items: itemEditing[2]
+                }, {
+                    itemType: "group",
+                    caption: "ข้อมูล",
+                    items: itemEditing[0]
+                }, {
+                    itemType: "group",
+                    caption: "ความคุ้มครองตามเอกสารแบบท้าย",
+                    items: itemEditing[3]
+                }]
             },
             popup: {
                 title: "รายการบริษัทประกันหลัก",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                onHidden: function (e) {
+                    setDefaultNumberCar();
+                }
             },
             useIcons: true,
         },
@@ -98,10 +142,19 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[2].allowEditing', false);
+            dataGrid.option('columns[1].allowEditing', false);
         },
         onInitNewRow: function (e) {
-            dataGrid.option('columns[2].allowEditing', true);
+
+            var arr = {
+                dataSource: dataLookupFilter,
+                displayExpr: "number_car",
+                valueExpr: "number_car"
+            }
+
+            dataGrid.option('columns[1].lookup', arr);
+
+            dataGrid.option('columns[1].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateMIC(e.newData, e.key.mic_id);
@@ -116,12 +169,29 @@ $(function () {
                 async: false,
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
+                    e.data.license_id = data[0].license_id;
                 }
             });
             e.data.mic_id = fnInsertMIC(e.data);
+            //ตัด number_car ออก
+            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+            filter();
+            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
             fnDeleteMIC(e.key.mic_id);
+
+            //กรองอาเรย์
+            dataGridAll.forEach(function (filterdata) {
+                dataGridAll = dataGridAll.filter(function (arr) {
+                    return arr.license_id != e.key.license_id;
+                });
+            });
+
+            //push array //เพิ่ม number_car ออก
+            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+
+            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -288,22 +358,87 @@ $(function () {
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
+                data[25].cellTemplate = function (container, options) {
+                    $('<a style="color:green" />').addClass('dx-link')
+                            .text(options.value)
+                            .on('dxclick', function () {
+                                popup_data.option("contentTemplate", null);
+                                popup_data._options.contentTemplate = function (content) {
+                                    content.append("<div><table border=1 width='100%'><tr class='black white-text' ><td width='35%' align='center'>ความรับผิดชอบต่อบุคคลภายนอก</td><td width='25%' align='center'>รถยนต์เสียหาย สูญหาย ไฟไหม้</td><td width='40%' align='center'>ความคุ้มครองตามเอกสารแนบท้าย</td></tr><tr ><td valign='top'><table border=0 width='100%'><tr><td>1) ความเสียหายต่อชีวิต ร่างกาย หรืออนามัยเฉพาะส่วนเกินวงเงินสูงสุดตาม พรบ<table border=0 style='width:100%'><tr><td style='width:80%'  align='center' >" + options.data.t1_1_1 + "</td><td style='width:20%'  align='right' >บาท/คน</td></tr><tr><td style='width:80%'  align='center'>" + options.data.t1_1_2 + "</td><td style='width:20%'  align='right' >บาท/ครั้ง</td></tr></table></td></tr><tr><td>2) ความเสียหายต่อทรัพย์สิน <table border=0 style='width:100%'><tr><td width='80%'  align='center'>" + options.data.t1_2_1 + "</td><td width='20%'  align='right' >บาท/ครั้ง</td></tr></table></td></tr><tr><td>&nbsp;&nbsp;2.1) ความเสียหายสวนแรก <table border=0 style='width:100%'><tr><td width='80%'  align='center'>" + options.data.t1_2_2 + "</td><td width='20%'  align='right' >บาท/ครั้ง</td></tr></table></td></tr></table></td><td valign='top'><table border=0 width='100%'><tr><td>1) ความเสียหายต่อรถยนต์<table border=0 width='100%'><tr ><td width='80%'  align='center'>" + options.data.t2_1_1 + "</td><td width='20%'  align='right'>บาท/ครั้ง</td></tr><tr><td colspan='2'>1.1 ความเสียหายส่วนแรก<table border=0 width='100%'><tr><td width='80%' align='center'>" + options.data.t2_1_2 + "</td><td width='20%' align='right'>บาท/ครั้ง</td></tr></table></td></tr></table></td></tr><tr><td>2)รถยนต์สูญหายไฟไหม้/ไฟไหม้<table border=0 width='100%'><tr ><td width='80%'  align='center'>" + options.data.t2_2_1 + "</td><td width='20%'  align='right'>บาท/ครั้ง</td></tr></table></td></tr><tr><td></td></tr></table></td><td><table border=0 width='100%'><tr><td>1) อุบัติเหตุส่วนบุคคล<table border=0 width='100%'><tr><td >1.1 เสียชีวิต สูญเสียอวัยวะ ทุพพลภาพถาวร<table border=0 width='100%'><tr></td><td width='30%' align='left'>&nbsp;&nbsp; ก) ผู้ขับขี่ 1 คน</td><td width='40%' align='center'>" + options.data.t3_1_1_b + "</td><td width='30%' align='right'>บาท</td></tr><tr><td width='30%' align='left'>&nbsp;&nbsp; ข) ผู้โดยสาร 2 คน</td><td width='40%' align='center'>" + options.data.t3_1_1_a + "</td><td width='20%' align='right'>บาท/คน</td></tr></table></td></tr><tr><td >1.2 ทุพพลภาพชั่วคราว<table border=0 width='100%'><tr><td width='30%' align='left'>&nbsp;&nbsp; ก) ผู้ขับขี่ 1 คน</td><td width='40%' align='center'>" + options.data.t3_1_2_a + "</td><td width='30%' align='right'>บาท/สัปดาห์</td></tr><tr><td width='30%' align='left'>&nbsp;&nbsp; ข) ผู้โดยสาร - คน</td><td width='40%' align='center'>" + options.data.t3_1_2_b + "</td><td width='30%' align='right'>บาท/คน/สัปดาห์</td></tr></table></td></tr></table></td></tr><tr><td>2) ค่ารักษาพยาบาล<table border=0 width='100%'><tr><td ><table border=0 width='100%'><tr><td width='30%' align='left'></td><td width='40%' align='center'>" + options.data.t3_2_1 + "</td><td width='30%' align='right'>บาท/คน</td></tr></table></td></tr></table></td></tr><tr><td>3) การประกันตัวผู้ขับขี่<table border=0 width='100%'><tr><td ><table border=0 width='100%'><tr><td width='30%' align='left'></td><td width='40%' align='center'>" + options.data.t3_3_1 + "</td><td width='30%' align='right'>บาท/ครั้ง</td></tr></table></td></tr></table></td></tr></table></td></tr></table></div>")
+                                }
+                                $("#popup_data").dxPopup("show");
+                            })
+                            .appendTo(container);
+                }
+
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "mic_id" && item.dataField != "license_id") {
-                    if (item.dataField == "number_car") {
-                        itemEditing.push({
+                    if (item.group_field == "1") {
+                        if (item.dataField == "number_car") {
+                            itemEditing[0].push({
+                                colSpan: item.colSpan,
+                                dataField: item.dataField,
+                                width: "100%",
+                                editorOptions: {
+                                    disabled: false
+                                },
+                                label: {
+                                    location: item.location,
+                                    alignment: item.alignment
+                                },
+                            });
+                        } else if (item.dataField != "license_car") {
+                            itemEditing[0].push({
+                                colSpan: item.colSpan,
+                                dataField: item.dataField,
+                                width: "100%",
+                                editorOptions: {
+                                    placeholder: item.placeholder
+                                },
+                                label: {
+                                    location: item.location,
+                                    alignment: item.alignment
+                                }
+                            });
+                        }
+                    } else if (item.group_field == "2") {
+                        itemEditing[1].push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
                             width: "100%",
                             editorOptions: {
-                                disabled: false
+                                placeholder: item.placeholder
                             },
+                            label: {
+                                location: item.location,
+                                alignment: item.alignment
+                            }
                         });
-                    } else if (item.dataField != "license_car") {
-                        itemEditing.push({
+                    } else if (item.group_field == "3") {
+                        itemEditing[2].push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
                             width: "100%",
+                            editorOptions: {
+                                placeholder: item.placeholder
+                            },label: { 
+                                location: item.location,
+                                alignment: item.alignment
+                            },
+                            itemEditing
+                        });
+                    } else if (item.group_field == "4") {
+                        itemEditing[3].push({
+                            colSpan: item.colSpan,
+                            dataField: item.dataField,
+                            width: "100%",
+                            editorOptions: {
+                                placeholder: item.placeholder
+                            },
+                            label: {
+                                location: item.location,
+                                alignment: item.alignment
+                            }
                         });
                     }
                 }
@@ -317,7 +452,7 @@ $(function () {
                 async: false,
                 success: function (dataLookup) {
                     data_lookup_number_car = dataLookup;
-                    data[2].lookup = {
+                    data[1].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "number_car"
@@ -325,7 +460,7 @@ $(function () {
 
                 }
             });
-            console.log(data);
+            _dataSource = data[1].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
@@ -435,6 +570,7 @@ $(function () {
                 fileDataMic.append('parentDirId', idFile);
                 fileDataMic.append('newFolder', folderName);
                 fileDataMic.append('tableId', gbTableId);
+                fileDataMic.append('tableName', tableName);
                 fnInsertFiles(fileDataMic);
             } else {
                 DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
@@ -492,6 +628,7 @@ $(function () {
                 fileDataMic.append('parentDirId', idFile);
                 fileDataMic.append('newFolder', "");
                 fileDataMic.append('tableId', gbTableId);
+                fileDataMic.append('tableName', tableName);
             }
         },
     }).dxFileUploader('instance');
@@ -580,7 +717,7 @@ $(function () {
             type: "POST",
             url: "../Home/DeleteFile",
             contentType: "application/json; charset=utf-8",
-            data: "{keyId: '" + file_id + "',FolderName:'Main_insurance_company'}",
+            data: "{keyId: '" + file_id + "',FolderName:'" + tableName + "'}",
             dataType: 'json',
             success: function (data) {
                 if (data[0].Status != '0') {
@@ -596,5 +733,76 @@ $(function () {
             }
         });
     }
+
+    var popup_data = $("#popup_data").dxPopup({
+        visible: false,
+        width: "auto",
+        height: "auto",
+        showTitle: true,
+        title: "รายละเอียด",
+        contentTemplate: function (content) {
+            return $("")
+
+        }
+    }).dxPopup("instance");
+
+    function filter() {
+        //เซ็ตอาเรย์เริ่มต้น
+        var dataLookupAll = dataGrid._options.columns[1].lookup.dataSource;
+        //เซ็ตอาเรย์ที่จะกรอง
+        var filter = dataGridAll;
+        //กรองอาเรย์
+        filter.forEach(function (filterdata) {
+            dataLookupAll = dataLookupAll.filter(function (arr) {
+                return arr.license_id != filterdata.license_id;
+            });
+        });
+        dataLookupFilter = dataLookupAll;
+    }
+    //event button close 
+    //$(document).on("dxclick", ".dx-closebutton", function () {
+    //    setDefaultNumberCar();
+    //});
+
+    function setDefaultNumberCar() {
+        var arr = {
+            dataSource: _dataSource,
+            displayExpr: "number_car",
+            valueExpr: "number_car"
+        }
+        dataGrid.option('columns[1].lookup', arr);
+    }
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
 
 });

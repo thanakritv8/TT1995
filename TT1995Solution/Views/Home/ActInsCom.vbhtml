@@ -91,5 +91,6 @@ End Code
 <div class="widget-container">
     <div id="popup"></div>
 </div>
+<div id="popup_history"></div>
 <script src="~/scripts/Home/actInsCom.js"></script>
 
