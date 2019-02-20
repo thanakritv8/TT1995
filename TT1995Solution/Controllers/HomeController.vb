@@ -1253,6 +1253,221 @@ Namespace Controllers
 
 #End Region
 
+#Region "BusinessOut"
+        Function BusinessOut() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        Public Function GetColumnChooserBusinessOut(ByVal table_id As Integer) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
+            Dim DtTax As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtTax.Rows Select DtTax.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetBusinessOutType() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * FROM business_out_type"
+            Dim DtBitType As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtBitType.Rows Select DtBitType.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetBusinessOut() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT business_path, business_id, business_number, business_expire, business_start, business_name, business_address, business_type, country_code, benefit, business_status FROM business_out"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetNumberCarBusinessOut() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT l.number_car, l.license_id, l.license_car, l.brand_car, l.number_body, l.number_engine, l.style_car, t.tax_expire, [bot].bot_name FROM license as l left join tax as t on l.license_id = t.license_id left join business_out_permission as bop on l.license_id = bop.license_id left join business_out_type as [bot] on bop.bot_id = [bot].bot_id"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetBusinessOutPermission() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT bop.bop_id, bop.business_id, [bot].bot_id as bot_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car FROM business_out_permission as bop join business_out_type as [bot] on bop.bot_id = [bot].bot_id join license as l on bop.license_id = l.license_id join tax as t on l.license_id = t.license_id"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateBusinessOut(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [business_out] SET "
+            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "business_path"}
+            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, business_path}
+            For n As Integer = 0 To TbBusiness.Length - 1
+                If Not TbBusiness(n) Is Nothing Then
+                    _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+
+        Public Function InsertBusinessOut(ByVal business_number As String, ByVal business_expire As DateTime, ByVal business_start As DateTime, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal country_code As String, ByVal benefit As String, ByVal business_status As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO business_out (business_number, business_expire, business_start, business_name, business_address, business_type, country_code, benefit, business_status, create_by_user_id) OUTPUT Inserted.business_id VALUES "
+            _SQL &= "(N'" & business_number & "', '" & business_expire & "', '" & business_start & "', N'" & business_name & "', N'" & business_address & "', N'" & business_type & "', N'" & country_code & "', N'" & benefit & "', N'" & business_status & "', '" & Session("UserId") & "')"
+            If Not business_number Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertBusinessOutPermission(ByVal bot_name As String, ByVal business_id As String, ByVal number_car As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+
+            Dim _SQL As String = "SELECT license_id FROM license WHERE number_car = '" & number_car & "'"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            If DtLicense.Rows.Count > 0 Then
+                _SQL = "INSERT INTO business_out_permission (bot_id, business_id, license_id, create_by_user_id) OUTPUT Inserted.bop_id VALUES "
+                _SQL &= "('" & bot_name & "', '" & business_id & "', '" & DtLicense.Rows(0)("license_id") & "', '" & Session("UserId") & "')"
+                If Not bot_name Is Nothing And Not business_id Is Nothing And Not number_car Is Nothing Then
+                    DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                Else
+                    DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+                End If
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileBusinessOut() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/BO/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE business_out SET business_path = N'../Files/BO/" & fk_id & "/" & file.FileName & "' WHERE business_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/BO/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteFileBusinessOut(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "SELECT * FROM business_out WHERE business_id = " & keyId
+            Dim dtbi As DataTable = objDB.SelectSQL(_SQL, cn)
+            If dtbi.Rows.Count > 0 Then
+                Dim pathServer As String = Server.MapPath(dtbi.Rows(0)("business_path").Replace("..", "~"))
+                If System.IO.File.Exists(pathServer) = True Then
+                    System.IO.File.Delete(pathServer)
+                End If
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteBusinessOutPermission(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE business_out_permission WHERE bop_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteBusinessOut(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE business_out WHERE business_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+
+#End Region
+
 #Region "Utility"
 
         Private Function fnGetPath(ByVal Id As String) As String

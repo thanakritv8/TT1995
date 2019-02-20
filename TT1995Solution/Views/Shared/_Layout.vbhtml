@@ -79,7 +79,7 @@
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="../Home/BusinessIn">ภายในประเทศ</a>
-                    <a Then Class="dropdown-item" href="#">ภายนอกประเทศ</a>
+                    <a Then Class="dropdown-item" href="../Home/BusinessOut">ภายนอกประเทศ</a>
                 </div>
             </li>
             <li Class="nav-item dropdown">

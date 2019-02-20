@@ -1569,6 +1569,7 @@
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\actInsCom.js" />
+    <Content Include="scripts\Home\business_out.js" />
     <Content Include="scripts\Home\business_in.js" />
     <Content Include="scripts\Home\driver.js" />
     <Content Include="scripts\Home\Expressway.js" />
@@ -1724,6 +1725,7 @@
     <Content Include="Views\Home\Gps_car.vbhtml" />
     <Content Include="Views\Home\Installment.vbhtml" />
     <Content Include="Views\Home\Trackingwork.vbhtml" />
+    <Content Include="Views\Home\BusinessOut.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
