@@ -58,7 +58,7 @@ $(function () {
                 colCount: 6,
             },
             popup: {
-                title: "ประกอบการภายในประเทศ",
+                title: "ประกอบการภายนอกประเทศ",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
@@ -82,13 +82,13 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            fnUpdateBusinessIn(e.newData, e.key.business_id);
+            fnUpdateBusinessOut(e.newData, e.key.business_id);
         },
         onRowInserting: function (e) {
-            e.data.business_id = fnInsertBusinessIn(e.data);
+            e.data.business_id = fnInsertBusinessOut(e.data);
         },
         onRowRemoving: function (e) {
-            fnDeleteBusinessIn(e.key.business_id);
+            fnDeleteBusinessOut(e.key.business_id);
         },
         masterDetail: {
             enabled: false,
@@ -115,7 +115,7 @@ $(function () {
                         //    colCount: 6,
                         //},
                         popup: {
-                            title: "รถที่อยู่ในประกอบการภายในประเทศ",
+                            title: "รถที่อยู่ในประกอบการภายนอกประเทศ",
                             showTitle: true,
                             width: "70%",
                             position: { my: "center", at: "center", of: window },
@@ -123,11 +123,11 @@ $(function () {
                     },
                     onRowInserting: function (e) {                        
                         e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
-                        e.data.bip_id = fnInsertBusinessInPermission(e.data);
+                        e.data.bop_id = fnInsertBusinessOutPermission(e.data);
                     },
                     onRowRemoving: function (e) {
-                        console.log(e);
-                        fnDeleteBusinessInPermission(e.key.bip_id);
+                        //console.log(e);
+                        fnDeleteBusinessOutPermission(e.key.bop_id);
                     },
                     onContentReady: function (e) {
                         var $btnView = $('<div id="btnView" class="mr-2">').dxButton({
@@ -161,9 +161,9 @@ $(function () {
 
                 $.ajax({
                     type: "POST",
-                    url: "../Home/GetColumnChooserBusinessIn",
+                    url: "../Home/GetColumnChooserBusinessOut",
                     contentType: "application/json; charset=utf-8",
-                    data: "{table_id: 14}",
+                    data: "{table_id: 21}",
                     dataType: "json",
                     async: false,
                     success: function (data) {
@@ -171,12 +171,12 @@ $(function () {
                         var numType = 0;
                         data.forEach(function (item) {
 
-                            if (item.dataField == "bit_name") {
+                            if (item.dataField == "bot_name") {
                                 data[ndata].groupIndex = 0;
                             }
-                            if (ndata != 0 && item.dataField != "bit_name") {
+                            if (ndata != 0 && item.dataField != "bot_name") {
                                 data[ndata].allowEditing = false;
-                            } else if (item.dataField == "bit_name") {
+                            } else if (item.dataField == "bot_name") {
                                 numType = ndata;
                             }
                             ndata++;
@@ -192,7 +192,7 @@ $(function () {
                         //console.log(itemEditingPermission);
                         $.ajax({
                             type: "POST",
-                            url: "../Home/GetNumberCarBusiness",
+                            url: "../Home/GetNumberCarBusinessOut",
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             async: false,
@@ -224,15 +224,15 @@ $(function () {
                                 };
                                 $.ajax({
                                     type: "POST",
-                                    url: "../Home/GetBusinessInType",
+                                    url: "../Home/GetBusinessOutType",
                                     contentType: "application/json; charset=utf-8",
                                     dataType: "json",
                                     async: false,
                                     success: function (dataType) {
                                         data[numType].lookup = {
                                             dataSource: dataType,
-                                            displayExpr: "bit_name",
-                                            valueExpr: "bit_id"
+                                            displayExpr: "bot_name",
+                                            valueExpr: "bot_id"
                                         }
                                     }
                                 });                                
@@ -245,7 +245,7 @@ $(function () {
                 });
                 $.ajax({
                     type: "POST",
-                    url: "../Home/GetBusinessInPermission",
+                    url: "../Home/GetBusinessOutPermission",
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
@@ -273,9 +273,9 @@ $(function () {
 
     $.ajax({
         type: "POST",
-        url: "../Home/GetColumnChooserBusinessIn",
+        url: "../Home/GetColumnChooserBusinessOut",
         contentType: "application/json; charset=utf-8",
-        data: "{table_id: 13}",
+        data: "{table_id: 20}",
         dataType: "json",
         async: false,
         success: function (data) {
@@ -326,7 +326,7 @@ $(function () {
 
     $.ajax({
         type: "POST",
-        url: "../Home/GetBusinessIn",
+        url: "../Home/GetBusinessOut",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -341,18 +341,18 @@ $(function () {
         }
     });
 
-    function fnInsertBusinessIn(dataGrid) {
+    function fnInsertBusinessOut(dataGrid) {
         var returnId = 0;
         $.ajax({
             type: "POST",
-            url: "../Home/InsertBusinessIn",
+            url: "../Home/InsertBusinessOut",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
             async: false,
             success: function (data) {
                 if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("เพิ่มข้อมูลประกอบการภายนอกประเทศเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
@@ -366,18 +366,18 @@ $(function () {
     }
 
 
-    function fnUpdateBusinessIn(newData, keyItem) {
+    function fnUpdateBusinessOut(newData, keyItem) {
         newData.business_id = keyItem;
         console.log(keyItem);
         $.ajax({
             type: "POST",
-            url: "../Home/UpdateBusinessIn",
+            url: "../Home/UpdateBusinessOut",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("แก้ไขข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("แก้ไขข้อมูลประกอบการภายนอกประเทศเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
                 }
@@ -385,16 +385,16 @@ $(function () {
         });
     }
 
-    function fnDeleteBusinessIn(keyItem) {
+    function fnDeleteBusinessOut(keyItem) {
         $.ajax({
             type: "POST",
-            url: "../Home/DeleteBusinessIn",
+            url: "../Home/DeleteBusinessOut",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("ลบข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("ลบข้อมูลประกอบการภายนอกประเทศเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
                 }
@@ -405,7 +405,7 @@ $(function () {
     function fnInsertFiles(fileUpload) {
         $.ajax({
             type: "POST",
-            url: "../Home/InsertFileBusinessIn",
+            url: "../Home/InsertFileBusinessOut",
             data: fileUpload,
             dataType: 'json',
             contentType: false,
@@ -429,19 +429,19 @@ $(function () {
         });
     }
 
-    function fnInsertBusinessInPermission(dataGrid) {
+    function fnInsertBusinessOutPermission(dataGrid) {
         var returnId = 0;
         console.log(dataGrid);
         $.ajax({
             type: "POST",
-            url: "../Home/InsertBusinessInPermission",
+            url: "../Home/InsertBusinessOutPermission",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
             async: false,
             success: function (data) {
                 if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
-                    DevExpress.ui.notify("เพิ่มการรถในประกอบเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("เพิ่มการรถภายนอกประกอบเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
@@ -451,10 +451,10 @@ $(function () {
         return returnId;
     }
 
-    function fnDeleteBusinessInPermission(keyItem) {
+    function fnDeleteBusinessOutPermission(keyItem) {
         $.ajax({
             type: "POST",
-            url: "../Home/DeleteBusinessInPermission",
+            url: "../Home/DeleteBusinessOutPermission",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",

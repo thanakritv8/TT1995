@@ -277,7 +277,7 @@ $(function () {
                 async: false,
                 success: function (dataLookup) {
                     data_lookup_number_car = dataLookup;
-                    data[1].lookup = {
+                    data[0].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "number_car"

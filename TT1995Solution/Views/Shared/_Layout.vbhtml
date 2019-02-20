@@ -88,7 +88,7 @@
                     <span Class="text-light"> ใบอนุญาต</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a>
+                    <a Then Class="dropdown-item" href="#">กัมพูชา</a> @*../Home/LicenseCambodia*@
                     <a Then Class="dropdown-item" href="#">ลุ่มน้ำโขง</a>
                     <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
                     <a Then Class="dropdown-item" href="#">วัตถุอันตราย(วอ.8)</a>
