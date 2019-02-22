@@ -97,6 +97,18 @@
             <li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">ประกัน</span>
+                </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/ActInsurance">พรบ</a>
+                    <a Then Class="dropdown-item" href="../Home/MainInsurance">หลัก</a>
+                    <a Then Class="dropdown-item" href="../Home/DomProIns">สินค้าภายในประเทศ</a>
+                    <a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">สิ่งแวดล้อม</a>
+                </div>
+             </li>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light">บริษัทประกัน</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">

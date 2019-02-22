@@ -132,7 +132,7 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[1].allowEditing', false);
+            dataGrid.option('columns[0].allowEditing', false);
         },
         onInitNewRow: function (e) {
             var arr = {
@@ -141,9 +141,9 @@ $(function () {
                 valueExpr: "number_car"
             }
 
-            dataGrid.option('columns[1].lookup', arr);
+            dataGrid.option('columns[0].lookup', arr);
 
-            dataGrid.option('columns[1].allowEditing', true);
+            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             console.log(e);
@@ -354,10 +354,7 @@ $(function () {
                         $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
                                 .text(options.value)
                                 .on('dxclick', function (e) {
-                                    console.log(e);
-                                    popup_history.option("contentTemplate", null);
                                     popup_history._options.contentTemplate = function (content) {
-                                        
                                         var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
                                         content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
                                     }
@@ -430,7 +427,7 @@ $(function () {
                 async: false,
                 success: function (dataLookup) {
                     data_lookup_number_car = dataLookup;
-                    data[1].lookup = {
+                    data[0].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "number_car"
@@ -438,9 +435,10 @@ $(function () {
 
                 }
             });
-            _dataSource = data[1].lookup.dataSource;
+            _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
+            console.log(dataGrid);
         }
     });
     //จบการกำหนด Column
@@ -735,7 +733,7 @@ $(function () {
 
     function filter() {
         //เซ็ตอาเรย์เริ่มต้น
-        var dataLookupAll = dataGrid._options.columns[1].lookup.dataSource;
+        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
         //เซ็ตอาเรย์ที่จะกรอง
         var filter = dataGridAll;
         //กรองอาเรย์
@@ -753,7 +751,7 @@ $(function () {
             displayExpr: "number_car",
             valueExpr: "number_car"
         }
-        dataGrid.option('columns[1].lookup', arr);
+        dataGrid.option('columns[0].lookup', arr);
     }
 
     $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {

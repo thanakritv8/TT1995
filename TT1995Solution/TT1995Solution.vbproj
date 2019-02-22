@@ -1569,9 +1569,12 @@
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\actInsCom.js" />
+    <Content Include="scripts\Home\actInsurance.js" />
     <Content Include="scripts\Home\business_out.js" />
     <Content Include="scripts\Home\business_in.js" />
+    <Content Include="scripts\Home\domProIns.js" />
     <Content Include="scripts\Home\driver.js" />
+    <Content Include="scripts\Home\environmentInsurance.js" />
     <Content Include="scripts\Home\Expressway.js" />
     <Content Include="scripts\Home\gpsCompany.js" />
     <Content Include="scripts\Home\Gps_car.js" />
@@ -1579,6 +1582,7 @@
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\license_cambodia.js" />
     <Content Include="scripts\Home\mainInsCom.js" />
+    <Content Include="scripts\Home\mainInsurance.js" />
     <Content Include="scripts\Home\officer_records.js" />
     <Content Include="scripts\Home\proInsCom.js" />
     <Content Include="scripts\Home\tax.js" />
@@ -1726,6 +1730,10 @@
     <Content Include="Views\Home\Installment.vbhtml" />
     <Content Include="Views\Home\Trackingwork.vbhtml" />
     <Content Include="Views\Home\BusinessOut.vbhtml" />
+    <Content Include="Views\Home\actInsurance.vbhtml" />
+    <Content Include="Views\Home\domProIns.vbhtml" />
+    <Content Include="Views\Home\environmentInsurance.vbhtml" />
+    <Content Include="Views\Home\mainInsurance.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -240,8 +240,11 @@ Public Class GlobalFunction
 
     Public Function KeepLog(ByVal ColumnName As String, ByVal Data As String, ByVal _event As String, ByVal IdTable As String, ByVal IdOfTable As String) As Boolean
         Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-        Dim _SQL As String = "INSERT INTO [dbo].[log_all] ([column_id],[_data],[_event],[_table],[id_of_table],[by_user],[_date])
-							  select column_id,N'" & Data & "','" & _event & "'," & IdTable & "," & IdOfTable & "," & HttpContext.Current.Session("UserId") & ",getdate() from config_column where name_column = '" & ColumnName & "' and table_id = " & IdTable & ""
+        If (IsDate(Data)) Then
+            Data = Convert.ToDateTime(Data).ToString("MM/dd/yyyy")
+        End If
+        Dim _SQL As String = "INSERT INTO [dbo].[log_all] ([column_id],[_data],[_format],[_event],[_table],[id_of_table],[by_user],[_date])
+							  select column_id,N'" & Data & "',format,'" & _event & "'," & IdTable & "," & IdOfTable & "," & HttpContext.Current.Session("UserId") & ",getdate() from config_column where name_column = '" & ColumnName & "' and table_id = " & IdTable & ""
         Return objDB.ExecuteSQL(_SQL, cn)
     End Function
 End Class
