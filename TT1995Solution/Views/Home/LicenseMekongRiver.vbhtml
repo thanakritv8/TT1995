@@ -1,5 +1,5 @@
 ﻿@Code
-    ViewData("Title") = "ใบอนุญาตกัมพูชา"
+    ViewData("Title") = "ใบอนุญาตลุ่มน้ำโขง"
 End Code
 
 <style>
@@ -41,5 +41,5 @@ End Code
     </div>
 </div>
 
-<script src="~/scripts/Home/license_cambodia.js"></script>
+<script src="~/scripts/Home/license_mekong_river.js"></script>
 

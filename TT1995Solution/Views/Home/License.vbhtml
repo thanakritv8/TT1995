@@ -1,5 +1,5 @@
 ﻿@Code
-    ViewData("Title") = "License"
+    ViewData("Title") = "เล่มทะเบียน"
 End Code
 <style>
     .custom-file {

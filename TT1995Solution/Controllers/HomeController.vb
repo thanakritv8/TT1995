@@ -1006,6 +1006,193 @@ Namespace Controllers
 
 #End Region
 
+#Region "LicenseMekongRiver"
+        Function LicenseMekongRiver() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        Public Function GetColumnChooserLmr(ByVal table_id As Integer) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
+            Dim DtTax As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtTax.Rows Select DtTax.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetLmr() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT lmr_path, lmr_id, lmr_number, lmr_expire, lmr_start, country_code, benefit, lmr_status FROM license_mekong_river"
+            Dim DtLmr As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLmr.Rows Select DtLmr.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetLmrPermission() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT lmrp.lmrp_id, lmrp.lmr_id, lmrp.license_id_head, lmrp.license_id_tail, (select license_car from license where license_id = lmrp.license_id_head) as license_car_head, (select license_car from license where license_id = lmrp.license_id_tail) as license_car_tail FROM license_mekong_river_permission as lmrp"
+            Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateLmr(ByVal lmr_id As String, ByVal lmr_number As String, ByVal lmr_expire As String, ByVal lmr_start As String, ByVal lmr_path As String, ByVal country_code As String, ByVal benefit As String, ByVal lmr_status As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [license_mekong_river] SET "
+            Dim StrTbLc() As String = {"lmr_number", "lmr_expire", "lmr_start", "lmr_path", "country_code", "benefit", "lmr_status"}
+            Dim TbLc() As Object = {lmr_number, lmr_expire, lmr_start, lmr_path, country_code, benefit, lmr_status}
+            For n As Integer = 0 To TbLc.Length - 1
+                If Not TbLc(n) Is Nothing Then
+                    _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lmr_id = " & lmr_id
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertLmr(ByVal lmr_number As String, ByVal lmr_expire As DateTime, ByVal lmr_start As DateTime, ByVal country_code As String, ByVal benefit As String, ByVal lmr_status As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO license_mekong_river (lmr_number, lmr_expire, lmr_start, country_code, benefit, lmr_status, create_by_user_id) OUTPUT Inserted.lmr_id VALUES "
+            _SQL &= "(N'" & lmr_number & "', '" & lmr_expire & "', '" & lmr_start & "', N'" & country_code & "', N'" & benefit & "', N'" & lmr_status & "', '" & Session("UserId") & "')"
+            If Not lmr_number Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+
+        Public Function InsertLmrPermission(ByVal lmr_id As Integer, ByVal license_id_head As Integer, ByVal license_id_tail As Integer) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO license_mekong_river_permission (license_id_head, license_id_tail, lmr_id, create_by_user_id) OUTPUT Inserted.lmrp_id VALUES (" & license_id_head & ", " & license_id_tail & ", " & lmr_id & ", '" & Session("UserId") & "')"
+            If license_id_head <> Nothing And license_id_tail <> Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileLmr() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/LMR/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE license_mekong_river SET lmr_path = N'../Files/LC/" & fk_id & "/" & file.FileName & "' WHERE lmr_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/LMR/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteFileLmr(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "SELECT * FROM license_mekong_river WHERE lmr_id = " & keyId
+            Dim dtLc As DataTable = objDB.SelectSQL(_SQL, cn)
+            If dtLc.Rows.Count > 0 Then
+                Dim pathServer As String = Server.MapPath(dtLc.Rows(0)("lmr_path").Replace("..", "~"))
+                If System.IO.File.Exists(pathServer) = True Then
+                    System.IO.File.Delete(pathServer)
+                End If
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteLmrPermission(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE license_mekong_river_permission WHERE lmrp_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteLmr(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE license_mekong_river WHERE lmr_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+#End Region
+
 #Region "LicenseCambodia"
         Function LicenseCambodia() As ActionResult
             If Session("StatusLogin") = "1" Then
@@ -1013,6 +1200,182 @@ Namespace Controllers
             Else
                 Return View("../Account/Login")
             End If
+        End Function
+
+        Public Function GetColumnChooserLc(ByVal table_id As Integer) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
+            Dim DtTax As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtTax.Rows Select DtTax.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetLc() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT lc_path, lc_id, lc_number, lc_expire, lc_start, country_code, benefit, lc_status FROM license_cambodia"
+            Dim DtLc As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLc.Rows Select DtLc.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetLcPermission() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT lcp.lcp_id, lcp.lc_id, lcp.license_id_head, lcp.license_id_tail, (select license_car from license where license_id = lcp.license_id_head) as license_car_head, (select license_car from license where license_id = lcp.license_id_tail) as license_car_tail FROM license_cambodia_permission as lcp"
+            Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateLc(ByVal lc_id As String, ByVal lc_number As String, ByVal lc_expire As String, ByVal lc_start As String, ByVal lc_path As String, ByVal country_code As String, ByVal benefit As String, ByVal lc_status As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [license_cambodia] SET "
+            Dim StrTbLc() As String = {"lc_number", "lc_expire", "lc_start", "lc_path", "country_code", "benefit", "lc_status"}
+            Dim TbLc() As Object = {lc_number, lc_expire, lc_start, lc_path, country_code, benefit, lc_status}
+            For n As Integer = 0 To TbLc.Length - 1
+                If Not TbLc(n) Is Nothing Then
+                    _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lc_id = " & lc_id
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertLc(ByVal lc_number As String, ByVal lc_expire As DateTime, ByVal lc_start As DateTime, ByVal country_code As String, ByVal benefit As String, ByVal lc_status As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO license_cambodia (lc_number, lc_expire, lc_start, country_code, benefit, lc_status, create_by_user_id) OUTPUT Inserted.lc_id VALUES "
+            _SQL &= "(N'" & lc_number & "', '" & lc_expire & "', '" & lc_start & "', N'" & country_code & "', N'" & benefit & "', N'" & lc_status & "', '" & Session("UserId") & "')"
+            If Not lc_number Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+
+        Public Function InsertLcPermission(ByVal lc_id As Integer, ByVal license_id_head As Integer, ByVal license_id_tail As Integer) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO license_cambodia_permission (license_id_head, license_id_tail, lc_id, create_by_user_id) OUTPUT Inserted.lcp_id VALUES (" & license_id_head & ", " & license_id_tail & ", " & lc_id & ", '" & Session("UserId") & "')"
+            If license_id_head <> Nothing And license_id_tail <> Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileLc() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/LC/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE license_cambodia SET lc_path = N'../Files/LC/" & fk_id & "/" & file.FileName & "' WHERE lc_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/LC/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteFileLc(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "SELECT * FROM license_cambodia WHERE lc_id = " & keyId
+            Dim dtLc As DataTable = objDB.SelectSQL(_SQL, cn)
+            If dtLc.Rows.Count > 0 Then
+                Dim pathServer As String = Server.MapPath(dtLc.Rows(0)("lc_path").Replace("..", "~"))
+                If System.IO.File.Exists(pathServer) = True Then
+                    System.IO.File.Delete(pathServer)
+                End If
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteLcPermission(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE license_cambodia_permission WHERE lcp_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteLc(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE license_cambodia WHERE lc_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
 #End Region
@@ -2680,10 +3043,10 @@ Namespace Controllers
             _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
             _SQL &= "N'" & IIf(no_of_itm Is Nothing, 0, no_of_itm) & "',"
             _SQL &= "N'" & IIf(payment_of_itm Is Nothing, 0, payment_of_itm) & "',"
-            _SQL &= "N'" & IIf(last_date Is Nothing, 0, last_date) & "',"
+            _SQL &= "N'" & IIf(last_date Is Nothing, String.Empty, last_date) & "',"
             _SQL &= "N'" & IIf(payed_of_itm Is Nothing, 0, payed_of_itm) & "',"
             _SQL &= "N'" & IIf(last_payment Is Nothing, 0, last_payment) & "',"
-            _SQL &= "N'" & IIf(postponement_itm Is Nothing, 0, postponement_itm) & "',"
+            _SQL &= "N'" & IIf(postponement_itm Is Nothing, String.Empty, postponement_itm) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
@@ -2773,13 +3136,13 @@ Namespace Controllers
             Dim _SQL As String = "INSERT INTO [trackingwork] ([license_id],[number_car],[expiredate],[trackinglistid],[detail],[operator_e],[agencycontact],[startschedule],[endschedule],[cost_estimate],[statusurgencyid],[note],[create_date],[create_by_user_id])"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
-            _SQL &= "N'" & IIf(expiredate Is Nothing, 0, expiredate) & "',"
+            _SQL &= "N'" & IIf(expiredate Is Nothing, String.Empty, expiredate) & "',"
             _SQL &= "N'" & IIf(trackinglistid Is Nothing, String.Empty, trackinglistid) & "',"
             _SQL &= "N'" & IIf(detail Is Nothing, String.Empty, detail) & "',"
             _SQL &= "N'" & IIf(operator_e Is Nothing, String.Empty, operator_e) & "',"
             _SQL &= "N'" & IIf(agencycontact Is Nothing, String.Empty, agencycontact) & "',"
-            _SQL &= "N'" & IIf(startschedule Is Nothing, 0, startschedule) & "',"
-            _SQL &= "N'" & IIf(endschedule Is Nothing, 0, endschedule) & "',"
+            _SQL &= "N'" & IIf(startschedule Is Nothing, String.Empty, startschedule) & "',"
+            _SQL &= "N'" & IIf(endschedule Is Nothing, String.Empty, endschedule) & "',"
             _SQL &= "N'" & IIf(cost_estimate Is Nothing, String.Empty, cost_estimate) & "',"
             _SQL &= "N'" & IIf(statusurgencyid Is Nothing, String.Empty, statusurgencyid) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"

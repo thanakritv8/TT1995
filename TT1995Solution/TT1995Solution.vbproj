@@ -1580,6 +1580,7 @@
     <Content Include="scripts\Home\Gps_car.js" />
     <Content Include="scripts\Home\Installment.js" />
     <Content Include="scripts\Home\license.js" />
+    <Content Include="scripts\Home\license_mekong_river.js" />
     <Content Include="scripts\Home\license_cambodia.js" />
     <Content Include="scripts\Home\mainInsCom.js" />
     <Content Include="scripts\Home\mainInsurance.js" />
@@ -1734,6 +1735,7 @@
     <Content Include="Views\Home\domProIns.vbhtml" />
     <Content Include="Views\Home\environmentInsurance.vbhtml" />
     <Content Include="Views\Home\mainInsurance.vbhtml" />
+    <Content Include="Views\Home\LicenseMekongRiver.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
