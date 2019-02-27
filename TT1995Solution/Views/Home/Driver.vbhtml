@@ -11,5 +11,7 @@ End Code
     <div class="mt-3 mb-3" id="gridContainer"></div>
 </div>
 
+<div id="popup_history"></div>
+
 <script src="~/scripts/Home/driver.js"></script>
 

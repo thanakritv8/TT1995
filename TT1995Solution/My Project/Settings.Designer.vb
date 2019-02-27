@@ -74,7 +74,7 @@ Namespace My
         
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("tt1995.database.windows.net")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("tt1005v2.database.windows.net")>  _
         Public ReadOnly Property NameServer() As String
             Get
                 Return CType(Me("NameServer"),String)

@@ -4,7 +4,7 @@ var gbTableId = '2';
 var tableName = "gps_company";
 var idFile;
 var _dataSource;
-var dataGridFull;
+var dataGridAll;
 var dataLookupFilter;
 var gbE;
 
@@ -28,7 +28,6 @@ var OptionsMenu = contextMenuItemsFolder;
 $(function () {
 
     function getDataGc() {
-        var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
         return $.ajax({
             type: "POST",
@@ -47,7 +46,6 @@ $(function () {
     }
 
     function fnGetHistory(table,idOfTable) {
-        var dataValue = [];
         //โชว์ข้อมูลประวัติ
         return $.ajax({
             type: "POST",
@@ -73,7 +71,7 @@ $(function () {
     }
 
     dataGridAll = getDataGc();
-    console.log(dataGridAll);
+    //console.log(dataGridAll);
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
@@ -146,11 +144,11 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            console.log(e);
+            //console.log(e);
             fnUpdateGpsCompany(e.newData, e.key.gc_id);
         },
         onRowInserting: function (e) {
-            console.log(e);
+            //console.log(e);
             $.ajax({
                 type: "POST",
                 url: "../Home/GetLicenseCarTew",
@@ -204,7 +202,7 @@ $(function () {
                         gallery = [];
                         itemData = fnGetFiles(options.key.gc_id, gbTableId);
                         var item = e.itemData;
-                        console.log(e);
+                        //console.log(e);
                         if (item.path_file) {
                             itemData.forEach(function (itemFiles) {
                                 if (itemFiles.path_file && itemFiles.type_file == "pic" && itemFiles.parentDirId == item.parentDirId && itemFiles.fk_id == item.fk_id) {
@@ -219,7 +217,7 @@ $(function () {
                                 nGallery++;
                             });
                             if (item.type_file == "pic") {
-                                console.log(itemData);
+                                //console.log(itemData);
                                 galleryWidget.option("dataSource", gallery);
                                 galleryWidget.option("selectedIndex", gallerySelect);
                                 $("#popup").dxPopup("show");
@@ -438,7 +436,7 @@ $(function () {
             _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
-            console.log(dataGrid);
+            //console.log(dataGrid);
         }
     });
     //จบการกำหนด Column

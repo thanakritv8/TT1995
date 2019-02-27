@@ -88,12 +88,24 @@
                     <span Class="text-light"> ใบอนุญาต</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="#">กัมพูชา</a> @*../Home/LicenseCambodia*@
-                    <a Then Class="dropdown-item" href="#">ลุ่มน้ำโขง</a>
+                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a> @*../Home/LicenseCambodia*@
+                    <a Then Class="dropdown-item" href="../Home/LicenseMekongRiver">ลุ่มน้ำโขง</a>
                     <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
                     <a Then Class="dropdown-item" href="#">วัตถุอันตราย(วอ.8)</a>
                 </div>
             </li>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">ประกัน</span>
+                </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/ActInsurance">พรบ</a>
+                    <a Then Class="dropdown-item" href="../Home/MainInsurance">หลัก</a>
+                    <a Then Class="dropdown-item" href="../Home/DomProIns">สินค้าภายในประเทศ</a>
+                    <a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">สิ่งแวดล้อม</a>
+                </div>
+             </li>
             <li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>

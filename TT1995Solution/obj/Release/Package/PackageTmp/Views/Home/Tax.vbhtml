@@ -1,5 +1,5 @@
 ﻿@Code
-    ViewData("Title") = "Tax"
+    ViewData("Title") = "ภาษี"
 End Code
 <style>
     .custom-file {
