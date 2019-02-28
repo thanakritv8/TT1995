@@ -1465,13 +1465,13 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateBusinessIn(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String, ByVal IdTable As String) As String
+        Public Function UpdateBusinessIn(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String, ByVal business_status As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [business_in] SET "
-            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "business_path"}
-            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, business_path}
+            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "business_path", "business_status"}
+            Dim TbBusiness() As Object = {business_number, business_expire, business_start, IIf(business_name Is Nothing, String.Empty, business_name), IIf(business_address Is Nothing, String.Empty, business_address), IIf(business_type Is Nothing, String.Empty, business_type), IIf(business_path Is Nothing, String.Empty, business_path), IIf(business_status Is Nothing, String.Empty, business_status)}
             For n As Integer = 0 To TbBusiness.Length - 1
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
@@ -1716,13 +1716,13 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateBusinessOut(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String, ByVal IdTable As String) As String
+        Public Function UpdateBusinessOut(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String, ByVal business_status As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [business_out] SET "
-            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "business_path"}
-            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, business_path}
+            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "business_path", "business_status"}
+            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, business_path, business_status}
             For n As Integer = 0 To TbBusiness.Length - 1
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
