@@ -121,9 +121,8 @@ $(function () {
         onRowInserting: function (e) {
             e.data.history = "ประวัติ";
             e.data.driver_id = fnInsertDriver(e.data);
-            
+
             //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
             filter();
             setDefaultNumberCar();
 
@@ -236,7 +235,7 @@ $(function () {
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "gc_id" && item.dataField != "history") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "history") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -281,7 +280,7 @@ $(function () {
     });
     //จบการกำหนด Column
 
-    
+
 
 
     function fnInsertDriver(dataGrid) {

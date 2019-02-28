@@ -1443,7 +1443,7 @@ Namespace Controllers
 
         Public Function GetBusinessIn() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT business_path, business_id, business_number, business_expire, business_start, business_name, business_address, business_type, country_code, benefit, business_status FROM business_in"
+            Dim _SQL As String = "SELECT business_path, business_id, business_number, business_expire, business_start, business_name, business_address, business_type, country_code, benefit, business_status, N'ประวัติ' as history FROM business_in"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1457,15 +1457,15 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function GetBusinessInPermission() As String
+        Public Function GetBusinessInPermission(ByVal BusinessId As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT bip.bip_id, bip.business_id, [bit].bit_id as bit_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car FROM business_in_permission as bip join business_in_type as [bit] on bip.bit_id = [bit].bit_id join license as l on bip.license_id = l.license_id join tax as t on l.license_id = t.license_id"
+            Dim _SQL As String = "SELECT bip.bip_id, bip.business_id, [bit].bit_id as bit_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car FROM business_in_permission as bip join business_in_type as [bit] on bip.bit_id = [bit].bit_id join license as l on bip.license_id = l.license_id join tax as t on l.license_id = t.license_id where bip.business_id = " & BusinessId
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateBusinessIn(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String) As String
+        Public Function UpdateBusinessIn(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1475,6 +1475,7 @@ Namespace Controllers
             For n As Integer = 0 To TbBusiness.Length - 1
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
+                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
@@ -1509,7 +1510,7 @@ Namespace Controllers
         '    Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         'End Function
 
-        Public Function InsertBusinessIn(ByVal business_number As String, ByVal business_expire As DateTime, ByVal business_start As DateTime, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal country_code As String, ByVal benefit As String, ByVal business_status As String) As String
+        Public Function InsertBusinessIn(ByVal business_number As String, ByVal business_expire As DateTime, ByVal business_start As DateTime, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal country_code As String, ByVal benefit As String, ByVal business_status As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1521,12 +1522,18 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type"}
+            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type}
+            For n As Integer = 0 To TbBusiness.Length - 1
+                If Not TbBusiness(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertBusinessInPermission(ByVal bit_name As String, ByVal business_id As String, ByVal number_car As String) As String
+        Public Function InsertBusinessInPermission(ByVal bit_name As String, ByVal business_id As String, ByVal number_car As String, ByVal IdTable As String, ByVal BiId As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1545,7 +1552,13 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbBusiness() As String = {"number_car"}
+            Dim TbBusiness() As Object = {number_car}
+            For n As Integer = 0 To TbBusiness.Length - 1
+                If Not TbBusiness(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, BiId)
+                End If
+            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1617,14 +1630,16 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function DeleteBusinessInPermission(ByVal keyId As String) As String
+        Public Function DeleteBusinessInPermission(ByVal keyId As String, ByVal BiId As String, ByVal IdTable As String, ByVal NumberCar As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
+            GbFn.KeepLog("number_car", NumberCar, "Delete", IdTable, BiId)
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = String.Empty
             _SQL = "DELETE business_in_permission WHERE bip_id = " & keyId
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1679,7 +1694,7 @@ Namespace Controllers
 
         Public Function GetBusinessOut() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT business_path, business_id, business_number, business_expire, business_start, business_name, business_address, business_type, country_code, benefit, business_status FROM business_out"
+            Dim _SQL As String = "SELECT business_path, business_id, business_number, business_expire, business_start, business_name, business_address, business_type, country_code, benefit, business_status, N'ประวัติ' as history FROM business_out"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1693,15 +1708,15 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function GetBusinessOutPermission() As String
+        Public Function GetBusinessOutPermission(ByVal BusinessId As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT bop.bop_id, bop.business_id, [bot].bot_id as bot_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car FROM business_out_permission as bop join business_out_type as [bot] on bop.bot_id = [bot].bot_id join license as l on bop.license_id = l.license_id join tax as t on l.license_id = t.license_id"
+            Dim _SQL As String = "SELECT bop.bop_id, bop.business_id, [bot].bot_id as bot_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car, l.license_id FROM business_out_permission as bop join business_out_type as [bot] on bop.bot_id = [bot].bot_id join license as l on bop.license_id = l.license_id join tax as t on l.license_id = t.license_id where bop.business_id = " & BusinessId
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateBusinessOut(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String) As String
+        Public Function UpdateBusinessOut(ByVal business_id As String, ByVal business_number As String, ByVal business_expire As String, ByVal business_start As String, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal business_path As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1711,6 +1726,7 @@ Namespace Controllers
             For n As Integer = 0 To TbBusiness.Length - 1
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
+                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
@@ -1724,7 +1740,7 @@ Namespace Controllers
         End Function
 
 
-        Public Function InsertBusinessOut(ByVal business_number As String, ByVal business_expire As DateTime, ByVal business_start As DateTime, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal country_code As String, ByVal benefit As String, ByVal business_status As String) As String
+        Public Function InsertBusinessOut(ByVal business_number As String, ByVal business_expire As DateTime, ByVal business_start As DateTime, ByVal business_name As String, ByVal business_address As String, ByVal business_type As String, ByVal country_code As String, ByVal benefit As String, ByVal business_status As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1737,11 +1753,19 @@ Namespace Controllers
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
 
+            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type"}
+            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type}
+            For n As Integer = 0 To TbBusiness.Length - 1
+                If Not TbBusiness(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertBusinessOutPermission(ByVal bot_name As String, ByVal business_id As String, ByVal number_car As String) As String
+        Public Function InsertBusinessOutPermission(ByVal bot_name As String, ByVal business_id As String, ByVal number_car As String, ByVal IdTable As String, ByVal BiId As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -1761,6 +1785,13 @@ Namespace Controllers
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
 
+            Dim StrTbBusiness() As String = {"number_car"}
+            Dim TbBusiness() As Object = {number_car}
+            For n As Integer = 0 To TbBusiness.Length - 1
+                If Not TbBusiness(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, BiId)
+                End If
+            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2734,9 +2765,14 @@ Namespace Controllers
 #Region "Function Tew"
 
         Public Function getHistory(ByVal table As String, ByVal idOfTable As String) As String
+            If table = "13" Then
+                table = "'13','14'"
+            ElseIf table = "20" Then
+                table = "'20','21'"
+            End If
             Return GbFn.GetData("select Row_Number() Over ( Order By la._date desc ) As row,la._event,cc.display as column_display,CASE WHEN _format is NULL THEN [_data] ELSE  FORMAT(convert(datetime, [_data]),'MM/dd/yyyy') END as _data  ,ac.firstname,la._date 
                                     from log_all la inner join config_column cc on cc.column_id = la.column_id inner join account ac on ac.user_id = la.by_user 
-                                    where la.id_of_table = '" & idOfTable & "' and la._table = " & table & " order by la._date desc
+                                    where la.id_of_table = '" & idOfTable & "' and la._table in (" & table & ") order by la._date desc
                                 ")
         End Function
 
