@@ -1578,6 +1578,7 @@
     <Content Include="scripts\Home\Expressway.js" />
     <Content Include="scripts\Home\gpsCompany.js" />
     <Content Include="scripts\Home\Gps_car.js" />
+    <Content Include="scripts\Home\index.js" />
     <Content Include="scripts\Home\Installment.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\license_mekong_river.js" />

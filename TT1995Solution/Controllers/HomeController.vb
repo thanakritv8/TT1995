@@ -1025,7 +1025,7 @@ Namespace Controllers
             For n As Integer = 0 To TbDriver.Length - 1
                 If Not TbDriver(n) Is Nothing Then
                     _SQL &= StrTbDriver(n) & "=N'" & TbDriver(n) & "',"
-                    GbFn.KeepLog(StrTbDriver(n), TbDriver(n), "Editing", IdTable, driver_id)
+                    'GbFn.KeepLog(StrTbDriver(n), TbDriver(n), "Editing", IdTable, driver_id)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE driver_id = " & driver_id

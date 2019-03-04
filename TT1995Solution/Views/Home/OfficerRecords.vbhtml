@@ -1,5 +1,5 @@
 ﻿@Code
-    ViewData("Title") = "OfficerRecords"
+    ViewData("Title") = "บันทึกเจ้าหน้าที่"
 End Code
 <style>
     .custom-file {
@@ -7,6 +7,7 @@ End Code
         height: 100%;
     }
 </style>
+<div> <h4>บันทึกเจ้าหน้าที่</h4> </div>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
     <div id="context-menu"></div>
