@@ -993,24 +993,24 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertDriver(ByVal driver_name As String, ByVal start_work_date As DateTime, ByVal license_id_head As Integer, ByVal license_id_tail As Integer, ByVal IdTable As String) As String
+        Public Function InsertDriver(ByVal driver_name As String, ByVal start_work_date As DateTime, ByVal license_id_head As String, ByVal license_id_tail As String, ByVal IdTable As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO driver (driver_name, start_work_date, license_id_head, license_id_tail, create_by_user_id) OUTPUT Inserted.driver_id VALUES ('" & driver_name & "', '" & start_work_date & "', " & license_id_head & ", " & license_id_tail & ", '" & Session("UserId") & "')"
-            If license_id_head <> Nothing And license_id_tail <> Nothing Then
+            Dim _SQL As String = "INSERT INTO driver (driver_name, start_work_date, license_id_head, license_id_tail, create_by_user_id) OUTPUT Inserted.driver_id VALUES ('" & driver_name & "', '" & start_work_date & "', '" & license_id_head & "', '" & license_id_tail & "', '" & Session("UserId") & "')"
+            If license_id_head <> Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbDriver() As String = {"driver_name", "start_work_date", "license_id_head", "license_id_tail"}
-            Dim TbDriver() As Object = {driver_name, start_work_date, license_id_head, license_id_tail}
-            For n As Integer = 0 To TbDriver.Length - 1
-                If Not TbDriver(n) Is Nothing Then
-                    _SQL &= StrTbDriver(n) & "=N'" & TbDriver(n) & "',"
-                    GbFn.KeepLog(StrTbDriver(n), TbDriver(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            'Dim StrTbDriver() As String = {"driver_name", "start_work_date", "license_id_head", "license_id_tail"}
+            'Dim TbDriver() As Object = {driver_name, start_work_date, license_id_head, license_id_tail}
+            'For n As Integer = 0 To TbDriver.Length - 1
+            '    If Not TbDriver(n) Is Nothing Then
+            '        _SQL &= StrTbDriver(n) & "=N'" & TbDriver(n) & "',"
+            '        GbFn.KeepLog(StrTbDriver(n), TbDriver(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+            '    End If
+            'Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function

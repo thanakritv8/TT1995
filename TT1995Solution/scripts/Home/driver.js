@@ -1,71 +1,11 @@
-﻿var itemEditing = [];
-var columnHide = [];
-var tableName = "gps_company";
-var idFile;
-var gbE;
-var _dataSource;
-var dataGridAll;
-var dataLookupFilter;
-var gbTableId = '6';
-
-$(function () {
-
-    function getDataDriver() {
-        return $.ajax({
-            type: "POST",
-            url: "../Home/GetDriver",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            async: false,
-            success: function (data) {
-                for (var i = 0; i < data.length; i++) {
-                    var d1 = parseJsonDate(data[i].start_work_date);
-                    data[i].start_work_date = d1
-                }
-                //dataGrid.option('dataSource', data);
-                //console.log(data);
-            }
-        }).responseJSON;
-    }
-
-    function fnGetHistory(table, idOfTable) {
-
-        //โชว์ข้อมูลประวัติ
-        return $.ajax({
-            type: "POST",
-            url: "../Home/getHistory",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: "{table: '" + table + "',idOfTable: '" + idOfTable + "'}",
-            async: false,
-            success: function (data) {
-                for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i]._date);
-                    data[i]._date = d;
-                }
-            }
-        }).responseJSON;
-        //จบการโชว์ข้อมูลประวัติ
-
-    }
-
-    dataGridAll = getDataDriver();
-
+﻿$(function () {
     var dataGrid = $("#gridContainer").dxDataGrid({
-        dataSource: dataGridAll,
-        onContentReady: function (e) {
-            filter();
-        },
         searchPanel: {
             visible: true,
             width: 240,
             placeholder: "Search..."
         },
         showBorders: true,
-        columnChooser: {
-            enabled: true,
-            mode: "select"
-        },
         paging: {
             enabled: true,
             pageSize: 10
@@ -76,23 +16,10 @@ $(function () {
             showInfo: true
         },
         editing: {
-            mode: "popup",
-            allowUpdating: true,
+            mode: "row",
             allowDeleting: true,
             allowAdding: true,
-            form: {
-                items: itemEditing,
-                colCount: 6,
-            },
-            popup: {
-                title: "รายการ พขร.",
-                showTitle: true,
-                width: "70%",
-                position: { my: "center", at: "center", of: window },
-                onHidden: function (e) {
-                    setDefaultNumberCar();
-                }
-            },
+            allowUpdating: true,
             useIcons: true,
         },
         "export": {
@@ -106,26 +33,34 @@ $(function () {
         //headerFilter: {
         //    visible: true
         //},
-        onInitNewRow: function (e) {
-            //console.log(dataLookupFilter);
-            var arr = {
-                dataSource: dataLookupFilter,
-                displayExpr: "number_car",
-                valueExpr: "license_id"
-            }
-
-            dataGrid.option('columns[0].lookup', arr);
-
-            dataGrid.option('columns[0].allowEditing', true);
-        },
         onRowInserting: function (e) {
-            e.data.history = "ประวัติ";
+            //console.log(e);
+            //$.ajax({
+            //    type: "POST",
+            //    url: "../Home/GetLicenseCar",
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    data: "{license_id: " + e.data.license_id_head + "}",
+            //    async: false,
+            //    success: function (data) {
+            //        e.data.license_car_head = data[0].license_car;
+            //    }
+            //});
+            //$.ajax({
+            //    type: "POST",
+            //    url: "../Home/GetLicenseCar",
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    data: "{license_id: " + e.data.license_id_tail + "}",
+            //    async: false,
+            //    success: function (data) {
+            //        e.data.license_car_tail = data[0].license_car;
+            //    }
+            //});
+
             e.data.driver_id = fnInsertDriver(e.data);
-
-            //ตัด number_car ออก
-            filter();
-            setDefaultNumberCar();
-
+            console.log(e.data.driver_id);
+            //fnInsertDriver(e.data);
         },
         onRowUpdating: function (e) {
             console.log(e.key.driver_id);
@@ -133,18 +68,6 @@ $(function () {
         },
         onRowRemoving: function (e) {
             fnDeleteDriver(e.key.driver_id);
-
-            //กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
-                });
-            });
-
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-
-            setDefaultNumberCar();
         },
         selection: {
             mode: "single"
@@ -154,107 +77,12 @@ $(function () {
     //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
     $.ajax({
         type: "POST",
-        url: "../Home/GetColumnChooser",
+        url: "../Home/GetColumnChooserDrive",
         contentType: "application/json; charset=utf-8",
-        data: "{gbTableId: '" + gbTableId + "'}",
+        data: "{table_id: 6}",
         dataType: "json",
         async: false,
         success: function (data) {
-            var ndata = 0;
-            data.forEach(function (item) {
-
-                //โชว์ Dropdown หน้าเพิ่มและแก้ไข
-                if (item.status_lookup != "0") {
-                    var dataLookup;
-                    $.ajax({
-                        type: "POST",
-                        url: "../Home/GetLookUp",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        data: "{column_id: '" + item.column_id + "'}",
-                        async: false,
-                        success: function (data) {
-                            dataLookup = data;
-                        }
-                    });
-                    data[ndata].lookup = {
-                        dataSource: dataLookup,
-                        displayExpr: "data_list",
-                        valueExpr: "license_id"
-                    }
-                }
-
-                //popup
-                if (item.dataField == "history") {
-                    data[ndata].cellTemplate = function (container, options) {
-                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
-                                .text(options.value)
-                                .on('dxclick', function (e) {
-                                    popup_history._options.contentTemplate = function (content) {
-                                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
-                                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
-                                    }
-
-                                    $("#popup_history").dxPopup("show");
-                                    var gridHistory = $("#gridHistory").dxDataGrid({
-                                        dataSource: fnGetHistory(gbTableId, options.row.data.driver_id),
-                                        showBorders: true,
-                                        height: 'auto',
-                                        scrolling: {
-                                            mode: "virtual"
-                                        },
-                                        searchPanel: {
-                                            visible: true,
-                                            width: "auto",
-                                            placeholder: "Search..."
-                                        }
-                                    }).dxDataGrid('instance');
-
-                                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
-                                    $.ajax({
-                                        type: "POST",
-                                        url: "../Home/GetColumnChooser",
-                                        contentType: "application/json; charset=utf-8",
-                                        data: "{gbTableId: '19'}",
-                                        dataType: "json",
-                                        async: false,
-                                        success: function (data) {
-                                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
-                                            gridHistory.option('columns', data);
-                                        }
-                                    });
-                                    //จบการกำหนด Column
-
-                                })
-                                .appendTo(container);
-                    }
-                }
-
-
-                ndata++;
-                //จบการตั้งค่าโชว์ Dropdown
-
-                //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "history") {
-                    if (item.dataField == "number_car") {
-                        itemEditing.push({
-                            colSpan: item.colSpan,
-                            dataField: item.dataField,
-                            width: "100%",
-                            editorOptions: {
-                                disabled: false
-                            },
-                        });
-                    } else if (item.dataField != "license_car") {
-                        itemEditing.push({
-                            colSpan: item.colSpan,
-                            dataField: item.dataField,
-                            width: "100%",
-                        });
-                    }
-                }
-                //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
-            });
             $.ajax({
                 type: "POST",
                 url: "../Home/GetNumberCar",
@@ -262,29 +90,126 @@ $(function () {
                 dataType: "json",
                 async: false,
                 success: function (dataLookup) {
-                    data_lookup_number_car = dataLookup;
+                    data[0].setCellValue = function (rowData, value) {
+                        var dataNew = [];
+                        $.each(dataLookup, function () {
+                            if (this.license_id == value) {
+                                dataNew.push(this);
+                            }
+                        });
+                        rowData.license_id_head = value;
+                        rowData.license_car_head = dataNew[0].license_car;
+                    }
                     data[0].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
                         valueExpr: "license_id"
                     }
+                    data[1].allowEditing = false
+
+                    data[2].setCellValue = function (rowData, value) {
+                        var dataNew = [];
+
+                        $.each(dataLookup, function () {
+                            if (this.license_id == value) {
+                                dataNew.push(this);
+                            }
+                        });
+                        rowData.license_id_tail = value;
+                        rowData.license_car_tail = dataNew[0].license_car;
+                    }
+
+                    data[2].lookup = {
+                        dataSource: function (options) {
+                            console.log(options);
+                            return {
+                                store: dataLookup,
+                                filter: options.data ? ["!", ["license_id", "=", options.data.license_id_head]] : null
+                            };
+                        },
+                        displayExpr: "number_car",
+                        valueExpr: "license_id"
+                    }
+                    data[3].allowEditing = false
 
                 }
             });
-            _dataSource = data[0].lookup.dataSource;
-            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
-            dataGrid.option('columns', data);
-            console.log(dataGrid);
 
+            //console.log(data);
+            dataGrid.option('columns', data);
+        },
+        error: function (error) {
+            console.log(error);
         }
     });
     //จบการกำหนด Column
 
+    //function GetColumn() {
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "../Manage/GetTable",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (data) {
+    //            dataColumn[0].setCellValue = function (rowData, value) {
+    //                rowData.table_id = value;
+    //                rowData.column_id = null;
+    //            }
+    //            dataColumn[0].lookup = {
+    //                dataSource: data,
+    //                valueExpr: "table_id",
+    //                displayExpr: "display"
+    //            }
+    //            dataColumn[1].lookup = {
+    //                dataSource: function (options) {
+    //                    return {
+    //                        store: data,
+    //                        filter: options.data ? ["table_id", "=", options.data.table_id] : null
+    //                    };
+    //                },
+    //                valueExpr: "column_id",
+    //                displayExpr: "display"
+    //            }
+    //        }
+    //    });
 
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "../Manage/GetColumn",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (data) {
+
+    //        }
+    //    });
+    //    console.log(dataColumn);
+    //    dataGrid.option('columns', dataColumn);
+    //}
+
+    function fnGetDriver() {
+        $.ajax({
+            type: "POST",
+            url: "../Home/GetDriver",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d1 = parseJsonDate(data[i].start_work_date);
+                    data[i].start_work_date = d1
+                }
+                dataGrid.option('dataSource', data);
+                console.log(data);
+            }
+        });
+    }
+
+    fnGetDriver();
+    //GetColumn();
 
 
     function fnInsertDriver(dataGrid) {
-        dataGrid.IdTable = gbTableId;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -308,8 +233,7 @@ $(function () {
     //Function Update ข้อมูล
     function fnUpdateDriver(newData, keyItem) {
         newData.driver_id = keyItem;
-        newData.IdTable = gbTableId;
-        //console.log(keyItem);
+        console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Home/UpdateDriver",
@@ -349,74 +273,4 @@ $(function () {
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
-
-    var popup_history = $("#popup_history").dxPopup({
-        visible: false,
-        width: "60%",
-        height: "70%",
-        showTitle: true,
-        title: "ประวัติ",
-        contentTemplate: function (content) {
-            return $("<div id='gridHistory'>test</div>");
-        }
-    }).dxPopup("instance");
-
-    function filter() {
-        //alert('test');
-        //เซ็ตอาเรย์เริ่มต้น
-        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
-        //เซ็ตอาเรย์ที่จะกรอง
-        var filter = dataGridAll;
-        //กรองอาเรย์
-        filter.forEach(function (filterdata) {
-            dataLookupAll = dataLookupAll.filter(function (arr) {
-                return arr.license_id != filterdata.license_id_head;
-            });
-        });
-        dataLookupFilter = dataLookupAll;
-
-        //console.log(filter);
-        //console.log(dataLookupFilter);
-    }
-
-    function setDefaultNumberCar() {
-        var arr = {
-            dataSource: _dataSource,
-            displayExpr: "number_car",
-            valueExpr: "license_id"
-        }
-        dataGrid.option('columns[0].lookup', arr);
-    }
-
-    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
-        var dataColumnVisible = "",
-            dataColumnHide = "";
-        var columnCount = dataGrid.columnCount(),
-            i;
-        for (i = 0; i < columnCount; i++) {
-            if (dataGrid.columnOption(i, "visible")) {
-                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
-            } else {
-                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
-            }
-        }
-
-        //alert(dataColumnVisible);
-        //alert(dataColumnHide);
-
-        $.ajax({
-            type: "POST",
-            url: "../Home/SetColumnHide",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
-            success: function (data) {
-                if (data = 1) {
-                    //alert('Update Column Hide OK');
-                } else {
-                    alert('Update Column Hide error!!');
-                }
-            }
-        });
-    });
 })
