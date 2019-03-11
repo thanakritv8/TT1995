@@ -91,7 +91,7 @@
                     <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a> @*../Home/LicenseCambodia*@
                     <a Then Class="dropdown-item" href="../Home/LicenseMekongRiver">ลุ่มน้ำโขง</a>
                     <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
-                    <a Then Class="dropdown-item" href="#">วัตถุอันตราย(วอ.8)</a>
+                    <a Then Class="dropdown-item" href="../Home/LicenseV8">วัตถุอันตราย(วอ.8)</a>
                 </div>
             </li>
             <li Class="nav-item dropdown">

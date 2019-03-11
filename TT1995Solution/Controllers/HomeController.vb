@@ -1154,7 +1154,7 @@ Namespace Controllers
                             Dim file = Request.Files(i)
                             fileName = file.FileName
                             file.SaveAs(pathServer & "/" & fileName)
-                            Dim _SQL As String = "UPDATE license_mekong_river SET lmr_path = N'../Files/LC/" & fk_id & "/" & file.FileName & "' WHERE lmr_id = " & fk_id
+                            Dim _SQL As String = "UPDATE license_mekong_river SET lmr_path = N'../Files/LMR/" & fk_id & "/" & file.FileName & "' WHERE lmr_id = " & fk_id
                             objDB.ExecuteSQL(_SQL, cn)
                         Next
 
@@ -1895,6 +1895,154 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
+
+#End Region
+
+#Region "LicenseV8"
+        Function LicenseV8() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        Public Function GetColumnChooserLv8(ByVal table_id As Integer) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
+            Dim DtTax As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtTax.Rows Select DtTax.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetLv8() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT lv8.*, l.license_car FROM license_v8 as lv8 join license as l on lv8.license_id = l.license_id"
+            Dim DtLmr As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLmr.Rows Select DtLmr.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateLv8(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_id As String, ByVal lv8_number As String, ByVal lv8_expire As String, ByVal lv8_start As String, ByVal lv8_status As String, ByVal name_hazmat1 As String, ByVal name_hazmat2 As String, ByVal name_hazmat3 As String, ByVal name_hazmat4 As String, ByVal name_hazmat5 As String, ByVal name_hazmat6 As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [license_v8] SET "
+            Dim StrTbLc() As String = {"[lv8_number]", "[license_id]", "[ownership]", "[tax_Id]", "[lv8_start]", "[lv8_expire]", "[lv8_mpa]", "[lv8_rd]", "[lv8_status]", "[name_hazmat1]", "[name_hazmat2]", "[name_hazmat3]", "[name_hazmat4]", "[name_hazmat5]", "[name_hazmat6]"}
+            Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status, name_hazmat1, name_hazmat2, name_hazmat3, name_hazmat4, name_hazmat5, name_hazmat6}
+            For n As Integer = 0 To TbLc.Length - 1
+                If Not TbLc(n) Is Nothing Then
+                    _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lv8_id = " & lv8_id
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertLv8(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_number As String, ByVal lv8_expire As DateTime, ByVal lv8_start As DateTime, ByVal lv8_status As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO license_v8 ([lv8_number],[license_id],[ownership],[tax_Id],[lv8_start],[lv8_expire],[lv8_mpa],[lv8_rd],[lv8_status],[create_by_user_id]) OUTPUT Inserted.lv8_id VALUES "
+            _SQL &= "(N'" & lv8_number & "', '" & license_id & "', N'" & ownership & "', N'" & tax_Id & "', '" & lv8_start & "', '" & lv8_expire & "', N'" & lv8_mpa & "', '" & lv8_rd & "', '" & lv8_status & "', '" & Session("UserId") & "')"
+            If Not license_id Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileLv8() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/LV8/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE license_v8 SET path = N'../Files/LV8/" & fk_id & "/" & file.FileName & "' WHERE lv8_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/LV8/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteFileLv8(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "SELECT * FROM license_v8 WHERE lv8_id = " & keyId
+            Dim dtLc As DataTable = objDB.SelectSQL(_SQL, cn)
+            If dtLc.Rows.Count > 0 Then
+                Dim pathServer As String = Server.MapPath(dtLc.Rows(0)("lv8_path").Replace("..", "~"))
+                If System.IO.File.Exists(pathServer) = True Then
+                    System.IO.File.Delete(pathServer)
+                End If
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteLv8(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = String.Empty
+            _SQL = "DELETE license_v8 WHERE lv8_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 
 #End Region
 

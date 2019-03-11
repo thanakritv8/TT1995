@@ -1581,6 +1581,7 @@
     <Content Include="scripts\Home\index.js" />
     <Content Include="scripts\Home\Installment.js" />
     <Content Include="scripts\Home\license.js" />
+    <Content Include="scripts\Home\licenseV8.js" />
     <Content Include="scripts\Home\license_mekong_river.js" />
     <Content Include="scripts\Home\license_cambodia.js" />
     <Content Include="scripts\Home\mainInsCom.js" />
@@ -1741,6 +1742,7 @@
     <Content Include="Views\Home\environmentInsurance.vbhtml" />
     <Content Include="Views\Home\mainInsurance.vbhtml" />
     <Content Include="Views\Home\LicenseMekongRiver.vbhtml" />
+    <Content Include="Views\Home\LicenseV8.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
