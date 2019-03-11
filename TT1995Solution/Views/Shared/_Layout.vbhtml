@@ -101,7 +101,7 @@
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="../Home/ActInsurance">พรบ</a>
-                    <a Then Class="dropdown-item" href="../Home/MainInsurance">หลัก</a>
+                    <a Then Class="dropdown-item" href="../Home/MainInsurance">ภัยรถยนต์</a>
                     <a Then Class="dropdown-item" href="../Home/DomProIns">สินค้าภายในประเทศ</a>
                     <a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">สิ่งแวดล้อม</a>
                 </div>
@@ -113,7 +113,7 @@
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="../Home/ActInsCom">พรบ</a>
-                    <a Then Class="dropdown-item" href="../Home/MainInsCom">หลัก</a>
+                    <a Then Class="dropdown-item" href="../Home/MainInsCom">ภัยรถยนต์</a>
                     <a Then Class="dropdown-item" href="../Home/ProInsCom">สินค้า</a>
                 </div>
             </li>

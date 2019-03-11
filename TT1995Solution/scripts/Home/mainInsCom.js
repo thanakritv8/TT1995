@@ -3,10 +3,6 @@ var columnHide = [];
 var gbTableId = '7';
 var tableName = "main_insurance_company";
 var idFile;
-var data_lookup_number_car;
-var _dataSource;
-var dataGridAll;
-var dataLookupFilter;
 var gbE;
 
 //คลิกขวาโชว์รายการ   
@@ -86,14 +82,9 @@ $(function () {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
 
-    dataGridAll = getDataMic();
-    //console.log(dataGridAll);
-
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
-        onContentReady: function (e) {
-            filter();
-        },
+
         dataSource: getDataMic(),
         searchPanel: {
             visible: true,
@@ -123,6 +114,10 @@ $(function () {
                 colCount: 2,
                 items: [{
                     itemType: "group",
+                    caption: "ข้อมูล",
+                    items: itemEditing[0]
+                },{
+                    itemType: "group",
                     caption: "ความผิดชอบต่อบุคคลภายนอก",
                     items: itemEditing[1]
                 }, {
@@ -131,22 +126,15 @@ $(function () {
                     items: itemEditing[2]
                 }, {
                     itemType: "group",
-                    caption: "ข้อมูล",
-                    items: itemEditing[0]
-                }, {
-                    itemType: "group",
                     caption: "ความคุ้มครองตามเอกสารแบบท้าย",
                     items: itemEditing[3]
                 }]
             },
             popup: {
-                title: "รายการบริษัทประกันหลัก",
+                title: "รายการบริษัทประกันภัยรถยนต์",
                 showTitle: true,
                 width: "70%",
-                position: { my: "center", at: "center", of: window },
-                onHidden: function (e) {
-                    setDefaultNumberCar();
-                }
+                position: { my: "center", at: "center", of: window }
             },
             useIcons: true,
         },
@@ -162,19 +150,9 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[0].allowEditing', false);
+            
         },
         onInitNewRow: function (e) {
-
-            var arr = {
-                dataSource: dataLookupFilter,
-                displayExpr: "number_car",
-                valueExpr: "number_car"
-            }
-
-            dataGrid.option('columns[0].lookup', arr);
-
-            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateMIC(e.newData, e.key.mic_id);
@@ -194,25 +172,10 @@ $(function () {
                 }
             });
             e.data.mic_id = fnInsertMIC(e.data);
-            //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
+           
         },
         onRowRemoving: function (e) {
             fnDeleteMIC(e.key.mic_id);
-
-            //กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
-                });
-            });
-
-            //push array //เพิ่ม number_car ออก
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-
-            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -427,7 +390,7 @@ $(function () {
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //popup
-                data[25].cellTemplate = function (container, options) {
+                data[0].cellTemplate = function (container, options) {
                     $('<a style="color:green" />').addClass('dx-link')
                             .text(options.value)
                             .on('dxclick', function () {
@@ -513,23 +476,6 @@ $(function () {
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetNumberCar",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                async: false,
-                success: function (dataLookup) {
-                    data_lookup_number_car = dataLookup;
-                    data[0].lookup = {
-                        dataSource: dataLookup,
-                        displayExpr: "number_car",
-                        valueExpr: "number_car"
-                    }
-
-                }
-            });
-            _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
@@ -827,33 +773,6 @@ $(function () {
             return $("<div id='gridHistory'>test</div>");
         }
     }).dxPopup("instance");
-
-    function filter() {
-        //เซ็ตอาเรย์เริ่มต้น
-        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
-        //เซ็ตอาเรย์ที่จะกรอง
-        var filter = dataGridAll;
-        //กรองอาเรย์
-        filter.forEach(function (filterdata) {
-            dataLookupAll = dataLookupAll.filter(function (arr) {
-                return arr.license_id != filterdata.license_id;
-            });
-        });
-        dataLookupFilter = dataLookupAll;
-    }
-    //event button close 
-    //$(document).on("dxclick", ".dx-closebutton", function () {
-    //    setDefaultNumberCar();
-    //});
-
-    function setDefaultNumberCar() {
-        var arr = {
-            dataSource: _dataSource,
-            displayExpr: "number_car",
-            valueExpr: "number_car"
-        }
-        dataGrid.option('columns[0].lookup', arr);
-    }
 
     $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
         var dataColumnVisible = "",
