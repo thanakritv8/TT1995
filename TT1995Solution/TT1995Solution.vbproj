@@ -1743,6 +1743,10 @@
     <Content Include="Views\Home\mainInsurance.vbhtml" />
     <Content Include="Views\Home\LicenseMekongRiver.vbhtml" />
     <Content Include="Views\Home\LicenseV8.vbhtml" />
+    <Content Include="Views\Account\Account.vbhtml" />
+    <Content Include="Views\Account\Application.vbhtml" />
+    <Content Include="Views\Account\Group.vbhtml" />
+    <Content Include="Views\Account\Setting.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

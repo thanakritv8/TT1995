@@ -1917,22 +1917,23 @@ Namespace Controllers
 
         Public Function GetLv8() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lv8.*, l.license_car FROM license_v8 as lv8 join license as l on lv8.license_id = l.license_id"
+            Dim _SQL As String = "SELECT lv8.*,N'ประวัติ' as history, l.license_car FROM license_v8 as lv8 join license as l on lv8.license_id = l.license_id"
             Dim DtLmr As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLmr.Rows Select DtLmr.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateLv8(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_id As String, ByVal lv8_number As String, ByVal lv8_expire As String, ByVal lv8_start As String, ByVal lv8_status As String, ByVal name_hazmat1 As String, ByVal name_hazmat2 As String, ByVal name_hazmat3 As String, ByVal name_hazmat4 As String, ByVal name_hazmat5 As String, ByVal name_hazmat6 As String) As String
+        Public Function UpdateLv8(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_id As String, ByVal lv8_number As String, ByVal lv8_expire As String, ByVal lv8_start As String, ByVal lv8_status As String, ByVal name_hazmat1 As String, ByVal name_hazmat2 As String, ByVal name_hazmat3 As String, ByVal name_hazmat4 As String, ByVal name_hazmat5 As String, ByVal name_hazmat6 As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [license_v8] SET "
-            Dim StrTbLc() As String = {"[lv8_number]", "[license_id]", "[ownership]", "[tax_Id]", "[lv8_start]", "[lv8_expire]", "[lv8_mpa]", "[lv8_rd]", "[lv8_status]", "[name_hazmat1]", "[name_hazmat2]", "[name_hazmat3]", "[name_hazmat4]", "[name_hazmat5]", "[name_hazmat6]"}
+            Dim StrTbLc() As String = {"lv8_number", "license_id", "ownership", "tax_Id", "lv8_start", "lv8_expire", "lv8_mpa", "lv8_rd", "lv8_status", "name_hazmat1", "name_hazmat2", "name_hazmat3", "name_hazmat4", "name_hazmat5", "name_hazmat6"}
             Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status, name_hazmat1, name_hazmat2, name_hazmat3, name_hazmat4, name_hazmat5, name_hazmat6}
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lv8_id)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lv8_id = " & lv8_id
@@ -1945,19 +1946,25 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertLv8(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_number As String, ByVal lv8_expire As DateTime, ByVal lv8_start As DateTime, ByVal lv8_status As String) As String
+        Public Function InsertLv8(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_number As String, ByVal lv8_expire As DateTime, ByVal lv8_start As DateTime, ByVal lv8_status As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "INSERT INTO license_v8 ([lv8_number],[license_id],[ownership],[tax_Id],[lv8_start],[lv8_expire],[lv8_mpa],[lv8_rd],[lv8_status],[create_by_user_id]) OUTPUT Inserted.lv8_id VALUES "
-            _SQL &= "(N'" & lv8_number & "', '" & license_id & "', N'" & ownership & "', N'" & tax_Id & "', '" & lv8_start & "', '" & lv8_expire & "', N'" & lv8_mpa & "', '" & lv8_rd & "', '" & lv8_status & "', '" & Session("UserId") & "')"
+            _SQL &= "(N'" & lv8_number & "', '" & license_id & "', N'" & ownership & "', N'" & tax_Id & "', '" & lv8_start & "', '" & lv8_expire & "', N'" & lv8_mpa & "', N'" & lv8_rd & "', N'" & lv8_status & "', '" & Session("UserId") & "')"
             If Not license_id Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbLc() As String = {"lv8_number", "license_id", "ownership", "tax_Id", "lv8_start", "lv8_expire", "lv8_mpa", "lv8_rd", "lv8_status"}
+            Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status}
+            For n As Integer = 0 To TbLc.Length - 1
+                If Not TbLc(n) Is Nothing Then
+                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -3406,6 +3413,7 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 #End Region
+
 #End Region
 
     End Class

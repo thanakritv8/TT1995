@@ -44,7 +44,53 @@ $(function () {
     }).dxFileUploader('instance');
     //จบการกำหนด Upload files
 
+    function getLv8() {
+        var dataValue = [];
+        //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetLv8",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    var d1 = parseJsonDate(data[i].lv8_expire);
+                    data[i].lv8_expire = d1
+                    var d2 = parseJsonDate(data[i].lv8_start);
+                    data[i].lv8_start = d2;
+                }
+                //dataGrid.option('dataSource', data);
+            }
+        }).responseJSON;
+        //จบการโชว์ข้อมูลทะเบียน
+    }
+
+    function fnGetHistory(table, idOfTable) {
+        var dataValue = [];
+        //โชว์ข้อมูลประวัติ
+        return $.ajax({
+            type: "POST",
+            url: "../Home/getHistory",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{table: '" + table + "',idOfTable: '" + idOfTable + "'}",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i]._date);
+                    data[i]._date = d;
+                }
+            }
+        }).responseJSON;
+        //จบการโชว์ข้อมูลประวัติ
+    }
+
+    dataGridAll = getLv8();
+    console.log(dataGridAll);
     var dataGrid = $("#gridContainer").dxDataGrid({
+        dataSource: getLv8(),
         showBorders: true,
         selection: {
             mode: "single"
@@ -60,6 +106,8 @@ $(function () {
         columnChooser: {
             enabled: true,
             mode: "select"
+        }, onContentReady: function (e) {
+            filter();
         },
         paging: {
             enabled: true,
@@ -84,6 +132,9 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                onHidden: function (e) {
+                    setDefaultNumberCar();
+                }
             },
             useIcons: true
         },
@@ -94,6 +145,21 @@ $(function () {
             fileOpen = e.currentSelectedRowKeys[0].path;
             console.log(gbE);
             isFirstClick = false;
+        },
+        onEditingStart: function (e) {
+            dataGrid.option('columns[0].allowEditing', false);
+        },
+        onInitNewRow: function (e) {
+
+            var arr = {
+                dataSource: dataLookupFilter,
+                displayExpr: "number_car",
+                valueExpr: "license_id"
+            }
+
+            dataGrid.option('columns[0].lookup', arr);
+            console.log(dataGrid);
+            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowClick: function (e) {
             if (gbE.currentSelectedRowKeys[0].license_id == e.key.license_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
@@ -117,12 +183,30 @@ $(function () {
                 async: false,
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
+                    e.data.history = "ประวัติ";
                 }
             });
             e.data.lv8_id = fnInsertLv8(e.data);
+
+            //ตัด number_car ออก
+            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+            filter();
+            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
             fnDeleteLv8(e.key.lv8_id);
+
+            //กรองอาเรย์
+            dataGridAll.forEach(function (filterdata) {
+                dataGridAll = dataGridAll.filter(function (arr) {
+                    return arr.license_id != e.key.license_id;
+                });
+            });
+
+            //push array
+            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+
+            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -202,7 +286,7 @@ $(function () {
                         var result = DevExpress.ui.dialog.confirm("Are you sure?", "Confirm changes");
                         result.done(function (dialogResult) {
                             if (dialogResult) {
-                                fnUpdateLv8({name_Hazmat3: ta3._options.text}, currentV8.lv8_id);
+                                fnUpdateLv8({ name_Hazmat3: ta3._options.text }, currentV8.lv8_id);
                             }
                         });
                     }
@@ -298,7 +382,7 @@ $(function () {
 
                 }
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "history") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -316,6 +400,53 @@ $(function () {
                         });
                     }
                 }
+
+                //popup
+                if (item.dataField == "history") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    popup_history._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
+                                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_history").dxPopup("show");
+                                    var gridHistory = $("#gridHistory").dxDataGrid({
+                                        dataSource: fnGetHistory(gbTableId, options.row.data.lv8_id),
+                                        showBorders: true,
+                                        height: 'auto',
+                                        scrolling: {
+                                            mode: "virtual"
+                                        },
+                                        searchPanel: {
+                                            visible: true,
+                                            width: "auto",
+                                            placeholder: "Search..."
+                                        }
+                                    }).dxDataGrid('instance');
+
+                                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "../Home/GetColumnChooser",
+                                        contentType: "application/json; charset=utf-8",
+                                        data: "{gbTableId: '19'}",
+                                        dataType: "json",
+                                        async: false,
+                                        success: function (data) {
+                                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
+                                            gridHistory.option('columns', data);
+                                        }
+                                    });
+                                    //จบการกำหนด Column
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
             });
             $.ajax({
@@ -332,6 +463,7 @@ $(function () {
                     }
                 }
             });
+            _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         },
@@ -340,25 +472,10 @@ $(function () {
         }
     });
 
-    $.ajax({
-        type: "POST",
-        url: "../Home/GetLv8",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                var d1 = parseJsonDate(data[i].lv8_expire);
-                data[i].lv8_expire = d1
-                var d2 = parseJsonDate(data[i].lv8_start);
-                data[i].lv8_start = d2;
-            }
-            dataGrid.option('dataSource', data);
-        }
-    });
 
     function fnInsertLv8(dataGrid) {
         console.log(dataGrid);
+        dataGrid.IdTable = gbTableId;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -384,8 +501,9 @@ $(function () {
 
 
     function fnUpdateLv8(newData, keyItem) {
-        
+
         newData.lv8_id = keyItem;
+        newData.IdTable = gbTableId;
         console.log(newData);
         $.ajax({
             type: "POST",
@@ -449,4 +567,74 @@ $(function () {
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
+
+    var popup_history = $("#popup_history").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "ประวัติ",
+        contentTemplate: function (content) {
+            return $("<div id='gridHistory'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    function filter() {
+        //console.log(dataGridAll);
+        //เซ็ตอาเรย์เริ่มต้น
+        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
+        //เซ็ตอาเรย์ที่จะกรอง
+        var filter = dataGridAll;
+        //กรองอาเรย์
+
+        filter.forEach(function (filterdata) {
+            dataLookupAll = dataLookupAll.filter(function (arr) {
+                return arr.license_id != filterdata.license_id;
+            });
+        });
+        dataLookupFilter = dataLookupAll;
+    }
+
+    function setDefaultNumberCar() {
+        var arr = {
+            dataSource: _dataSource,
+            displayExpr: "number_car",
+            valueExpr: "license_id"
+        }
+        dataGrid.option('columns[0].lookup', arr);
+    }
+
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
+
 });

@@ -152,6 +152,7 @@
                     <a Then Class="dropdown-item" href="#">Group</a>
                     <a Then Class="dropdown-item" href="#">Account</a>
                     <a Then Class="dropdown-item" href="#">Premission</a>
+                     <a Then Class="dropdown-item" href="#">Setting</a>
                     <a Then Class="dropdown-item" href="../Manage/Lookup">Manage Lookup</a>
                 </div>
                 End If
