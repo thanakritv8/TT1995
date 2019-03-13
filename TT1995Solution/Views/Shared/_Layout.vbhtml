@@ -19,6 +19,8 @@
     <script src="https://cdn3.devexpress.com/jslib/18.2.4/js/dx.all.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.2/jszip.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <style>
         .bg-custom {
             background-color: rgb(0,128,0);
@@ -60,6 +62,11 @@
         @If Session("StatusLogin") = "1" Then
         @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)">
             @*rgb(34,139,34)*@
+            <li class="nav-item">
+                <a class="nav-link" href="../Home/Index">
+                    <span Class="text-light">Home</span>
+                </a>
+            </li>
             <li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>

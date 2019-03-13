@@ -11,13 +11,36 @@ Namespace Controllers
         Function Index() As ActionResult
             If Session("StatusLogin") = "1" Then
                 SetDataOfConfigColumnData()
-                Return View("../Home/License")
+                Return View("../Home/Index")
             Else
                 Return View("../Account/Login")
             End If
         End Function
 
 #Region "Develop by Thung"
+
+#Region "Index"
+
+        Public Function GetIndex()
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * from license"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function GetSubIndex(ByVal license_id As Integer)
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "select l.license_id, N'ภาษี' as tablename, '' as data_number, t.tax_startdate as date_start, t.tax_expire as date_expire, t.tax_status as data_status from license as l join tax as t on l.license_id = t.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ใบประกอบการภายในประเทศ' as tablename, bi.business_number as data_number, bi.business_start as date_start, bi.business_expire as date_expire, bi.business_status as data_status from license as l join business_in_permission as bip on l.license_id = bip.license_id join business_in as bi on bip.business_id = bi.business_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ใบประกอบการภายนอกประเทศ' as tablename, bo.business_number as data_number, bo.business_start as date_start, bo.business_expire as date_expire, bo.business_status as data_status from license as l join business_out_permission as bop on l.license_id = bop.license_id join business_out as bo on bop.business_id = bo.business_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ใบอนุญาตกัมพูชา' as tablename, lc.lc_number as data_number, lc.lc_start as date_start, lc.lc_expire as date_expire, lc.lc_status as data_status from license as l join license_cambodia_permission as lcp on l.license_id = lcp.license_id_head join license_cambodia as lc on lcp.lc_id = lc.lc_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ใบอนุญาตลุ่มแม่น้ำโขง' as tablename, lmr.lmr_number as data_number, lmr.lmr_start as date_start, lmr.lmr_expire as date_expire, lmr.lmr_status as data_status from license as l join license_mekong_river_permission as lmrp on l.license_id = lmrp.license_id_head join license_mekong_river as lmr on lmrp.lmr_id = lmr.lmr_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ใบอนุญาต(วอ.8)' as tablename, lv8.lv8_number as data_number, lv8.lv8_start as date_start, lv8.lv8_expire as date_expire, lv8.lv8_status as data_status from license as l join license_v8 as lv8 on l.license_id = lv8.license_id where l.license_id = " & license_id
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+#End Region
 
 #Region "License"
 
@@ -33,12 +56,12 @@ Namespace Controllers
 
         Public Function GetColumnChooserLicense(ByVal table_id As Integer) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            'Dim _SQL As String = "SELECT cc1.column_id, cc1.name_column AS dataField, cc1.display AS caption, cc1.data_type AS dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible,0) AS visible FROM [config_column] AS cc1 LEFT JOIN [chooser_column] AS cc2 ON cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
-            'Dim _SQL As String = "SELECT column_id, name_column AS dataField, display AS caption, data_type AS dataType, alignment, width, ISNULL(visible,0) AS visible, fixed, format, colSpan FROM [config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
-            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE cc.name_column <> 'license_id' AND table_id = " & table_id & " ORDER BY cc.sort ASC"
-            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
-            objDB.DisconnectDB(cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            'Dim _SQL As String = "Select cc1.column_id, cc1.name_column As dataField, cc1.display As caption, cc1.data_type As dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible, 0) As visible FROM [config_column] As cc1 LEFT JOIN [chooser_column] As cc2 On cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
+            'Dim _SQL As String = "Select column_id, name_column As dataField, display As caption, data_type As dataType, alignment, width, ISNULL(visible, 0) As visible, fixed, Format, colSpan FROM [config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
+                                Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE cc.name_column <> 'license_id' AND table_id = " & table_id & " ORDER BY cc.sort ASC"
+                                Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+                                objDB.DisconnectDB(cn)
+                                Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetLicense() As String
