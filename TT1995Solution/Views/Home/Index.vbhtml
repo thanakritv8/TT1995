@@ -21,7 +21,12 @@ End Code
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
     <script type="text/html" id="title">
+        <% if(data_status == '' || data_status != 'เสร็จสมบูรณ์'){ %>
+        <h1 style="color:#f73b3b"><%= tablename%></h1>
+        <% }else{ %>
         <h1><%= tablename%></h1>
+        <% } %>
+        @*<h1 style="color:#f73b3b"><%= tablename%></h1>*@
     </script>
 
     <script type="text/html" id="contentdata">

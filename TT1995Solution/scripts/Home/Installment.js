@@ -4,6 +4,11 @@ var gbTableId = '11';
 var tableName = "installment";
 var idFile;
 
+
+var _dataSource;
+var dataGridFull;
+var dataLookupFilter;
+var gbE;
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
     { text: 'New File' },
@@ -20,7 +25,26 @@ var contextMenuItemsFile = [
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
+function fnGetHistory(table, idOfTable) {
+    var dataValue = [];
+    //โชว์ข้อมูลประวัติ
+    return $.ajax({
+        type: "POST",
+        url: "../Home/getHistory",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: "{table: '" + table + "',idOfTable: '" + idOfTable + "'}",
+        async: false,
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                var d = parseJsonDate(data[i]._date);
+                data[i]._date = d;
+            }
+        }
+    }).responseJSON;
+    //จบการโชว์ข้อมูลประวัติ
 
+}
 $(function () {
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
@@ -72,10 +96,10 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[1].allowEditing', false);
+            dataGrid.option('columns[0].allowEditing', false);
         },
         onInitNewRow: function (e) {
-            dataGrid.option('columns[1].allowEditing', true);
+            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateInstallment(e.newData, e.key.itm_id); //Installment
@@ -91,6 +115,8 @@ $(function () {
                 async: false,
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
+
+                    e.data.history = "ประวัติ";
                 }
             });
             fnInsertInstallment(e.data);
@@ -245,6 +271,56 @@ $(function () {
                         valueExpr: "data_list"
                     }
                 }
+
+                //popup
+                if (item.dataField == "history") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    console.log(e);
+                                    popup_history.option("contentTemplate", null);
+                                    popup_history._options.contentTemplate = function (content) {
+
+                                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
+                                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_history").dxPopup("show");
+                                    var gridHistory = $("#gridHistory").dxDataGrid({
+                                        dataSource: fnGetHistory(gbTableId, options.row.data.itm_id),
+                                        showBorders: true,
+                                        height: 'auto',
+                                        scrolling: {
+                                            mode: "virtual"
+                                        },
+                                        searchPanel: {
+                                            visible: true,
+                                            width: "auto",
+                                            placeholder: "Search..."
+                                        }
+                                    }).dxDataGrid('instance');
+
+                                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "../Home/GetColumnChooserPoom",
+                                        contentType: "application/json; charset=utf-8",
+                                        data: "{gbTableId:  '11'}",
+                                        dataType: "json",
+                                        async: false,
+                                        success: function (data) {
+                                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
+                                            gridHistory.option('columns', data);
+                                        }
+                                    });
+                                    //จบการกำหนด Column
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
@@ -604,5 +680,76 @@ $(function () {
             }
         });
     }
+
+    //**-*--*-*-
+
+    var popup_history = $("#popup_history").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "ประวัติ",
+        contentTemplate: function (content) {
+            return $("<div id='gridHistory'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    function filter() {
+        //เซ็ตอาเรย์เริ่มต้น
+        var dataLookupAll = dataGrid._options.columns[1].lookup.dataSource;
+        //เซ็ตอาเรย์ที่จะกรอง
+        var filter = dataGridAll;
+        //กรองอาเรย์
+        filter.forEach(function (filterdata) {
+            dataLookupAll = dataLookupAll.filter(function (arr) {
+                return arr.license_id != filterdata.license_id;
+            });
+        });
+        dataLookupFilter = dataLookupAll;
+    }
+
+    function setDefaultNumberCar() {
+        var arr = {
+            dataSource: _dataSource,
+            displayExpr: "number_car",
+            valueExpr: "number_car"
+        }
+        dataGrid.option('columns[1].lookup', arr);
+    }
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
+
+    //*-*-*--*--**-*--*-*
+
 
 });

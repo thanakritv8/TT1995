@@ -3275,7 +3275,7 @@ Namespace Controllers
             _SQL &= "N'" & IIf(last_date Is Nothing, String.Empty, last_date) & "',"
             _SQL &= "N'" & IIf(payed_of_itm Is Nothing, 0, payed_of_itm) & "',"
             _SQL &= "N'" & IIf(last_payment Is Nothing, 0, last_payment) & "',"
-            _SQL &= "N'" & IIf(postponement_itm Is Nothing, String.Empty, postponement_itm) & "',"
+            _SQL &= "N'" & IIf(postponement_itm Is Nothing, 0, postponement_itm) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
@@ -3372,7 +3372,7 @@ Namespace Controllers
             _SQL &= "N'" & IIf(agencycontact Is Nothing, String.Empty, agencycontact) & "',"
             _SQL &= "N'" & IIf(startschedule Is Nothing, String.Empty, startschedule) & "',"
             _SQL &= "N'" & IIf(endschedule Is Nothing, String.Empty, endschedule) & "',"
-            _SQL &= "N'" & IIf(cost_estimate Is Nothing, String.Empty, cost_estimate) & "',"
+            _SQL &= "N'" & IIf(cost_estimate Is Nothing, 0, cost_estimate) & "',"
             _SQL &= "N'" & IIf(statusurgencyid Is Nothing, String.Empty, statusurgencyid) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
@@ -3408,6 +3408,195 @@ Namespace Controllers
 
 #End Region 'Trackingwork
 
+#Region "Accident"
+        Function Accident() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/Accident")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+        'Get data of table Accident
+        Public Function GetAccidentData() As String
+            Return GbFnPoom.GetData("SELECT * FROM [dbo].[accident] accident , [dbo].[license] li where accident.license_id = li.license_id order by li.number_car")
+        End Function
+
+        'Rename Folder or Files(pic,pdf)
+        Public Function fnRenameAccident() As String
+            Return GbFnPoom.fnRename(Request, "Accident")
+        End Function
+
+        Public Function UpdateAccident(ByVal number_car As String, ByVal acd_date As String, ByVal damages As String _
+                                      , ByVal detail As String, ByVal who_pay As String, ByVal note As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [accident] SET "
+            Dim StrTbAccident() As String = {"number_car", "acd_date", "damages", "detail", "who_pay", "note"}
+            Dim TbInsAccident() As Object = {number_car, acd_date, damages, detail, who_pay, note}
+            For n As Integer = 0 To TbInsAccident.Length - 1
+                If Not TbInsAccident(n) Is Nothing Then
+                    _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [acd_id] = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function InsertAccident(ByVal number_car As String, ByVal acd_date As String, ByVal damages As String _
+                                      , ByVal detail As String, ByVal who_pay As String, ByVal note As String, ByVal key As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
+            Dim _SQL As String = "INSERT INTO [accident] ([license_id],[number_car],[acd_date],[damages],[detail],[who_pay],[note],[create_date],[create_by_user_id])"
+            _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
+            _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
+            _SQL &= "N'" & IIf(acd_date Is Nothing, String.Empty, acd_date) & "',"
+            _SQL &= "N'" & IIf(damages Is Nothing, 0, damages) & "',"
+            _SQL &= "N'" & IIf(detail Is Nothing, String.Empty, detail) & "',"
+            _SQL &= "N'" & IIf(who_pay Is Nothing, String.Empty, who_pay) & "',"
+            _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
+            _SQL &= "getdate(),"
+            _SQL &= Session("UserId") & ")"
+            If Not number_car Is Nothing Then
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+
+        Public Function DeleteAccident(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [accident] WHERE [acd_id] = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+#End Region 'Accident
+
+#Region "ViewsData"
+
+#Region "ExpresswayView"
+
+
+        Function ExpresswayView() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/ViewsData/ExpresswayView")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table ExpresswayView
+        Public Function GetExpresswayViewData() As String
+            Return GbFnPoom.GetData("SELECT * FROM [dbo].[expressway] epw , [dbo].[license] li where epw.license_id = li.license_id order by li.number_car")
+        End Function
+
+#End Region 'ExpresswayView
+
+#Region "Gps_carView"
+        Function Gps_carView() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/ViewsData/Gps_carView")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table Gps_carView
+        Public Function GetGps_carViewData() As String
+            Return GbFnPoom.GetData("SELECT * FROM [dbo].[gps_car] gps_car , [dbo].[license] li where gps_car.license_id = li.license_id order by li.number_car")
+        End Function
+
+#End Region 'Gps_carView
+
+#Region "InstallmentView"
+        Function InstallmentView() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/ViewsData/InstallmentView")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+        'Get data of table InstallmentView
+        Public Function GetInstallmentViewData() As String
+            Return GbFnPoom.GetData("SELECT * FROM [dbo].[installment] installment , [dbo].[license] li where installment.license_id = li.license_id order by li.number_car")
+        End Function
+
+#End Region 'InstallmentView
+
+#Region "TrackingworkView"
+        Function TrackingworkView() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/ViewsData/TrackingworkView")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+        'Get data of table TrackingworkView
+        Public Function GetTrackingworkViewData() As String
+            Return GbFnPoom.GetData("SELECT * FROM [dbo].[trackingwork] trackingwork , [dbo].[license] li where trackingwork.license_id = li.license_id order by li.number_car")
+        End Function
+
+#End Region 'TrackingworktView
+
+#Region "AccidentView"
+        Function AccidentView() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/ViewsData/AccidentView")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+        'Get data of table AccidentView
+        Public Function GetAccidentViewData() As String
+            Return GbFnPoom.GetData("SELECT * FROM [dbo].[accident] accident , [dbo].[license] li where accident.license_id = li.license_id order by li.number_car")
+        End Function
+#End Region 'Accident
+
+#Region "Updated"
+        Function Updated() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View("../Home/Updated")
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+        'Get data of table Updated
+        Public Function GetUpdatedData() As String
+            'Return GbFnPoom.GetData("SELECT * FROM [dbo].[accident] accident , [dbo].[license] li where accident.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT  CASE WHEN  (P2.COLUMN_ID = P1.COLUMN_ID)  THEN P2.DISPLAY  END AS column_id, P1._DATA AS _data, P1._EVENT AS _event ,  CASE WHEN  (P3.TABLE_ID = P1._TABLE)  THEN  P3.EXPLANATION  END  AS _table, CASE WHEN  (P4.USER_ID = P1.BY_USER)  THEN  P4.FIRSTNAME END AS by_user , P1._date FROM [dbo].LOG_ALL P1, [dbo].CONFIG_COLUMN P2 ,  [dbo].CONFIG_TABLE P3 , [dbo].ACCOUNT P4 WHERE P2.COLUMN_ID = P1.COLUMN_ID AND P3.TABLE_ID = P1._TABLE AND P4.USER_ID = P1.BY_USER ORDER BY P1.LA_ID DESC ")
+
+
+        End Function
+
+
+#End Region 'Updated
+
+#End Region 'ViewsData
+
 #Region "Function Poom (coppy tew.)"
         'Get data Filses
         Public Function GetFilesPoom(ByVal Id As Integer, ByVal IdTable As Integer) As String
@@ -3436,7 +3625,6 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 #End Region
-
 #End Region
 
     End Class

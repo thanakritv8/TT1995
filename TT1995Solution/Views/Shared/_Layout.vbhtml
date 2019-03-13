@@ -129,26 +129,56 @@
                     <span Class="text-light">บริษัท GPS</span>
                 </a>
             </li>
-            <li Class="nav-item">
-                <a Class="nav-link" href="../Home/Expressway">
-                    <span Class="text-light"> ทางด่วน</span>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">ทางด่วน</span>
                 </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/ExpresswayView">ข้อมูลทางด่วน</a>
+                    <a Then Class="dropdown-item" href="../Home/Expressway">จัดการข้อมูลทางด่วน</a>
+                </div>
             </li>
-            <li Class="nav-item">
-                <a Class="nav-link" href="../Home/Trackingwork">
-                    <span Class="text-light"> ติดตามงาน</span>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">ติดตามงาน</span>
                 </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/TrackingworkView">รายการติดตามงาน</a>
+                    <a Then Class="dropdown-item" href="../Home/Trackingwork">จัดการข้อมูลติดตามงาน</a>
+                </div>
             </li>
-            <li Class="nav-item">
-                <a Class="nav-link" href="../Home/Installment">
-                    <span Class="text-light"> การผ่อนชำระ</span>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">การผ่อนชำระ</span>
                 </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/InstallmentView">ข้อมูลการผ่อนชำระ</a>
+                    <a Then Class="dropdown-item" href="../Home/Installment">จัดการการผ่อนชำระ</a>
+                </div>
             </li>
-            <li Class="nav-item">
-                <a Class="nav-link" href="../Home/Gps_car">
-                    <span Class="text-light"> GPS ติดรถ</span>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">GPS ติดรถ</span>
                 </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/Gps_carView">ข้อมูล GPS ติดรถ</a>
+                    <a Then Class="dropdown-item" href="../Home/Gps_car">จัดการข้อมูลGPS ติดรถ</a>
+                </div>
             </li>
+            <li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i Class="fas fa-fw fa-folder"></i>
+                    <span Class="text-light">บันทึกอุบัติเหตุ</span>
+                </a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Home/AccidentView">ข้อมูลบันทึกอุบัติเหตุ</a>
+                    <a Then Class="dropdown-item" href="../Home/Accident">จัดการบันทึกอุบัติเหตุ</a>
+                </div>
+            </li>  
             <li Class="nav-item dropdown">
                 @if Session("GroupId") = "1" Then
                 @<a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
