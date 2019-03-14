@@ -1,5 +1,5 @@
 ﻿@Code
-    ViewData("Title") = "หน้าสรุป"
+    ViewData("Title") = "หน้าแรก"
 End Code
 <style>
     #gridContainer {

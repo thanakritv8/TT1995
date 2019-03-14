@@ -65,7 +65,8 @@
             @*rgb(34,139,34)*@
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
-                    <span Class="text-light">Home</span>
+                    <i class="fas fa-home"></i>
+                    <span Class="text-light"> หน้าแรก</span>
                 </a>
             </li>
             <li Class="nav-item dropdown">
