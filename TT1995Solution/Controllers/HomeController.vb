@@ -426,6 +426,11 @@ Namespace Controllers
                     _SQL &= StrTbTax(n) & "=N'" & TbTax(n) & "',"
                     GbFn.KeepLog(StrTbTax(n), TbTax(n), "Editing", IdTable, tax_id)
                 End If
+                If StrTbTax(n) = "tax_status" Then
+                    If Not TbTax(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
+                End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE tax_id = " & tax_id
             If objDB.ExecuteSQL(_SQL, cn) Then
