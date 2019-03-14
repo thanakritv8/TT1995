@@ -36,6 +36,8 @@ Namespace Controllers
             _SQL &= "union select l.license_id, N'ใบอนุญาตกัมพูชา' as tablename, lc.lc_number as data_number, lc.lc_start as date_start, lc.lc_expire as date_expire, lc.lc_status as data_status from license as l join license_cambodia_permission as lcp on l.license_id = lcp.license_id_head join license_cambodia as lc on lcp.lc_id = lc.lc_id where l.license_id = " & license_id
             _SQL &= "union select l.license_id, N'ใบอนุญาตลุ่มแม่น้ำโขง' as tablename, lmr.lmr_number as data_number, lmr.lmr_start as date_start, lmr.lmr_expire as date_expire, lmr.lmr_status as data_status from license as l join license_mekong_river_permission as lmrp on l.license_id = lmrp.license_id_head join license_mekong_river as lmr on lmrp.lmr_id = lmr.lmr_id where l.license_id = " & license_id
             _SQL &= "union select l.license_id, N'ใบอนุญาต(วอ.8)' as tablename, lv8.lv8_number as data_number, lv8.lv8_start as date_start, lv8.lv8_expire as date_expire, lv8.lv8_status as data_status from license as l join license_v8 as lv8 on l.license_id = lv8.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ประกัน พรบ' as tablename, ai.policy_number as data_number, ai.start_date as date_start, ai.end_date as date_expire, ai.status as data_status from license as l join act_insurance as ai on l.license_id = ai.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ประกัน หลัก' as tablename, mi.policy_number as data_number, mi.start_date as date_start, mi.end_date as date_expire, mi.status as data_status from license as l join main_insurance as mi on l.license_id = mi.license_id where l.license_id = " & license_id
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2154,13 +2156,13 @@ Namespace Controllers
         End Function
 
         Public Function UpdateMI(ByVal number_car As String, ByVal insurance_company As String, ByVal start_date As String, ByVal end_date As String, ByVal note As String _
-                                  , ByVal policy_number As String, ByVal assured As String, ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal key As String, ByVal IdTable As String) As String
+                                  , ByVal policy_number As String, ByVal assured As String, ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal status As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [main_insurance] SET "
-            Dim StrTbAI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie"}
-            Dim TbAI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie}
+            Dim StrTbAI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie", "status"}
+            Dim TbAI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie, status}
             For n As Integer = 0 To TbAI.Length - 1
                 If Not TbAI(n) Is Nothing Then
                     _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
@@ -2177,14 +2179,14 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
         Public Function InsertMI(ByVal number_car As String, ByVal insurance_company As String, ByVal start_date As String, ByVal end_date As String, ByVal note As String _
-                                  , ByVal policy_number As String, ByVal assured As String, ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal key As String, ByVal IdTable As String) As String
+                                  , ByVal policy_number As String, ByVal assured As String, ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal status As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
 
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [main_insurance] ([license_id],[insurance_company],[start_date],[end_date],[policy_number],[assured],[current_cowrie],[previous_cowrie],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.mi_id"
+            Dim _SQL As String = "INSERT INTO [main_insurance] ([license_id],[insurance_company],[start_date],[end_date],[policy_number],[assured],[current_cowrie],[previous_cowrie],[status],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.mi_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(insurance_company Is Nothing, String.Empty, insurance_company) & "',"
             _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
@@ -2201,8 +2203,8 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbMI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie"}
-            Dim TbMI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie}
+            Dim StrTbMI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie", "status"}
+            Dim TbMI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie, status}
             For n As Integer = 0 To TbMI.Length - 1
                 If Not TbMI(n) Is Nothing Then
                     _SQL &= StrTbMI(n) & "=N'" & TbMI(n) & "',"
