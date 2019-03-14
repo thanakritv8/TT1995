@@ -133,7 +133,13 @@ $(function () {
         url: "../Home/GetIndex",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
+        async: false,
         success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                var d1 = parseJsonDate(data[i].license_date);
+                data[i].license_date = d1;
+            }
+            console.log(data);
             dataGrid.option('dataSource', data);
         }
     });
