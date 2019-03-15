@@ -35,9 +35,25 @@ End Code
             <!-- Modal body -->
             <div class="modal-header">
                 <label>เพิ่มไฟล์</label>
-            </div>
+            </div>            
             <div class="modal-body">
-                <div class="row mb-2">
+                <div class="row" id="picCar">
+                    <div class="col-5 ml-2">
+                        <div class="form-group">
+                            <select class="form-control" id="positionSelect">
+                                <option value="0">ตำแหน่งรูปภาพ</option>
+                                <option value="1">ด้านหน้า</option>
+                                <option value="2">ด้านหลัง</option>
+                                <option value="3">ด้านข้างซ้าย</option>
+                                <option value="4">ด้านข้างขวา</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <input class="mr-2 mt-2" type="checkbox" value="">ตั้งค่าตำแหน่งรูปรถ :
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-sm">
                         <div class="custom-file"></div>
                     </div>

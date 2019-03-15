@@ -19,7 +19,7 @@ $(function () {
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
-        maxFileSize: 10000000,
+        maxFileSize: 4000000,
         multiple: true,
         allowedFileExtensions: [".pdf"],
         accept: ".pdf",
