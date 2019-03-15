@@ -17,6 +17,8 @@ Namespace Controllers
             End If
         End Function
 
+
+
 #Region "Develop by Thung"
 
 #Region "Index"
@@ -198,6 +200,7 @@ Namespace Controllers
                 Dim fk_id As String = String.Empty
                 Dim parentDirId As String = String.Empty
                 Dim newFolder As String = String.Empty
+                Dim base64file As String = String.Empty
                 If Request.Form.AllKeys.Length <> 0 Then
                     For i As Integer = 0 To Request.Form.AllKeys.Length - 1
                         If Request.Form.AllKeys(i) = "fk_id" Then
@@ -208,6 +211,7 @@ Namespace Controllers
                             newFolder = Request.Form(i)
                         End If
                     Next
+
                     Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
                     If Request.Files.Count = 0 Then
                         Dim _Path As String = fnGetPath(parentDirId)
@@ -2109,6 +2113,17 @@ Namespace Controllers
 #End Region
 
 #Region "Utility"
+
+        Public Function ConvertBase64ToByteArray(base64 As String) As Byte()
+            Return Convert.FromBase64String(base64) 'Convert the base64 back to byte array.
+        End Function
+
+        'Here's the part of your code (which works)
+        Private Function convertbytetoimage(ByVal BA As Byte())
+            Dim ms As MemoryStream = New MemoryStream(BA)
+            Dim image = System.Drawing.Image.FromStream(ms)
+            Return image
+        End Function
 
         Private Function fnGetPath(ByVal Id As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)

@@ -253,17 +253,60 @@ $(function () {
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
-        maxFileSize: 4000000,
+        maxFileSize: 6000000,
         multiple: true,
         allowedFileExtensions: [".pdf", ".jpg", ".jpeg", ".png"],
         accept: "image/*,.pdf",
         uploadMode: "useForm",
         onValueChanged: function (e) {
             var files = e.value;
+            
             fileDataPic = new FormData();
             if (files.length > 0) {
                 $.each(files, function (i, file) {
-                    fileDataPic.append('file', file);
+                   
+                    if (file.type != "application/pdf") {
+                        //Resize Pic
+                        var img = document.createElement("img");
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            img.src = e.target.result;
+                            img.onload = function () {
+                                var canvas = document.createElement("canvas");
+                                var ctx = canvas.getContext("2d");
+                                ctx.drawImage(img, 0, 0);
+                                var MAX_WIDTH = 800;
+                                var MAX_HEIGHT = 600;
+                                var width = img.width;
+                                var height = img.height;
+
+                                if (width > height) {
+                                    if (width > MAX_WIDTH) {
+                                        height *= MAX_WIDTH / width;
+                                        width = MAX_WIDTH;
+                                    }
+                                } else {
+                                    if (height > MAX_HEIGHT) {
+                                        width *= MAX_HEIGHT / height;
+                                        height = MAX_HEIGHT;
+                                    }
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                var ctx = canvas.getContext("2d");
+                                ctx.drawImage(img, 0, 0, width, height);
+                                dataurl = canvas.toDataURL("image/jpeg");
+                                fetch(dataurl)
+                                    .then(res => res.blob())
+                                    .then(blob => {
+                                        fileDataPic.append('file', blob, file.name);
+                                    });
+                            }
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        fileDataPic.append('file', file);
+                    }
                 });
                 fileDataPic.append('fk_id', idFK);
                 fileDataPic.append('table_id', 1);
@@ -271,6 +314,7 @@ $(function () {
             }
         },
     }).dxFileUploader('instance');
+
     //จบการกำหนด Upload files
 
     //กำหนดรายการคลิกขวาใน treeview และเงื่อนไขกรณีที่มีการคลิกเลือกรายการ
@@ -480,6 +524,7 @@ $(function () {
 
     //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
     function fnChangeTreeview(license_id, itemData) {
+        console.log(itemData);
         var nItem = 0;
         itemData.forEach(function (item) {
             if (item.file_id == idFile) {
@@ -648,7 +693,7 @@ $(function () {
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts
     function parseJsonDate(jsonDateString) {
-        console.log(jsonDateString);
+        //console.log(jsonDateString);
         if (jsonDateString != null) {
             return new Date(parseInt(jsonDateString.replace('/Date(', '')));
         }
