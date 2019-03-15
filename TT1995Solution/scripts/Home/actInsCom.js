@@ -5,6 +5,7 @@ var tableName = "act_insurance_company";
 var idFile;
 var data_lookup_number_car;
 var gbE;
+var statusUpdateProtection = 0;
 
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
@@ -22,9 +23,12 @@ var contextMenuItemsFile = [
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
+var html_editor;
 
 $(function () {
-
+    $(document).on("dxclick", ".dx-savebutton", function () {
+        alert('tests');
+    });
     function getDataAic() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
@@ -69,7 +73,7 @@ $(function () {
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
-        
+
         dataSource: getDataAic(),
         searchPanel: {
             visible: true,
@@ -83,7 +87,7 @@ $(function () {
         }, onContentReady: function (e) {
             var columnChooserView = e.component.getView("columnChooserView");
             if (!columnChooserView._popupContainer) {
-                
+
                 columnChooserView._initializePopupContainer();
                 columnChooserView.render();
 
@@ -115,7 +119,40 @@ $(function () {
                 title: "รายการบริษัทประกัน พรบ",
                 showTitle: true,
                 width: "70%",
-                position: { my: "center", at: "center", of: window }
+                position: { my: "center", at: "center", of: window },
+                toolbarItems: [{
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Save",
+                        onClick: function (e) {
+                            //alert(statusUpdateProtection);
+                            //console.log(gbE);
+                            ////console.log(gbE);
+                            ////console.log(dataGrid);
+                            if (typeof gbE != "undefined") {
+                                if (statusUpdateProtection == 2) {
+                                    updateProtection(gbE.data.aic_id, html_editor.option("value"));
+                                    gbE.data.protection = html_editor.option("value");
+                                }
+                            }
+                            dataGrid.saveEditData();
+                        }
+                    }
+                }, {
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Cancel",
+                        onClick: function (args) {
+                            console.log(args);
+                            dataGrid.cancelEditData();
+                        }
+                    }
+                }]
+
             },
             useIcons: true,
         },
@@ -129,30 +166,44 @@ $(function () {
         },
         headerFilter: {
             visible: true
-        },
-        onEditingStart: function (e) {
-            
+        }, onEditingStart: function (e) {
+            statusUpdateProtection = 0;
+            gbE = e;
+        }, onEditorPrepared: function (e) {
+
+            if (typeof html_editor != "undefined") {
+                console.log(e.row.key.protection);
+                html_editor.option("value", e.row.key.protection);
+            }
+
         },
         onInitNewRow: function (e) {
+            //$(".test").append("<p>Test</p>");
         },
         onRowUpdating: function (e) {
+
             fnUpdateAIC(e.newData, e.key.aic_id);
         },
         onRowInserting: function (e) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarTew",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });
-            e.data.aic_id = fnInsertAIC(e.data);
+
+            //$.ajax({
+            //    type: "POST",
+            //    url: "../Home/GetLicenseCarTew",
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    data: "{number_car: '" + e.data.number_car + "'}",
+            //    async: false,
+            //    success: function (data) {
+            //        e.data.license_car = data[0].license_car;
+            //        e.data.license_id = data[0].license_id;
+            //        e.data.history = "ประวัติ";
+            //    }
+            //});
+            e.data.aic_id = fnInsertAIC(e.data, html_editor.option("value"));
+            e.data.protection_view = 'View';
+            e.data.protection = html_editor.option("value");
+            e.data.history = "ประวัติ";
+
         },
         onRowRemoving: function (e) {
             fnDeleteAIC(e.key.aic_id);
@@ -366,21 +417,86 @@ $(function () {
                     }
                 }
 
+                //popup
+                if (item.dataField == "protection_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    console.log(options);
+                                    console.log(e);
+                                    console.log(popup_protection);
+                                    popup_protection._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_protection .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_protection' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_protection").dxPopup("show");
+
+                                    $("#html_protection").empty();
+                                    $('#html_protection').append(options.data.protection);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
+
+
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "aic_id" && item.dataField != "license_id" && item.dataField != "history") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "aic_id" && item.dataField != "license_id" && item.dataField != "history" && item.dataField != "protection_view") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
                             width: "100%",
+
                             editorOptions: {
                                 disabled: false
                             },
                         });
-                    } else if (item.dataField != "license_car") {
+                    } else if (item.dataField == "protection") {
+                        itemEditing.push({
+                            colSpan: 6,
+                            dataField: "การคุ้มครอง",
+                            template: function (data, itemElement) {
+                                itemElement.append($('<div class="html-editor"></div>'));
+                                html_editor = $(".html-editor").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateProtection == 0) {
+                                            statusUpdateProtection = 1;
+                                        } else if (statusUpdateProtection = 1) {
+                                            statusUpdateProtection = 2;
+                                        }
+                                        //alert(statusUpdateProtection);
+                                        //$(".value-content").text(e.component.option("value"));
+                                    }
+                                }).dxHtmlEditor("instance");
+                            }
+                        });
+                    }
+                    else if (item.dataField != "license_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
@@ -390,6 +506,14 @@ $(function () {
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
+            var filter = [{ column_id: '90' }];
+            //กรองอาเรย์
+            filter.forEach(function (filterdata) {
+                data = data.filter(function (arr) {
+                    return arr.column_id != filterdata.column_id;
+                });
+            });
+            console.log(data);
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
@@ -419,8 +543,9 @@ $(function () {
     }
 
     //Function Insert ข้อมูล gps_company
-    function fnInsertAIC(dataGrid) {
+    function fnInsertAIC(dataGrid, dataHtmlEditor) {
         dataGrid.IdTable = gbTableId;
+        dataGrid.DataHtmlEditor = dataHtmlEditor;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -678,6 +803,17 @@ $(function () {
         }
     }).dxPopup("instance");
 
+    var popup_protection = $("#popup_protection").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "การคุ้มครอง",
+        contentTemplate: function (content) {
+            return $("<div id='html_protection'>test</div>");
+        }
+    }).dxPopup("instance");
+
 
     $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
         var dataColumnVisible = "",
@@ -710,5 +846,34 @@ $(function () {
             }
         });
     });
+
+    function updateProtection(aic_id, data) {
+
+        //alert(aic_id + data);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/UpdateProtection",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{aic_id:'" + aic_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
+
+    //$(".value-types").dxButtonGroup({
+    //    items: [{ text: "Html" }, { text: "Markdown" }],
+    //    onSelectionChanged: function (e) {
+    //        editorInstance.option("valueType", e.addedItems[0].text.toLowerCase());
+    //        $(".value-content").text(editorInstance.option("value"));
+    //    }
+    //});
 
 });

@@ -93,5 +93,6 @@ End Code
     <div id="popup"></div>
 </div>
 <div id="popup_history"></div>
+<div id="popup_protection"></div>
 <script src="~/scripts/Home/actInsCom.js"></script>
 

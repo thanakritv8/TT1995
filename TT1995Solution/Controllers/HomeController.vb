@@ -2254,6 +2254,26 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
+        Public Function UpdateProtection(ByVal aic_id As String, ByVal data As String, ByVal IdTable As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "UPDATE [dbo].[act_insurance_company] SET [protection] = N'" & data & "' WHERE aic_id = '" & aic_id & "'"
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+                GbFn.KeepLog("protection", data, "Editing", IdTable, aic_id)
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            aic_id = 0
+
+        End Function
+
 #End Region
 
 #Region "Domestic Product Insurance"
@@ -2538,7 +2558,7 @@ Namespace Controllers
 
         'Get data of table Main Insurance Company
         Public Function GetAICData() As String
-            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[act_insurance_company] ai")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history,N'View' as protection_view FROM [dbo].[act_insurance_company] ai")
         End Function
 
         'Rename Folder or Files(pic,pdf)
