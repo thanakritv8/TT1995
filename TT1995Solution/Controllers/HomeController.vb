@@ -200,7 +200,6 @@ Namespace Controllers
                 Dim fk_id As String = String.Empty
                 Dim parentDirId As String = String.Empty
                 Dim newFolder As String = String.Empty
-                Dim base64file As String = String.Empty
                 If Request.Form.AllKeys.Length <> 0 Then
                     For i As Integer = 0 To Request.Form.AllKeys.Length - 1
                         If Request.Form.AllKeys(i) = "fk_id" Then
