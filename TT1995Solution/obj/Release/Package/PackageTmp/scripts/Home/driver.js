@@ -109,7 +109,7 @@
 
                     data[2].setCellValue = function (rowData, value) {
                         var dataNew = [];
-                        
+
                         $.each(dataLookup, function () {
                             if (this.license_id == value) {
                                 dataNew.push(this);
@@ -143,6 +143,50 @@
         }
     });
     //จบการกำหนด Column
+
+    //function GetColumn() {
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "../Manage/GetTable",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (data) {
+    //            dataColumn[0].setCellValue = function (rowData, value) {
+    //                rowData.table_id = value;
+    //                rowData.column_id = null;
+    //            }
+    //            dataColumn[0].lookup = {
+    //                dataSource: data,
+    //                valueExpr: "table_id",
+    //                displayExpr: "display"
+    //            }
+    //            dataColumn[1].lookup = {
+    //                dataSource: function (options) {
+    //                    return {
+    //                        store: data,
+    //                        filter: options.data ? ["table_id", "=", options.data.table_id] : null
+    //                    };
+    //                },
+    //                valueExpr: "column_id",
+    //                displayExpr: "display"
+    //            }
+    //        }
+    //    });
+
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "../Manage/GetColumn",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (data) {
+
+    //        }
+    //    });
+    //    console.log(dataColumn);
+    //    dataGrid.option('columns', dataColumn);
+    //}
 
     function fnGetDriver() {
         $.ajax({

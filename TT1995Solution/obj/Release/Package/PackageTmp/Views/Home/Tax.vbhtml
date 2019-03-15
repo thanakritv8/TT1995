@@ -7,6 +7,7 @@ End Code
         height: 100%;
     }
 </style>
+<div> <h4>ภาษี</h4> </div>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
     <div id="context-menu"></div>
@@ -94,6 +95,6 @@ End Code
         </div>
     </div>
 </div>
-
+<div id="popup_history"></div>
 <script src="~/scripts/Home/tax.js"></script>
 

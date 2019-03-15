@@ -11,6 +11,7 @@ End Code
         height: 100%;
     }
 </style>
+<div> <h4>ประกอบการภายใน</h4> </div>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
 </div>
@@ -39,6 +40,6 @@ End Code
         </div>
     </div>
 </div>
-
+<div id="popup_history"></div>
 <script src="~/scripts/Home/business_in.js"></script>
 

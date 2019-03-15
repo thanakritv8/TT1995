@@ -1116,6 +1116,11 @@ Namespace Controllers
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
                 End If
+                If StrTbLc(n) = "lmr_status" Then
+                    If Not TbLc(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
+                End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lmr_id = " & lmr_id
             If objDB.ExecuteSQL(_SQL, cn) Then
@@ -1302,6 +1307,11 @@ Namespace Controllers
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                End If
+                If StrTbLc(n) = "lc_status" Then
+                    If Not TbLc(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lc_id = " & lc_id
@@ -1506,6 +1516,11 @@ Namespace Controllers
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
                     GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
+                End If
+                If StrTbBusiness(n) = "business_status" Then
+                    If Not TbBusiness(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
@@ -1758,6 +1773,11 @@ Namespace Controllers
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
                     GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
                 End If
+                If StrTbBusiness(n) = "business_status" Then
+                    If Not TbBusiness(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
+                End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
             If objDB.ExecuteSQL(_SQL, cn) Then
@@ -1964,6 +1984,11 @@ Namespace Controllers
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
                     GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lv8_id)
+                End If
+                If StrTbLc(n) = "lv8_status" Then
+                    If Not TbLc(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lv8_id = " & lv8_id
@@ -2195,6 +2220,7 @@ Namespace Controllers
             _SQL &= "N'" & IIf(assured Is Nothing, String.Empty, assured) & "',"
             _SQL &= "N'" & IIf(current_cowrie Is Nothing, String.Empty, current_cowrie) & "',"
             _SQL &= "N'" & IIf(previous_cowrie Is Nothing, String.Empty, previous_cowrie) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
@@ -3510,7 +3536,7 @@ Namespace Controllers
 
         Function ExpresswayView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/ViewsData/ExpresswayView")
+                Return View("../Home/Expressway")
             Else
                 Return View("../Account/Login")
             End If
@@ -3526,7 +3552,7 @@ Namespace Controllers
 #Region "Gps_carView"
         Function Gps_carView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/ViewsData/Gps_carView")
+                Return View("../Home/Gps_car")
             Else
                 Return View("../Account/Login")
             End If
@@ -3542,7 +3568,7 @@ Namespace Controllers
 #Region "InstallmentView"
         Function InstallmentView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/ViewsData/InstallmentView")
+                Return View("../Home/Installment")
             Else
                 Return View("../Account/Login")
             End If
@@ -3557,7 +3583,7 @@ Namespace Controllers
 #Region "TrackingworkView"
         Function TrackingworkView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/ViewsData/TrackingworkView")
+                Return View("../Home/Trackingwork")
             Else
                 Return View("../Account/Login")
             End If
@@ -3572,7 +3598,7 @@ Namespace Controllers
 #Region "AccidentView"
         Function AccidentView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/ViewsData/AccidentView")
+                Return View("../Home/Accident")
             Else
                 Return View("../Account/Login")
             End If

@@ -128,7 +128,8 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="../Home/GpsCompany">
-                    <span Class="text-light">บริษัท GPS</span>
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span Class="text-light"> บริษัท GPS</span>
                 </a>
             </li>
             <li Class="nav-item dropdown">
@@ -137,7 +138,7 @@
                     <span Class="text-light">ทางด่วน</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/ExpresswayView">ข้อมูลทางด่วน</a>
+                    @*<a Then Class="dropdown-item" href="../Home/ExpresswayView">ข้อมูลทางด่วน</a>*@
                     <a Then Class="dropdown-item" href="../Home/Expressway">จัดการข้อมูลทางด่วน</a>
                 </div>
             </li>
@@ -147,7 +148,7 @@
                     <span Class="text-light">ติดตามงาน</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/TrackingworkView">รายการติดตามงาน</a>
+                    @*<a Then Class="dropdown-item" href="../Home/TrackingworkView">รายการติดตามงาน</a>*@
                     <a Then Class="dropdown-item" href="../Home/Trackingwork">จัดการข้อมูลติดตามงาน</a>
                 </div>
             </li>
@@ -157,7 +158,7 @@
                     <span Class="text-light">การผ่อนชำระ</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/InstallmentView">ข้อมูลการผ่อนชำระ</a>
+                    @*<a Then Class="dropdown-item" href="../Home/InstallmentView">ข้อมูลการผ่อนชำระ</a>*@
                     <a Then Class="dropdown-item" href="../Home/Installment">จัดการการผ่อนชำระ</a>
                 </div>
             </li>
@@ -167,7 +168,7 @@
                     <span Class="text-light">GPS ติดรถ</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/Gps_carView">ข้อมูล GPS ติดรถ</a>
+                    @*<a Then Class="dropdown-item" href="../Home/Gps_carView">ข้อมูล GPS ติดรถ</a>*@
                     <a Then Class="dropdown-item" href="../Home/Gps_car">จัดการข้อมูลGPS ติดรถ</a>
                 </div>
             </li>
@@ -177,8 +178,8 @@
                     <span Class="text-light">บันทึกอุบัติเหตุ</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/AccidentView">ข้อมูลบันทึกอุบัติเหตุ</a>
-                    <a Then Class="dropdown-item" href="../Home/Accident">จัดการบันทึกอุบัติเหตุ</a>
+                    @*<a Then Class="dropdown-item" href="../Home/AccidentView">ข้อมูลบันทึกอุบัติเหตุ</a>*@
+                    @*<a Then Class="dropdown-item" href="../Home/Accident">จัดการบันทึกอุบัติเหตุ</a>*@
                 </div>
             </li>  
             <li Class="nav-item dropdown">

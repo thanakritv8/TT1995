@@ -1,17 +1,18 @@
 ﻿@Code
-    ViewData("Title") = "ประกอบการภายนอกประเทศ"
+    ViewData("Title") = "ใบอนุญาต(วอ.8)"
 End Code
 
 <style>
     #gridContainer {
         width: 100%;
     }
+
     .custom-file {
         overflow-y: auto;
         height: 100%;
     }
 </style>
-<div> <h4>ประกอบการภายนอกประเทศ</h4> </div>
+<div> <h4>ใบอนุญาต(วอ.8)</h4> </div>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
 </div>
@@ -41,5 +42,5 @@ End Code
     </div>
 </div>
 <div id="popup_history"></div>
-<script src="~/scripts/Home/business_out.js"></script>
+<script src="~/scripts/Home/licenseV8.js"></script>
 

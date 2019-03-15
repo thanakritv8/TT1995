@@ -39,11 +39,11 @@ $(function () {
             async: false,
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].insurance_date);
-                    data[i].insurance_date = d;
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
 
-                    var d = parseJsonDate(data[i].expire_date);
-                    data[i].expire_date = d;
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
                 }
             }
         }).responseJSON;
@@ -124,7 +124,7 @@ $(function () {
                 colCount: 6,
             },
             popup: {
-                title: "รายการบริษัทประกัน พรบ",
+                title: "รายการประกัน พรบ",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
@@ -761,5 +761,37 @@ $(function () {
         }
         dataGrid.option('columns[0].lookup', arr);
     }
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
         
 });
