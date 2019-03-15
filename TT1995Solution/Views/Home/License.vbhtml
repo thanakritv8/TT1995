@@ -37,7 +37,7 @@ End Code
                 <label>เพิ่มไฟล์</label>
             </div>            
             <div class="modal-body">
-                <div class="row" id="picCar">
+                <div class="row" id="picCar" hidden>
                     <div class="col-5 ml-2">
                         <div class="form-group">
                             <select class="form-control" id="positionSelect">
