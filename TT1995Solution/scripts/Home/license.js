@@ -254,7 +254,7 @@ $(function () {
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
         maxFileSize: 10000000,
-        multiple: true,
+        multiple: false,
         allowedFileExtensions: [".pdf", ".jpg", ".jpeg", ".png"],
         accept: "image/*,.pdf",
         uploadMode: "useForm",
