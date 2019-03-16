@@ -66,25 +66,25 @@ End Code
                     <% if(data_number != ''){ %>
                     <b>เลขที่ : </b>
                     <span><%= data_number%></span>
-                    <% } %>
+                    <% }else{ %><p>&nbsp;</p><% } %>
                 </p>
                 <p>
                     <% if(date_start != ''){ %>
                     <b>วันที่อนุมัติ : </b>
                     <span><%= date_start%></span>
-                    <% } %>
+                    <% }else{ %><p>&nbsp;</p><% } %>
                 </p>
                 <p>
                     <% if(date_expire != ''){ %>
                     <b>วันที่หมดอายุ : </b>
                     <span><%= date_expire%></span>
-                    <% } %>
+                    <% }else{ %><p>&nbsp;</p><% } %>
                 </p>
                 <p>
                     <% if(data_status != ''){ %>
                     <b>สถานะ : </b>
                     <span><%= data_status%></span>
-                    <% } %>
+                    <% }else{ %><p>&nbsp;</p><% } %>
                 </p>
                 <% } %>
             </div>

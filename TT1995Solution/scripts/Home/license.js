@@ -632,6 +632,8 @@ $(function () {
                 document.getElementById("btnSave").disabled = false;
                 $("#mdNewFile").modal('hide');
                 $("#mdNewFolder").modal('hide');
+                $("#picCar").hide();
+                $("#positionSelect").attr("disabled", true);
                 document.getElementById("lbNewFolder").value = '';
                 if (data[0].Status != '0') {
                     var itemData = fnGetFiles(data[0].Status);
