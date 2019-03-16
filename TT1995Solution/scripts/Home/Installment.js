@@ -37,6 +37,8 @@ $(function () {
             success: function (data) {
                 //console.log(data);
                 for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].create_date);
+                    data[i].create_date = d;
 
                     var d = parseJsonDate(data[i].start_date);
                     data[i].start_date = d;
@@ -45,8 +47,6 @@ $(function () {
                     data[i].last_date = d;
                     var d = parseJsonDate(data[i].postponement_itm);
                     data[i].postponement_itm = d;
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
                     var d = parseJsonDate(data[i].update_date);
                     data[i].update_date = d;
                 }
@@ -153,7 +153,7 @@ $(function () {
 
             dataGrid.option('columns[0].lookup', arr);
 
-            dataGrid.option('columns[1].allowEditing', true);
+            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateInstallment(e.newData, e.key.itm_id);
@@ -692,7 +692,7 @@ $(function () {
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("แก้ไขข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
                 }
@@ -733,7 +733,7 @@ $(function () {
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("ลบข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
                 }

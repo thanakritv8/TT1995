@@ -136,7 +136,7 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[1].allowEditing', false);
+            dataGrid.option('columns[0].allowEditing', false);
         },
         onInitNewRow: function (e) {
             filter();
@@ -149,7 +149,7 @@ $(function () {
 
             dataGrid.option('columns[0].lookup', arr);
 
-            dataGrid.option('columns[1].allowEditing', true);
+            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateExpressway(e.newData, e.key.epw_id);
