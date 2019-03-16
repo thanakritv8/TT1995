@@ -36,10 +36,21 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+    $("#setPosition").click(function () {
+        console.log($("#setPosition"))
+        if ($("#setPosition")[0].checked == true) {
+            $("#positionSelect").removeAttr("disabled");
+        } else {
+            $("#positionSelect").attr("disabled", true);
+        }
+    });
     //กำหนดปุ่มเพิ่มรูปภาพเข้าไปในระบบ
     $("#btnSave").dxButton({
         onClick: function () {
             document.getElementById("btnSave").disabled = true;
+            if ($("#setPosition")[0].checked == true) {
+                fileDataPic.append('position', $("#positionSelect").val());
+            }
             fnInsertFiles(fileDataPic);
         }
     });
@@ -304,6 +315,7 @@ $(function () {
                             }
                         }
                         reader.readAsDataURL(file);
+                        $("#picCar").show();
                     } else {
                         fileDataPic.append('file', file);
                     }
@@ -414,6 +426,8 @@ $(function () {
         masterDetail: {
             enabled: false,
             template: function (container, options) {
+                $("#picCar").hide();
+                $("#positionSelect").attr("disabled", true);
                 //สร้าง id treeview
                 container.append($('<div id="treeview"></div>'));
                 var itemData = fnGetFiles(options.key.license_id);

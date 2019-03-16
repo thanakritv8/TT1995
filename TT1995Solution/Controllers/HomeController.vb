@@ -44,6 +44,13 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
+        Public Function GetLicensePic(ByVal license_id As Integer)
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "select top 1 CASE WHEN (select count(file_id) from files_all where table_id = 1 and fk_id = " & license_id & " and type_file = 'pic' and position in ('1','2','3','4')) >= 4 THEN N'สมบูรณ์' ELSE N'ยังไม่มีการดำเนินการ' END as data_status, N'รูปรถ' as tablename, f1.name_file as n1, f1.path_file as p1, f2.name_file as n2, f2.path_file as p2, f3.name_file as n3, f3.path_file as p3, f4.name_file as n4, f4.path_file as p4 from files_all as f1 join files_all as f2 on f1.fk_id = f2.fk_id join files_all as f3 on f1.fk_id = f3.fk_id join files_all as f4 on f1.fk_id = f4.fk_id join files_all as f on f1.fk_id = f.fk_id where f1.position = '1' and f2.position = '2' and f3.position = '3' and f4.position = '4' and f1.table_id = 1 and f1.fk_id = " & license_id & " and f1.type_file = 'pic' "
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 #End Region
 
 #Region "License"
@@ -200,6 +207,7 @@ Namespace Controllers
                 Dim fk_id As String = String.Empty
                 Dim parentDirId As String = String.Empty
                 Dim newFolder As String = String.Empty
+                Dim position As String = String.Empty
                 If Request.Form.AllKeys.Length <> 0 Then
                     For i As Integer = 0 To Request.Form.AllKeys.Length - 1
                         If Request.Form.AllKeys(i) = "fk_id" Then
@@ -208,6 +216,8 @@ Namespace Controllers
                             parentDirId = Request.Form(i)
                         ElseIf Request.Form.AllKeys(i) = "newFolder" Then
                             newFolder = Request.Form(i)
+                        ElseIf Request.Form.AllKeys(i) = "position" Then
+                            position = Request.Form(i)
                         End If
                     Next
 
@@ -218,7 +228,7 @@ Namespace Controllers
                         If (Not System.IO.Directory.Exists(pathServer)) Then
                             System.IO.Directory.CreateDirectory(pathServer)
                         End If
-                        Dim _SQL As String = "INSERT INTO [files_all] ([fk_id],[table_id],[name_file],[type_file],[path_file],[parentDirId],[icon],[create_by_user_id]) VALUES (" & fk_id & ",1,N'" & newFolder & "','folder',N'','" & parentDirId & "','../Img/folder.png'," & Session("UserId") & ")"
+                        Dim _SQL As String = "INSERT INTO [files_all] ([fk_id],[table_id],[name_file],[type_file],[path_file],[parentDirId],[icon],[create_by_user_id],[position]) VALUES (" & fk_id & ",1,N'" & newFolder & "','folder',N'','" & parentDirId & "','../Img/folder.png'," & Session("UserId") & ", '" & position & "')"
                         objDB.ExecuteSQL(_SQL, cn)
                     Else
                         'Create File
@@ -241,7 +251,7 @@ Namespace Controllers
                                 name_icon = "pic"
                             End If
                             file.SaveAs(pathServer)
-                            Dim _SQL As String = "INSERT INTO [files_all] ([fk_id], [table_id], [name_file], [type_file], [path_file], [parentDirId], [icon], [create_by_user_id]) VALUES (" & fk_id & ",1, N'" & file.FileName & "','" & name_icon & "',N'.." & PathFile & "','" & parentDirId & "','../Img/" & name_icon & ".png'," & Session("UserId") & ")"
+                            Dim _SQL As String = "INSERT INTO [files_all] ([fk_id], [table_id], [name_file], [type_file], [path_file], [parentDirId], [icon], [create_by_user_id],[position]) VALUES (" & fk_id & ",1, N'" & file.FileName & "','" & name_icon & "',N'.." & PathFile & "','" & parentDirId & "','../Img/" & name_icon & ".png'," & Session("UserId") & ", '" & position & "')"
                             objDB.ExecuteSQL(_SQL, cn)
                         Next
                     End If

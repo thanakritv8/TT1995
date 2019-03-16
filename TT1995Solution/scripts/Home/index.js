@@ -101,13 +101,29 @@ $(function () {
                     data: "{license_id: " + currentIndex.license_id + "}",
                     async: false,
                     success: function (data) {
-                        console.log(data);
                         for (var i = 0; i < data.length; i++) {
                             var d1 = moment(new Date(parseJsonDate(data[i].date_start))).format('DD-MM-YYYY');
                             data[i].date_start = d1;
                             var d2 = moment(new Date(parseJsonDate(data[i].date_expire))).format('DD-MM-YYYY');
                             data[i].date_expire = d2;
                         }
+                        $.ajax({
+                            type: "POST",
+                            url: "../Home/GetLicensePic",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            data: "{license_id: " + currentIndex.license_id + "}",
+                            async: false,
+                            success: function (dataPic) {
+                                console.log(dataPic[0]);
+                                if (dataPic[0] === undefined || dataPic[0] === null) {
+                                } else {
+                                    data.push(dataPic[0]);
+                                }
+                                
+                            }
+                        });
+                        console.log(data);
                         var accordion = $("#accordion-container").dxAccordion({
                             dataSource: data,
                             animationDuration: 300,
