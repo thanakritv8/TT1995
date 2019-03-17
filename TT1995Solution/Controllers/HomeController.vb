@@ -3113,7 +3113,7 @@ Namespace Controllers
 
         'Get data of table Expressway
         Public Function GetExpresswayData() As String
-            Return GbFnPoom.GetData("SELECT * FROM [dbo].[expressway] epw , [dbo].[license] li where epw.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[expressway] epw , [dbo].[license] li where epw.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3123,7 +3123,7 @@ Namespace Controllers
 
         Public Function UpdateExpressway(ByVal number_car As String, ByVal start_date As String, ByVal expire_date As String _
                                       , ByVal processing_fee As String, ByVal special_money As String, ByVal epw_license As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3133,6 +3133,7 @@ Namespace Controllers
             For n As Integer = 0 To TbExpressway.Length - 1
                 If Not TbExpressway(n) Is Nothing Then
                     _SQL &= StrTbExpressway(n) & "=N'" & TbExpressway(n) & "',"
+                    GbFn.KeepLog(StrTbExpressway(n), TbExpressway(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE epw_id = " & key
@@ -3146,13 +3147,13 @@ Namespace Controllers
         End Function
         Public Function InsertExpressway(ByVal number_car As String, ByVal start_date As String, ByVal expire_date As String _
                                       , ByVal processing_fee As String, ByVal special_money As String, ByVal epw_license As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [expressway] ([license_id],[number_car],[start_date],[expire_date],[processing_fee],[special_money],[epw_license],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [expressway] ([license_id],[number_car],[start_date],[expire_date],[processing_fee],[special_money],[epw_license],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.epw_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
@@ -3164,15 +3165,23 @@ Namespace Controllers
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbExpressway() As String = {"number_car", "start_date", "expire_date", "processing_fee", "special_money", "epw_license", "note"}
+            Dim TbExpressway() As Object = {number_car, start_date, expire_date, processing_fee, special_money, epw_license, note}
+            For n As Integer = 0 To TbExpressway.Length - 1
+                If Not TbExpressway(n) Is Nothing Then
+                    _SQL &= StrTbExpressway(n) & "=N'" & TbExpressway(n) & "',"
+                    GbFn.KeepLog(StrTbExpressway(n), TbExpressway(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -3192,10 +3201,6 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-
-
-
-
 #End Region 'Expressway
 
 #Region "Gps_car"
@@ -3209,7 +3214,7 @@ Namespace Controllers
 
         'Get data of table Gps_car
         Public Function GetGps_carData() As String
-            Return GbFnPoom.GetData("SELECT * FROM [dbo].[gps_car] gps_car , [dbo].[license] li where gps_car.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history  FROM [dbo].[gps_car] gps_car , [dbo].[license] li where gps_car.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3219,7 +3224,7 @@ Namespace Controllers
 
         Public Function UpdateGps_car(ByVal number_car As String, ByVal sim_no As String, ByVal gps_no As String _
                                       , ByVal start_date As String, ByVal expire_date As String, ByVal gps_price As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3229,6 +3234,7 @@ Namespace Controllers
             For n As Integer = 0 To TbGps_car.Length - 1
                 If Not TbGps_car(n) Is Nothing Then
                     _SQL &= StrTbGps_car(n) & "=N'" & TbGps_car(n) & "',"
+                    GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [gps_car_id] = " & key
@@ -3242,13 +3248,13 @@ Namespace Controllers
         End Function
         Public Function InsertGps_car(ByVal number_car As String, ByVal sim_no As String, ByVal gps_no As String _
                                       , ByVal start_date As String, ByVal expire_date As String, ByVal gps_price As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [gps_car] ([license_id],[number_car],[sim_no],[gps_no],[start_date],[expire_date],[gps_price],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [gps_car] ([license_id],[number_car],[sim_no],[gps_no],[start_date],[expire_date],[gps_price],[note],[create_date],[create_by_user_id])  OUTPUT Inserted.gps_car_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(sim_no Is Nothing, 0, sim_no) & "',"
@@ -3260,15 +3266,23 @@ Namespace Controllers
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbGps_car() As String = {"number_car", "sim_no", "gps_no", "start_date", "expire_date", "gps_price", "note"}
+            Dim TbGps_car() As Object = {number_car, sim_no, gps_no, start_date, expire_date, gps_price, note}
+            For n As Integer = 0 To TbGps_car.Length - 1
+                If Not TbGps_car(n) Is Nothing Then
+                    _SQL &= StrTbGps_car(n) & "=N'" & TbGps_car(n) & "',"
+                    GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -3291,6 +3305,7 @@ Namespace Controllers
 
 #End Region 'Gps_car
 
+
 #Region "Installment"
         Function Installment() As ActionResult
             If Session("StatusLogin") = "1" Then
@@ -3301,7 +3316,7 @@ Namespace Controllers
         End Function
         'Get data of table Installment
         Public Function GetInstallmentData() As String
-            Return GbFnPoom.GetData("SELECT * FROM [dbo].[installment] installment , [dbo].[license] li where installment.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[installment] itm , [dbo].[license] li where itm.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3312,7 +3327,7 @@ Namespace Controllers
         Public Function UpdateInstallment(ByVal number_car As String, ByVal itm_name As String, ByVal start_date As String _
                                       , ByVal no_of_itm As String, ByVal payment_of_itm As String, ByVal last_date As String _
                                       , ByVal payed_of_itm As String, ByVal last_payment As String, ByVal postponement_itm As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3322,6 +3337,7 @@ Namespace Controllers
             For n As Integer = 0 To TbInstallment.Length - 1
                 If Not TbInstallment(n) Is Nothing Then
                     _SQL &= StrTbInstallment(n) & "=N'" & TbInstallment(n) & "',"
+                    GbFn.KeepLog(StrTbInstallment(n), TbInstallment(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [itm_id] = " & key
@@ -3336,13 +3352,13 @@ Namespace Controllers
         Public Function InsertInstallment(ByVal number_car As String, ByVal itm_name As String, ByVal start_date As String _
                                       , ByVal no_of_itm As String, ByVal payment_of_itm As String, ByVal last_date As String _
                                       , ByVal payed_of_itm As String, ByVal last_payment As String, ByVal postponement_itm As String _
-                                      , ByVal note As String, ByVal key As String) As String
+                                      , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [installment] ([license_id],[number_car],[itm_name],[start_date],[no_of_itm],[payment_of_itm],[last_date],[payed_of_itm],[last_payment],[postponement_itm],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [installment] ([license_id],[number_car],[itm_name],[start_date],[no_of_itm],[payment_of_itm],[last_date],[payed_of_itm],[last_payment],[postponement_itm],[note],[create_date],[create_by_user_id])  OUTPUT Inserted.itm_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(itm_name Is Nothing, String.Empty, itm_name) & "',"
@@ -3352,26 +3368,36 @@ Namespace Controllers
             _SQL &= "N'" & IIf(last_date Is Nothing, String.Empty, last_date) & "',"
             _SQL &= "N'" & IIf(payed_of_itm Is Nothing, 0, payed_of_itm) & "',"
             _SQL &= "N'" & IIf(last_payment Is Nothing, 0, last_payment) & "',"
-            _SQL &= "N'" & IIf(postponement_itm Is Nothing, 0, postponement_itm) & "',"
+            _SQL &= "N'" & IIf(postponement_itm Is Nothing, String.Empty, postponement_itm) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbinstallment() As String = {"number_car", "itm_name", "start_date", "no_of_itm", "payment_of_itm", "last_date", "payed_of_itm", "last_payment", "postponement_itm", "note"}
+            Dim Tbinstallment() As Object = {number_car, itm_name, start_date, no_of_itm, payment_of_itm, last_date, payed_of_itm, last_payment, postponement_itm, note}
+            For n As Integer = 0 To Tbinstallment.Length - 1
+                If Not Tbinstallment(n) Is Nothing Then
+                    _SQL &= StrTbinstallment(n) & "=N'" & Tbinstallment(n) & "',"
+                    GbFn.KeepLog(StrTbinstallment(n), Tbinstallment(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+
         End Function
 
 
         Public Function DeleteInstallment(ByVal keyId As String) As String
+
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
@@ -3398,7 +3424,7 @@ Namespace Controllers
         End Function
         'Get data of table Trackingwork
         Public Function GetTrackingworkData() As String
-            Return GbFnPoom.GetData("SELECT * FROM [dbo].[trackingwork] trackingwork , [dbo].[license] li where trackingwork.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history   FROM [dbo].[trackingwork] tkw , [dbo].[license] li where tkw.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3409,7 +3435,7 @@ Namespace Controllers
         Public Function UpdateTrackingwork(ByVal number_car As String, ByVal expiredate As String, ByVal trackinglistid As String _
                                       , ByVal detail As String, ByVal operator_e As String, ByVal agencycontact As String _
                                       , ByVal startschedule As String, ByVal endschedule As String, ByVal cost_estimate As String _
-                                      , ByVal statusurgencyid As String, ByVal note As String, ByVal key As String) As String
+                                      , ByVal statusurgencyid As String, ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3419,6 +3445,7 @@ Namespace Controllers
             For n As Integer = 0 To TbInsTrackingwork.Length - 1
                 If Not TbInsTrackingwork(n) Is Nothing Then
                     _SQL &= StrTbTrackingwork(n) & "=N'" & TbInsTrackingwork(n) & "',"
+                    GbFn.KeepLog(StrTbTrackingwork(n), TbInsTrackingwork(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [tw_id] = " & key
@@ -3433,13 +3460,13 @@ Namespace Controllers
         Public Function InsertTrackingwork(ByVal number_car As String, ByVal expiredate As String, ByVal trackinglistid As String _
                                       , ByVal detail As String, ByVal operator_e As String, ByVal agencycontact As String _
                                       , ByVal startschedule As String, ByVal endschedule As String, ByVal cost_estimate As String _
-                                      , ByVal statusurgencyid As String, ByVal note As String, ByVal key As String) As String
+                                      , ByVal statusurgencyid As String, ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [trackingwork] ([license_id],[number_car],[expiredate],[trackinglistid],[detail],[operator_e],[agencycontact],[startschedule],[endschedule],[cost_estimate],[statusurgencyid],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [trackingwork] ([license_id],[number_car],[expiredate],[trackinglistid],[detail],[operator_e],[agencycontact],[startschedule],[endschedule],[cost_estimate],[statusurgencyid],[note],[create_date],[create_by_user_id])  OUTPUT Inserted.tw_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(expiredate Is Nothing, String.Empty, expiredate) & "',"
@@ -3455,15 +3482,23 @@ Namespace Controllers
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
+            Dim StrTbTrackingwork() As String = {"number_car", "itm_name", "expiredate", "no_of_itm", "trackinglistid", "detail", "operator_e", "agencycontact", "startschedule", "cost_estimate", "statusurgencyid", "note"}
+            Dim TbInsTrackingwork() As Object = {number_car, expiredate, trackinglistid, detail, operator_e, agencycontact, startschedule, endschedule, cost_estimate, statusurgencyid, note}
+            For n As Integer = 0 To TbInsTrackingwork.Length - 1
+                If Not TbInsTrackingwork(n) Is Nothing Then
+                    _SQL &= StrTbTrackingwork(n) & "=N'" & TbInsTrackingwork(n) & "',"
+                    GbFn.KeepLog(StrTbTrackingwork(n), TbInsTrackingwork(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -3495,7 +3530,7 @@ Namespace Controllers
         End Function
         'Get data of table Accident
         Public Function GetAccidentData() As String
-            Return GbFnPoom.GetData("SELECT * FROM [dbo].[accident] accident , [dbo].[license] li where accident.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history   FROM [dbo].[accident] acd , [dbo].[license] li where acd.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3504,7 +3539,7 @@ Namespace Controllers
         End Function
 
         Public Function UpdateAccident(ByVal number_car As String, ByVal acd_date As String, ByVal damages As String _
-                                      , ByVal detail As String, ByVal who_pay As String, ByVal note As String, ByVal key As String) As String
+                                      , ByVal detail As String, ByVal who_pay As String, ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3514,6 +3549,7 @@ Namespace Controllers
             For n As Integer = 0 To TbInsAccident.Length - 1
                 If Not TbInsAccident(n) Is Nothing Then
                     _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
+                    GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [acd_id] = " & key
@@ -3526,13 +3562,13 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
         Public Function InsertAccident(ByVal number_car As String, ByVal acd_date As String, ByVal damages As String _
-                                      , ByVal detail As String, ByVal who_pay As String, ByVal note As String, ByVal key As String) As String
+                                      , ByVal detail As String, ByVal who_pay As String, ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [accident] ([license_id],[number_car],[acd_date],[damages],[detail],[who_pay],[note],[create_date],[create_by_user_id])"
+            Dim _SQL As String = "INSERT INTO [accident] ([license_id],[number_car],[acd_date],[damages],[detail],[who_pay],[note],[create_date],[create_by_user_id])   OUTPUT Inserted.acd_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(acd_date Is Nothing, String.Empty, acd_date) & "',"
@@ -3543,14 +3579,23 @@ Namespace Controllers
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
-                If objDB.ExecuteSQL(_SQL, cn) Then
-                    DtJson.Rows.Add("1")
-                Else
-                    DtJson.Rows.Add("0")
-                End If
+                'If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                'DtJson.Rows.Add("1")
+                'Else
+                '    DtJson.Rows.Add("0")
+                'End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
+            Dim StrTbAccident() As String = {"number_car", "acd_date", "damages", "detail", "who_pay", "note"}
+            Dim TbInsAccident() As Object = {number_car, acd_date, damages, detail, who_pay, note}
+            For n As Integer = 0 To TbInsAccident.Length - 1
+                If Not TbInsAccident(n) Is Nothing Then
+                    _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
+                    GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -3580,7 +3625,7 @@ Namespace Controllers
 
         Function ExpresswayView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/Expressway")
+                Return View("../Home/ViewsData/ExpresswayView")
             Else
                 Return View("../Account/Login")
             End If
@@ -3596,7 +3641,7 @@ Namespace Controllers
 #Region "Gps_carView"
         Function Gps_carView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/Gps_car")
+                Return View("../Home/ViewsData/Gps_carView")
             Else
                 Return View("../Account/Login")
             End If
@@ -3612,7 +3657,7 @@ Namespace Controllers
 #Region "InstallmentView"
         Function InstallmentView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/Installment")
+                Return View("../Home/ViewsData/InstallmentView")
             Else
                 Return View("../Account/Login")
             End If
@@ -3627,7 +3672,7 @@ Namespace Controllers
 #Region "TrackingworkView"
         Function TrackingworkView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/Trackingwork")
+                Return View("../Home/ViewsData/TrackingworkView")
             Else
                 Return View("../Account/Login")
             End If
@@ -3642,7 +3687,7 @@ Namespace Controllers
 #Region "AccidentView"
         Function AccidentView() As ActionResult
             If Session("StatusLogin") = "1" Then
-                Return View("../Home/Accident")
+                Return View("../Home/ViewsData/AccidentView")
             Else
                 Return View("../Account/Login")
             End If

@@ -3,7 +3,11 @@ var columnHide = [];
 var gbTableId = '9';
 var tableName = "expressway";
 var idFile;
-
+var data_lookup_number_car;
+var _dataSource;
+var dataGridAll;
+var dataLookupFilter;
+var gbE;
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
     { text: 'New File' },
@@ -22,8 +26,65 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+    function GetExpresswayData() {
+        //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetExpresswayData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].create_date);
+                    data[i].create_date = d;
+
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
+
+                    var d = parseJsonDate(data[i].expire_date);
+                    data[i].expire_date = d;
+                }
+                //dataGrid.option('dataSource', data);
+            }
+        }).responseJSON;
+        //จบการโชว์ข้อมูลทะเบียน
+    }
+
+    //Function Convert ตัวแปรประเภท Type date ของ javascripts
+    function parseJsonDate(jsonDateString) {
+        return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+    }
+
+    function fnGetHistory(table, idOfTable) {
+        var dataValue = [];
+        //โชว์ข้อมูลประวัติ
+        return $.ajax({
+            type: "POST",
+            url: "../Home/getHistory",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{table: '" + table + "',idOfTable: '" + idOfTable + "'}",
+            async: false,
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i]._date);
+                    data[i]._date = d;
+                }
+            }
+        }).responseJSON;
+        //จบการโชว์ข้อมูลประวัติ
+    }
+    dataGridAll = GetExpresswayData();
+
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        dataSource: GetExpresswayData(),
+        onContentReady: function (e) {
+            //filter();
+        },
         searchPanel: {
             visible: true,
             width: 240,
@@ -57,6 +118,9 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                onHidden: function (e) {
+                    setDefaultNumberCar();
+                }
             },
             useIcons: true,
         },
@@ -72,10 +136,20 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[1].allowEditing', false);
+            dataGrid.option('columns[0].allowEditing', false);
         },
         onInitNewRow: function (e) {
-            dataGrid.option('columns[1].allowEditing', true);
+            filter();
+            //console.log(dataGrid._options.columns[0].lookup.dataSource);
+            var arr = {
+                dataSource: dataLookupFilter,
+                displayExpr: "number_car",
+                valueExpr: "number_car"
+            }
+
+            dataGrid.option('columns[0].lookup', arr);
+
+            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             fnUpdateExpressway(e.newData, e.key.epw_id);
@@ -91,12 +165,32 @@ $(function () {
                 async: false,
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
+                    e.data.license_id = data[0].license_id;
+                    e.data.history = "ประวัติ";
                 }
             });
-            fnInsertExpressway(e.data);
+            e.data.epw_id = fnInsertExpressway(e.data);
+
+            ////ตัด number_car ออก
+            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+            filter();
+            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
             fnDeleteExpressway(e.key.epw_id);
+
+            ////กรองอาเรย์
+            dataGridAll.forEach(function (filterdata) {
+                dataGridAll = dataGridAll.filter(function (arr) {
+                    return arr.license_id != e.key.license_id;
+                });
+            });
+
+            //push array
+            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+
+            setDefaultNumberCar();
+
         },
         masterDetail: {
             enabled: false,
@@ -180,37 +274,9 @@ $(function () {
         },
         selection: {
             mode: "single"
-        },
+        }
     }).dxDataGrid('instance');
     //จบการกำหนด dataGrid
-
-    //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
-    $.ajax({
-        type: "POST",
-        url: "../Home/GetExpresswayData",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                var d = parseJsonDate(data[i].create_date);
-                data[i].create_date = d;
-
-                var d = parseJsonDate(data[i].start_date);
-                data[i].start_date = d;
-
-                var d = parseJsonDate(data[i].expire_date);
-                data[i].expire_date = d;
-            }
-            dataGrid.option('dataSource', data);
-        }
-    });
-    //จบการโชว์ข้อมูลทะเบียน
-
-    //Function Convert ตัวแปรประเภท Type date ของ javascripts
-    function parseJsonDate(jsonDateString) {
-        return new Date(parseInt(jsonDateString.replace('/Date(', '')));
-    }
 
     //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
     $.ajax({
@@ -243,11 +309,58 @@ $(function () {
                         valueExpr: "data_list"
                     }
                 }
+
+                //popup
+                if (item.dataField == "history") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    popup_history._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
+                                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_history").dxPopup("show");
+                                    var gridHistory = $("#gridHistory").dxDataGrid({
+                                        dataSource: fnGetHistory(gbTableId, options.row.data.epw_id),
+                                        showBorders: true,
+                                        height: 'auto',
+                                        scrolling: {
+                                            mode: "virtual"
+                                        },
+                                        searchPanel: {
+                                            visible: true,
+                                            width: "auto",
+                                            placeholder: "Search..."
+                                        }
+                                    }).dxDataGrid('instance');
+
+                                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "../Home/GetColumnChooser",
+                                        contentType: "application/json; charset=utf-8",
+                                        data: "{gbTableId: '19'}",
+                                        dataType: "json",
+                                        async: false,
+                                        success: function (data) {
+                                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
+                                            gridHistory.option('columns', data);
+                                        }
+                                    });
+                                    //จบการกำหนด Column
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "epw_id") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "epw_id" && item.dataField != "history") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -267,22 +380,23 @@ $(function () {
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
-            //$.ajax({
-            //    type: "POST",
-            //    url: "../Home/GetNumberCar",
-            //    contentType: "application/json; charset=utf-8",
-            //    dataType: "json",
-            //    async: false,
-            //    success: function (dataLookup) {
-            //        //data_lookup_number_car = dataLookup;
-            //        data[0].lookup = {
-            //            dataSource: dataLookup,
-            //            displayExpr: "number_car",
-            //            valueExpr: "number_car"
-            //        }
 
-            //    }
-            //});
+            $.ajax({
+                type: "POST",
+                url: "../Home/GetNumberCar",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: false,
+                success: function (dataLookup) {
+                    data_lookup_number_car = dataLookup;
+                    data[0].lookup = {
+                        dataSource: dataLookup,
+                        displayExpr: "number_car",
+                        valueExpr: "number_car"
+                    }
+                }
+            });
+
             $.ajax({
                 type: "POST",
                 url: "../Home/GetNumberCar",
@@ -293,11 +407,12 @@ $(function () {
                     data[0].lookup = {
                         dataSource: dataLookup,
                         displayExpr: "number_car",
-                        valueExpr: "license_id"
+                        valueExpr: "number_car"
                     }
                 }
             });
             console.log(data);
+            _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
@@ -513,7 +628,7 @@ $(function () {
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
-        maxFileSize: 10000000,
+        maxFileSize: 4000000,
         multiple: true,
         allowedFileExtensions: [".pdf", ".jpg", ".jpeg", ".png"],
         accept: "image/*,.pdf",
@@ -523,49 +638,7 @@ $(function () {
             fileDataPic = new FormData();
             if (files.length > 0) {
                 $.each(files, function (i, file) {
-                    //fileDataPic.append('file', file);
-                    if (file.type != "application/pdf") {
-                        //Resize Pic
-                        var img = document.createElement("img");
-                        var reader = new FileReader();
-                        reader.onload = function (e) {
-                            img.src = e.target.result;
-                            img.onload = function () {
-                                var canvas = document.createElement("canvas");
-                                var ctx = canvas.getContext("2d");
-                                ctx.drawImage(img, 0, 0);
-                                var MAX_WIDTH = 800;
-                                var MAX_HEIGHT = 600;
-                                var width = img.width;
-                                var height = img.height;
-
-                                if (width > height) {
-                                    if (width > MAX_WIDTH) {
-                                        height *= MAX_WIDTH / width;
-                                        width = MAX_WIDTH;
-                                    }
-                                } else {
-                                    if (height > MAX_HEIGHT) {
-                                        width *= MAX_HEIGHT / height;
-                                        height = MAX_HEIGHT;
-                                    }
-                                }
-                                canvas.width = width;
-                                canvas.height = height;
-                                var ctx = canvas.getContext("2d");
-                                ctx.drawImage(img, 0, 0, width, height);
-                                dataurl = canvas.toDataURL("image/jpeg");
-                                fetch(dataurl)
-                                    .then(res => res.blob())
-                                    .then(blob => {
-                                        fileDataPic.append('file', blob, file.name);
-                                    });
-                            }
-                        }
-                        reader.readAsDataURL(file);
-                    } else {
-                        fileDataPic.append('file', file);
-                    }
+                    fileDataPic.append('file', file);
                 });
                 fileDataPic.append('fk_id', idFK);
                 fileDataPic.append('parentDirId', idFile);
@@ -606,6 +679,7 @@ $(function () {
     function fnUpdateExpressway(newData, keyItem) {
         console.log(keyItem);
         newData.key = keyItem;
+        newData.IdTable = gbTableId;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateExpressway",
@@ -624,6 +698,8 @@ $(function () {
 
     //Function Insert ข้อมูล Expressway
     function fnInsertExpressway(dataGrid) {
+        dataGrid.IdTable = gbTableId;
+        var returnId = 0;
         $.ajax({
             type: "POST",
             url: "../Home/InsertExpressway",
@@ -632,13 +708,15 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status == "1") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                if (data[0].Status != "0") {
+                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
+                    returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
                 }
             }
         });
+        return returnId;
     }
 
     //Function Delete ข้อมูล Expressway
@@ -658,5 +736,74 @@ $(function () {
             }
         });
     }
+
+    var popup_history = $("#popup_history").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "ประวัติ",
+        contentTemplate: function (content) {
+            return $("<div id='gridHistory'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    function filter() {
+        console.log(dataGridAll);
+        //console.log(dataGrid._options.columns[0].lookup.dataSource);
+        //เซ็ตอาเรย์เริ่มต้น
+        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
+        //เซ็ตอาเรย์ที่จะกรอง
+        var filter = dataGridAll;
+        //กรองอาเรย์
+        filter.forEach(function (filterdata) {
+            dataLookupAll = dataLookupAll.filter(function (arr) {
+                return arr.license_id != filterdata.license_id;
+            });
+        });
+        dataLookupFilter = dataLookupAll;
+    }
+
+    function setDefaultNumberCar() {
+        var arr = {
+            dataSource: _dataSource,
+            displayExpr: "number_car",
+            valueExpr: "number_car"
+        }
+        dataGrid.option('columns[0].lookup', arr);
+    }
+
+
+    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
+        var dataColumnVisible = "",
+            dataColumnHide = "";
+        var columnCount = dataGrid.columnCount(),
+            i;
+        for (i = 0; i < columnCount; i++) {
+            if (dataGrid.columnOption(i, "visible")) {
+                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
+            } else {
+                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
+            }
+        }
+
+        //alert(dataColumnVisible);
+        //alert(dataColumnHide);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/SetColumnHide",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+    });
 
 });

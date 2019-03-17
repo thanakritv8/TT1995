@@ -37,11 +37,10 @@ End Code
                 <label>เพิ่มไฟล์</label>
             </div>            
             <div class="modal-body">
-                <div class="row" id="picCar" hidden>
+                <div class="row" id="picCar">
                     <div class="col-5 ml-2">
                         <div class="form-group">
                             <select class="form-control" id="positionSelect">
-                                <option value="0">ตำแหน่งรูปภาพ</option>
                                 <option value="1">ด้านหน้า</option>
                                 <option value="2">ด้านหลัง</option>
                                 <option value="3">ด้านข้างซ้าย</option>
@@ -50,7 +49,7 @@ End Code
                         </div>
                     </div>
                     <div class="col-5">
-                        <input class="mr-2 mt-2" type="checkbox" value="">ตั้งค่าตำแหน่งรูปรถ :
+                        <input class="mr-2 mt-2" id="setPosition" type="checkbox" value="">ตั้งค่าตำแหน่งรูปรถ
                     </div>
                 </div>
                 <div class="row">
