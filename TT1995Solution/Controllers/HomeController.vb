@@ -2501,14 +2501,14 @@ Namespace Controllers
             Return GbFn.fnRename(Request, "environment_insurance")
         End Function
 
-        Public Function UpdateEI(ByVal number_car As String, ByVal insurance_company As String, ByVal insurance_date As String, ByVal expire_date As String, ByVal note As String _
-                                  , ByVal key As String, ByVal IdTable As String) As String
+        Public Function UpdateEI(ByVal number_car As String, ByVal insurance_company As String, ByVal start_date As String, ByVal end_date As String, ByVal note As String _
+                                  , ByVal key As String, ByVal IdTable As String, ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal first_damages As String, ByVal policy_number As String, ByVal status As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [environment_insurance] SET "
-            Dim StrTbEI() As String = {"insurance_company", "insurance_date", "expire_date", "note"}
-            Dim TbEI() As Object = {insurance_company, insurance_date, expire_date, note}
+            Dim StrTbEI() As String = {"insurance_company", "start_date", "end_date", "note", "current_cowrie", "previous_cowrie", "first_damages", "policy_number", "status"}
+            Dim TbEI() As Object = {insurance_company, start_date, end_date, note, current_cowrie, previous_cowrie, first_damages, policy_number, status}
             For n As Integer = 0 To TbEI.Length - 1
                 If Not TbEI(n) Is Nothing Then
                     _SQL &= StrTbEI(n) & "=N'" & TbEI(n) & "',"
@@ -2524,29 +2524,34 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
-        Public Function InsertEI(ByVal number_car As String, ByVal insurance_company As String, ByVal insurance_date As String, ByVal expire_date As String, ByVal note As String _
-                                  , ByVal key As String, ByVal IdTable As String) As String
+        Public Function InsertEI(ByVal number_car As String, ByVal insurance_company As String, ByVal start_date As String, ByVal end_date As String, ByVal note As String _
+                                  , ByVal key As String, ByVal IdTable As String, ByVal current_cowrie As String, ByVal previous_cowrie As String, ByVal first_damages As String, ByVal policy_number As String, ByVal status As String) As String
 
             Dim DtJson As DataTable = New DataTable
 
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [environment_insurance] ([license_id],[insurance_company],[insurance_date],[expire_date],[note],[create_date],[create_by_user_id]) OUTPUT Inserted.ei_id"
+            Dim _SQL As String = "INSERT INTO [environment_insurance] ([license_id],[insurance_company],[start_date],[end_date],[note],[create_date],[create_by_user_id],[current_cowrie],[previous_cowrie],[first_damages],[policy_number],[status]) OUTPUT Inserted.ei_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(insurance_company Is Nothing, String.Empty, insurance_company) & "',"
-            _SQL &= "N'" & IIf(insurance_date Is Nothing, String.Empty, insurance_date) & "',"
-            _SQL &= "N'" & IIf(expire_date Is Nothing, String.Empty, expire_date) & "',"
+            _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
+            _SQL &= "N'" & IIf(end_date Is Nothing, String.Empty, end_date) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
             _SQL &= "getdate(),"
-            _SQL &= Session("UserId") & ")"
+            _SQL &= Session("UserId") & ","
+            _SQL &= "N'" & IIf(current_cowrie Is Nothing, String.Empty, current_cowrie) & "',"
+            _SQL &= "N'" & IIf(previous_cowrie Is Nothing, String.Empty, previous_cowrie) & "',"
+            _SQL &= "N'" & IIf(first_damages Is Nothing, String.Empty, first_damages) & "',"
+            _SQL &= "N'" & IIf(policy_number Is Nothing, String.Empty, policy_number) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "')"
             If Not number_car Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbEI() As String = {"insurance_company", "insurance_date", "expire_date", "note"}
-            Dim TbEI() As Object = {insurance_company, insurance_date, expire_date, note}
+            Dim StrTbEI() As String = {"insurance_company", "start_date", "end_date", "note", "current_cowrie", "previous_cowrie", "first_damages", "policy_number", "status"}
+            Dim TbEI() As Object = {insurance_company, start_date, end_date, note, current_cowrie, previous_cowrie, first_damages, policy_number, status}
             For n As Integer = 0 To TbEI.Length - 1
                 If Not TbEI(n) Is Nothing Then
                     _SQL &= StrTbEI(n) & "=N'" & TbEI(n) & "',"

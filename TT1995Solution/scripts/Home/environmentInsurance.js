@@ -38,11 +38,11 @@ $(function () {
             async: false,
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].insurance_date);
-                    data[i].insurance_date = d;
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
 
-                    var d = parseJsonDate(data[i].expire_date);
-                    data[i].expire_date = d;
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
                 }
             }
         }).responseJSON;
