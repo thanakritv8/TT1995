@@ -21,7 +21,7 @@
         }, {
             dataField: "password",
             caption: "Password",
-            dataType: "password",
+            dataType: "string",
             width: '30%',
             
         }, {
@@ -90,6 +90,14 @@
             visible: true,
             applyFilter: "auto"
         },
+        onEditorPreparing(e) {
+            console.log(e);
+            if(e.parentType == "dataRow" && e.dataField == "password")
+                e.editorOptions.mode = 'password';
+        },
+        onInitialized: function(e){
+            console.log(e);
+        },
         onRowInserting: function (e) {
             e.data.user_id = fnInsertAccount(e.data);
         },
@@ -125,7 +133,7 @@
         var returnId = 0;
         $.ajax({
             type: "POST",
-            url: "../Account/InsertAccoumt",
+            url: "../Account/InsertAccount",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
