@@ -1568,12 +1568,14 @@
     <Content Include="Img\pdf.png" />
     <Content Include="Img\pic.png" />
     <Content Include="scripts\Account\login.js" />
+    <Content Include="scripts\Home\Accident.js" />
     <Content Include="scripts\Home\actInsCom.js" />
     <Content Include="scripts\Home\actInsurance.js" />
     <Content Include="scripts\Home\business_out.js" />
     <Content Include="scripts\Home\business_in.js" />
     <Content Include="scripts\Home\domProIns.js" />
     <Content Include="scripts\Home\driver.js" />
+    <Content Include="scripts\Home\EnvInsCom.js" />
     <Content Include="scripts\Home\environmentInsurance.js" />
     <Content Include="scripts\Home\Expressway.js" />
     <Content Include="scripts\Home\gpsCompany.js" />
@@ -1582,6 +1584,7 @@
     <Content Include="scripts\Home\Installment.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\licenseV8.js" />
+    <Content Include="scripts\Home\license_factory.js" />
     <Content Include="scripts\Home\license_mekong_river.js" />
     <Content Include="scripts\Home\license_cambodia.js" />
     <Content Include="scripts\Home\mainInsCom.js" />
@@ -1747,6 +1750,7 @@
     <Content Include="Views\Account\Application.vbhtml" />
     <Content Include="Views\Account\Group.vbhtml" />
     <Content Include="Views\Account\Setting.vbhtml" />
+    <Content Include="Views\Home\EnvInsCom.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
