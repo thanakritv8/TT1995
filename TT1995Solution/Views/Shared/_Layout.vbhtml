@@ -25,7 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <style>
         .bg-custom {
-            background-color: rgb(0,128,0);
+            background-color: rgb(0,79,162); /*rgb(0,128,0)*/
         }
     </style>
 </head>
@@ -62,7 +62,7 @@
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)">
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(0,79,162)"> @*rgb(34,139,34)*@
             @*rgb(34,139,34)*@
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
@@ -98,9 +98,9 @@
                     <span Class="text-light"> ใบอนุญาต</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a> @*../Home/LicenseCambodia*@
+                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a>
                     <a Then Class="dropdown-item" href="../Home/LicenseMekongRiver">ลุ่มน้ำโขง</a>
-                    <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
+                    <a Then Class="dropdown-item" href="../Home/LicenseFactory">เข้าโรงงาน</a>
                     <a Then Class="dropdown-item" href="../Home/LicenseV8">วัตถุอันตราย(วอ.8)</a>
                 </div>
             </li>

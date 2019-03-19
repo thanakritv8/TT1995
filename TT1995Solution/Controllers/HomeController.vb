@@ -1970,41 +1970,49 @@ Namespace Controllers
             End If
         End Function
 
+        Public Function GetDriverName() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "select driver_id, driver_name, l.number_car, l.license_car from driver as d join license as l on d.license_id_head = l.license_id"
+            Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
         Public Function GetColumnChooserLicenseFactory(ByVal table_id As Integer) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE table_id = " & table_id & " ORDER BY cc.sort ASC"
-            Dim DtTax As DataTable = objDB.SelectSQL(_SQL, cn)
+            Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtTax.Rows Select DtTax.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetLicenseFactory() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lv8.*,N'ประวัติ' as history, l.license_car FROM license_v8 as lv8 join license as l on lv8.license_id = l.license_id"
-            Dim DtLmr As DataTable = objDB.SelectSQL(_SQL, cn)
+            Dim _SQL As String = "select N'ประวัติ' as history, d.driver_id as driver_name, l.number_car, l.license_car, l.license_id, lf.IdNo, lf.[start_date], lf.[expire_date], lf.name_factory, lf.license_factory_id, lf.license_factory_status, lf.path from license_factory as lf join driver as d on lf.driver_id = d.driver_id join license as l on d.license_id_head = l.license_id"
+            Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLmr.Rows Select DtLmr.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateLicenseFactory(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_id As String, ByVal lv8_number As String, ByVal lv8_expire As String, ByVal lv8_start As String, ByVal lv8_status As String, ByVal name_hazmat1 As String, ByVal name_hazmat2 As String, ByVal name_hazmat3 As String, ByVal name_hazmat4 As String, ByVal name_hazmat5 As String, ByVal name_hazmat6 As String, ByVal IdTable As String) As String
+        Public Function UpdateLicenseFactory(ByVal license_factory_id As String, ByVal driver_name As String, ByVal IdNo As String, ByVal start_date As String, ByVal expire_date As String, ByVal name_factory As String, ByVal license_factory_status As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            Dim _SQL As String = "UPDATE [license_v8] SET "
-            Dim StrTbLc() As String = {"lv8_number", "license_id", "ownership", "tax_Id", "lv8_start", "lv8_expire", "lv8_mpa", "lv8_rd", "lv8_status", "name_hazmat1", "name_hazmat2", "name_hazmat3", "name_hazmat4", "name_hazmat5", "name_hazmat6"}
-            Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status, name_hazmat1, name_hazmat2, name_hazmat3, name_hazmat4, name_hazmat5, name_hazmat6}
+            Dim _SQL As String = "UPDATE [license_factory] SET "
+            Dim StrTbLc() As String = {"driver_id", "IdNo", "start_date", "expire_date", "name_factory", "license_factory_status"}
+            Dim TbLc() As Object = {driver_name, IdNo, start_date, expire_date, name_factory, license_factory_status}
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lv8_id)
+                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, license_factory_id)
                 End If
-                If StrTbLc(n) = "lv8_status" Then
+                If StrTbLc(n) = "license_factory_status" Then
                     If Not TbLc(n) Is Nothing Then
                         _SQL &= "flag_status = 0, update_status = GETDATE(),"
                     End If
                 End If
             Next
-            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lv8_id = " & lv8_id
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE license_factory_id = " & license_factory_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
             Else
@@ -2014,20 +2022,20 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertLicenseFactory(ByVal license_id As String, ByVal ownership As String, ByVal tax_Id As String, ByVal lv8_mpa As String, ByVal lv8_rd As String, ByVal lv8_number As String, ByVal lv8_expire As DateTime, ByVal lv8_start As DateTime, ByVal lv8_status As String, ByVal IdTable As String) As String
+        Public Function InsertLicenseFactory(ByVal driver_name As String, ByVal IdNo As String, ByVal start_date As DateTime, ByVal expire_date As DateTime, ByVal name_factory As String, ByVal license_factory_status As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO license_v8 ([lv8_number],[license_id],[ownership],[tax_Id],[lv8_start],[lv8_expire],[lv8_mpa],[lv8_rd],[lv8_status],[create_by_user_id]) OUTPUT Inserted.lv8_id VALUES "
-            _SQL &= "(N'" & lv8_number & "', '" & license_id & "', N'" & ownership & "', N'" & tax_Id & "', '" & lv8_start & "', '" & lv8_expire & "', N'" & lv8_mpa & "', N'" & lv8_rd & "', N'" & lv8_status & "', '" & Session("UserId") & "')"
-            If Not license_id Is Nothing Then
+            Dim _SQL As String = "INSERT INTO license_factory ([IdNo],[driver_id],[start_date],[expire_date],[name_factory],[license_factory_status],[create_by_user_id]) OUTPUT Inserted.license_factory_id VALUES "
+            _SQL &= "(N'" & IdNo & "', '" & driver_name & "', '" & start_date & "', '" & expire_date & "', N'" & name_factory & "', N'" & license_factory_status & "', '" & Session("UserId") & "')"
+            If Not driver_name Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbLc() As String = {"lv8_number", "license_id", "ownership", "tax_Id", "lv8_start", "lv8_expire", "lv8_mpa", "lv8_rd", "lv8_status"}
-            Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status}
+            Dim StrTbLc() As String = {"IdNo", "driver_id", "start_date", "expire_date", "name_factory", "license_factory_status"}
+            Dim TbLc() As Object = {IdNo, driver_name, start_date, expire_date, name_factory, license_factory_status}
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
@@ -2053,7 +2061,7 @@ Namespace Controllers
                     Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
                     If Request.Files.Count <> 0 Then
 
-                        Dim pathServer As String = Server.MapPath("~/Files/LV8/" & fk_id)
+                        Dim pathServer As String = Server.MapPath("~/Files/LF/" & fk_id)
                         If (Not System.IO.Directory.Exists(pathServer)) Then
                             System.IO.Directory.CreateDirectory(pathServer)
                         End If
@@ -2062,11 +2070,11 @@ Namespace Controllers
                             Dim file = Request.Files(i)
                             fileName = file.FileName
                             file.SaveAs(pathServer & "/" & fileName)
-                            Dim _SQL As String = "UPDATE license_v8 SET path = N'../Files/LV8/" & fk_id & "/" & file.FileName & "' WHERE lv8_id = " & fk_id
+                            Dim _SQL As String = "UPDATE license_factory SET path = N'../Files/LF/" & fk_id & "/" & file.FileName & "' WHERE license_factory_id = " & fk_id
                             objDB.ExecuteSQL(_SQL, cn)
                         Next
 
-                        DtJson.Rows.Add("../Files/LV8/" & fk_id & "/" & fileName)
+                        DtJson.Rows.Add("../Files/LF/" & fk_id & "/" & fileName)
                     Else
                         DtJson.Rows.Add("0")
                     End If
@@ -2082,33 +2090,33 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function DeleteFileLicenseFactory(ByVal keyId As String) As String
-            Dim DtJson As DataTable = New DataTable
-            DtJson.Columns.Add("Status")
-            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = String.Empty
-            _SQL = "SELECT * FROM license_v8 WHERE lv8_id = " & keyId
-            Dim dtLc As DataTable = objDB.SelectSQL(_SQL, cn)
-            If dtLc.Rows.Count > 0 Then
-                Dim pathServer As String = Server.MapPath(dtLc.Rows(0)("lv8_path").Replace("..", "~"))
-                If System.IO.File.Exists(pathServer) = True Then
-                    System.IO.File.Delete(pathServer)
-                End If
-                DtJson.Rows.Add("1")
-            Else
-                DtJson.Rows.Add("0")
-            End If
+        'Public Function DeleteFileLicenseFactory(ByVal keyId As String) As String
+        '    Dim DtJson As DataTable = New DataTable
+        '    DtJson.Columns.Add("Status")
+        '    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+        '    Dim _SQL As String = String.Empty
+        '    _SQL = "SELECT * FROM license_v8 WHERE lv8_id = " & keyId
+        '    Dim dtLc As DataTable = objDB.SelectSQL(_SQL, cn)
+        '    If dtLc.Rows.Count > 0 Then
+        '        Dim pathServer As String = Server.MapPath(dtLc.Rows(0)("lv8_path").Replace("..", "~"))
+        '        If System.IO.File.Exists(pathServer) = True Then
+        '            System.IO.File.Delete(pathServer)
+        '        End If
+        '        DtJson.Rows.Add("1")
+        '    Else
+        '        DtJson.Rows.Add("0")
+        '    End If
 
-            objDB.DisconnectDB(cn)
-            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
-        End Function
+        '    objDB.DisconnectDB(cn)
+        '    Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        'End Function
 
         Public Function DeleteLicenseFactory(ByVal keyId As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = String.Empty
-            _SQL = "DELETE license_v8 WHERE lv8_id = " & keyId
+            _SQL = "DELETE license_factory WHERE license_factory_id = " & keyId
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
             Else

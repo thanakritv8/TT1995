@@ -1751,6 +1751,7 @@
     <Content Include="Views\Account\Group.vbhtml" />
     <Content Include="Views\Account\Setting.vbhtml" />
     <Content Include="Views\Home\EnvInsCom.vbhtml" />
+    <Content Include="Views\Home\LicenseFactory.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
