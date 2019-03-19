@@ -25,7 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <style>
         .bg-custom {
-            background-color: rgb(0,79,162); /*rgb(0,128,0)*/
+            background-color: rgb(0,128,0); /*rgb(0,128,0)*/
         }
     </style>
 </head>
@@ -56,13 +56,10 @@
                 </li>
             </ul>
         End If
-
-
-
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(0,79,162)"> @*rgb(34,139,34)*@
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)"> @*rgb(34,139,34)*@
             @*rgb(34,139,34)*@
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
@@ -192,9 +189,8 @@
                 </a>
                 @<div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="#">Group</a>
-                    <a Then Class="dropdown-item" href="#">Account</a>
-                    <a Then Class="dropdown-item" href="#">Premission</a>
-                     <a Then Class="dropdown-item" href="#">Setting</a>
+                    <a Then Class="dropdown-item" href="../Account/Account">Account</a>
+                    <a Then Class="dropdown-item" href="../Account/Permission">Permission</a>
                     <a Then Class="dropdown-item" href="../Manage/Lookup">Manage Lookup</a>
                 </div>
                 End If

@@ -1567,6 +1567,10 @@
     <Content Include="Img\folder.png" />
     <Content Include="Img\pdf.png" />
     <Content Include="Img\pic.png" />
+    <Content Include="scripts\Account\account.js" />
+    <Content Include="scripts\Account\permission.js" />
+    <Content Include="scripts\Account\setting.js" />
+    <Content Include="scripts\Account\group.js" />
     <Content Include="scripts\Account\login.js" />
     <Content Include="scripts\Home\Accident.js" />
     <Content Include="scripts\Home\actInsCom.js" />
@@ -1747,11 +1751,11 @@
     <Content Include="Views\Home\LicenseMekongRiver.vbhtml" />
     <Content Include="Views\Home\LicenseV8.vbhtml" />
     <Content Include="Views\Account\Account.vbhtml" />
-    <Content Include="Views\Account\Application.vbhtml" />
     <Content Include="Views\Account\Group.vbhtml" />
     <Content Include="Views\Account\Setting.vbhtml" />
     <Content Include="Views\Home\EnvInsCom.vbhtml" />
     <Content Include="Views\Home\LicenseFactory.vbhtml" />
+    <Content Include="Views\Account\Permission.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
