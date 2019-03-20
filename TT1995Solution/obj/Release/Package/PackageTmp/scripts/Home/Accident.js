@@ -1,7 +1,7 @@
 ﻿var itemEditing = [];
 var columnHide = [];
-var gbTableId = '10';
-var tableName = "gps_car";
+var gbTableId = '26';
+var tableName = "accident";
 var idFile;
 var data_lookup_number_car;
 var _dataSource;
@@ -26,11 +26,11 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-    function GetGps_carData() {
+    function GetAccidentData() {
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
         return $.ajax({
             type: "POST",
-            url: "../Home/GetGps_carData",
+            url: "../Home/GetAccidentData",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
@@ -38,11 +38,8 @@ $(function () {
                 //console.log(data);
                 for (var i = 0; i < data.length; i++) {
 
-                    var d = parseJsonDate(data[i].start_date);
-                    data[i].start_date = d;
-
-                    var d = parseJsonDate(data[i].expire_date);
-                    data[i].expire_date = d;
+                    var d = parseJsonDate(data[i].acd_date);
+                    data[i].acd_date = d;
 
                     var d = parseJsonDate(data[i].create_date);
                     data[i].create_date = d;
@@ -81,11 +78,11 @@ $(function () {
         }).responseJSON;
         //จบการโชว์ข้อมูลประวัติ
     }
-    dataGridAll = GetGps_carData();
+    dataGridAll = GetAccidentData();
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
-        dataSource: GetGps_carData(),
+        dataSource: GetAccidentData(),
         onContentReady: function (e) {
             //filter();
         },
@@ -118,7 +115,7 @@ $(function () {
                 colCount: 6,
             },
             popup: {
-                title: "รายการ GPS ติดรถยนต์",
+                title: "รายการบันทึกอุบัติเหตุ",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
@@ -130,7 +127,7 @@ $(function () {
         },
         "export": {
             enabled: true,
-            fileName: "Gps_car",
+            fileName: "Accident",
         },
         filterRow: {
             visible: true,
@@ -156,7 +153,7 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdateGps_car(e.newData, e.key.gps_car_id);
+            fnUpdateAccident(e.newData, e.key.acd_id);
         },
         onRowInserting: function (e) {
             console.log(e);
@@ -173,7 +170,7 @@ $(function () {
                     e.data.history = "ประวัติ";
                 }
             });
-            e.data.gps_car_id = fnInsertGps_car(e.data);
+            e.data.acd_id = fnInsertAccident(e.data);
 
             ////ตัด number_car ออก
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
@@ -181,7 +178,7 @@ $(function () {
             setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
-            fnDeleteGps_car(e.key.gps_car_id);
+            fnDeleteAccident(e.key.acd_id);
 
             ////กรองอาเรย์
             dataGridAll.forEach(function (filterdata) {
@@ -201,7 +198,7 @@ $(function () {
             template: function (container, options) {
                 //สร้าง id treeview
                 container.append($('<div id="treeview"></div>'));
-                var itemData = fnGetFiles(options.key.gps_car_id, gbTableId);
+                var itemData = fnGetFiles(options.key.acd_id, gbTableId);
                 //เก็บข้อมูล treeview ไว้ในตัวแปรชื่อ treeview
                 treeview = $("#treeview").dxTreeView({
                     dataStructure: "plain",
@@ -212,7 +209,7 @@ $(function () {
                     //คลิกโชว์รูปภาพแบบ Gallery
                     onItemClick: function (e) {
                         gallery = [];
-                        itemData = fnGetFiles(options.key.gps_car_id, gbTableId);
+                        itemData = fnGetFiles(options.key.acd_id, gbTableId);
                         var item = e.itemData;
                         console.log(e);
                         if (item.path_file) {
@@ -259,7 +256,7 @@ $(function () {
                     },
                 }).dxTreeView("instance");
                 //จบการสร้าง treeview
-                fnChangeTreeview(options.key.gps_car_id, itemData);
+                fnChangeTreeview(options.key.acd_id, itemData);
             }
         },
         onSelectionChanged: function (e) {
@@ -269,9 +266,9 @@ $(function () {
             isFirstClick = false;
         },
         onRowClick: function (e) {
-            if (gbE.currentSelectedRowKeys[0].gps_car_id == e.key.gps_car_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
+            if (gbE.currentSelectedRowKeys[0].acd_id == e.key.acd_id && isFirstClick && rowIndex == e.rowIndex && gbE.currentDeselectedRowKeys.length == 0) {
                 dataGrid.clearSelection();
-            } else if (gbE.currentSelectedRowKeys[0].gps_car_id == e.key.gps_car_id && !isFirstClick) {
+            } else if (gbE.currentSelectedRowKeys[0].acd_id == e.key.acd_id && !isFirstClick) {
                 isFirstClick = true;
                 rowIndex = e.rowIndex;
             }
@@ -327,7 +324,7 @@ $(function () {
 
                                     $("#popup_history").dxPopup("show");
                                     var gridHistory = $("#gridHistory").dxDataGrid({
-                                        dataSource: fnGetHistory(gbTableId, options.row.data.gps_car_id),
+                                        dataSource: fnGetHistory(gbTableId, options.row.data.acd_id),
                                         showBorders: true,
                                         height: 'auto',
                                         scrolling: {
@@ -364,7 +361,7 @@ $(function () {
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "gps_car_id" && item.dataField != "history") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "acd_id" && item.dataField != "history") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -424,19 +421,19 @@ $(function () {
     //จบการกำหนด Column
 
     //Get files where id and IdTable
-    function fnGetFiles(Gps_carId, IdTable) {
+    function fnGetFiles(AccidentId, IdTable) {
         var itemData;
         $.ajax({
             type: "POST",
             url: "../Home/GetFilesPoom",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            data: "{Id: " + Gps_carId + ",IdTable: " + IdTable + "}",
+            data: "{Id: " + AccidentId + ",IdTable: " + IdTable + "}",
             async: false,
             success: function (data) {
                 data.push({
                     "file_id": "root",
-                    "fk_id": Gps_carId,
+                    "fk_id": AccidentId,
                     "name_file": "Root",
                     "type_file": "folder",
                     "icon": "../Img/folder.png"
@@ -448,7 +445,7 @@ $(function () {
     }
 
     //function เปลี่ยนเปลี่ยนข้อมูลเมื่อมีการ เพิ่ม ลบ ไฟล์
-    function fnChangeTreeview(gps_car_id, itemData) {
+    function fnChangeTreeview(acd_id, itemData) {
         var nItem = 0;
         itemData.forEach(function (item) {
             if (item.file_id == idFile) {
@@ -461,7 +458,7 @@ $(function () {
                 key: "file_id",
                 data: itemData
             }),
-            filter: ["fk_id", "=", gps_car_id]
+            filter: ["fk_id", "=", acd_id]
         });
         treeview.option("dataSource", dts);
     }
@@ -530,7 +527,7 @@ $(function () {
             type: "POST",
             url: "../Home/DeleteFilePoom",
             contentType: "application/json; charset=utf-8",
-            data: "{keyId: '" + file_id + "',FolderName:'Gps_car'}",
+            data: "{keyId: '" + file_id + "',FolderName:'Accident'}",
             dataType: 'json',
             success: function (data) {
                 if (data[0].Status != '0') {
@@ -567,7 +564,7 @@ $(function () {
 
         $.ajax({
             type: "POST",
-            url: "../Home/fnRenameGps_car",
+            url: "../Home/fnRenameAccident",
             data: fileUpload,
             dataType: "json",
             contentType: false,
@@ -679,14 +676,14 @@ $(function () {
     });
     //จบการกำหนดการแสดงรูปภาพ
 
-    //Function Update ข้อมูล Gps_car
-    function fnUpdateGps_car(newData, keyItem) {
+    //Function Update ข้อมูล Accident
+    function fnUpdateAccident(newData, keyItem) {
         console.log(keyItem);
         newData.key = keyItem;
         newData.IdTable = gbTableId;
         $.ajax({
             type: "POST",
-            url: "../Home/UpdateGps_car",
+            url: "../Home/UpdateAccident",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
@@ -700,13 +697,13 @@ $(function () {
         });
     }
 
-    //Function Insert ข้อมูล Gps_car
-    function fnInsertGps_car(dataGrid) {
+    //Function Insert ข้อมูล Accident
+    function fnInsertAccident(dataGrid) {
         dataGrid.IdTable = gbTableId;
         var returnId = 0;
         $.ajax({
             type: "POST",
-            url: "../Home/InsertGps_car",
+            url: "../Home/InsertAccident",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(dataGrid),
             dataType: "json",
@@ -723,11 +720,11 @@ $(function () {
         return returnId;
     }
 
-    //Function Delete ข้อมูล Gps_car
-    function fnDeleteGps_car(keyItem) {
+    //Function Delete ข้อมูล Accident
+    function fnDeleteAccident(keyItem) {
         $.ajax({
             type: "POST",
-            url: "../Home/DeleteGps_car",
+            url: "../Home/DeleteAccident",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",

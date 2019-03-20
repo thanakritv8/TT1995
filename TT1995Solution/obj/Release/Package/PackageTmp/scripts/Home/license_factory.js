@@ -88,7 +88,7 @@ $(function () {
     }
 
     dataGridAll = getLicenseFactory();
-
+    console.log(dataGridAll);
     var dataGrid = $("#gridContainer").dxDataGrid({
         dataSource: getLicenseFactory(),
         showBorders: true,
@@ -283,47 +283,47 @@ $(function () {
                     //}
                 }
                 //popup
-                if (item.dataField == "history") {
-                    data[ndata].cellTemplate = function (container, options) {
-                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
-                                .text(options.value)
-                                .on('dxclick', function (e) {
-                                    popup_history._options.contentTemplate = function (content) {
-                                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
-                                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
-                                    }
-                                    $("#popup_history").dxPopup("show");
-                                    var gridHistory = $("#gridHistory").dxDataGrid({
-                                        dataSource: fnGetHistory(gbTableId, options.row.data.license_factory_id),
-                                        showBorders: true,
-                                        height: 'auto',
-                                        scrolling: {
-                                            mode: "virtual"
-                                        },
-                                        searchPanel: {
-                                            visible: true,
-                                            width: "auto",
-                                            placeholder: "Search..."
-                                        }
-                                    }).dxDataGrid('instance');
-                                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
-                                    $.ajax({
-                                        type: "POST",
-                                        url: "../Home/GetColumnChooser",
-                                        contentType: "application/json; charset=utf-8",
-                                        data: "{gbTableId: '19'}",
-                                        dataType: "json",
-                                        async: false,
-                                        success: function (data) {
-                                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
-                                            gridHistory.option('columns', data);
-                                        }
-                                    });
-                                    //จบการกำหนด Column
-                                })
-                                .appendTo(container);
-                    }
-                }
+                //if (item.dataField == "history") {
+                //    data[ndata].cellTemplate = function (container, options) {
+                //        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                //                .text(options.value)
+                //                .on('dxclick', function (e) {
+                //                    popup_history._options.contentTemplate = function (content) {
+                //                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
+                //                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
+                //                    }
+                //                    $("#popup_history").dxPopup("show");
+                //                    var gridHistory = $("#gridHistory").dxDataGrid({
+                //                        dataSource: fnGetHistory(gbTableId, options.row.data.lv8_id),
+                //                        showBorders: true,
+                //                        height: 'auto',
+                //                        scrolling: {
+                //                            mode: "virtual"
+                //                        },
+                //                        searchPanel: {
+                //                            visible: true,
+                //                            width: "auto",
+                //                            placeholder: "Search..."
+                //                        }
+                //                    }).dxDataGrid('instance');
+                //                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
+                //                    $.ajax({
+                //                        type: "POST",
+                //                        url: "../Home/GetColumnChooser",
+                //                        contentType: "application/json; charset=utf-8",
+                //                        data: "{gbTableId: '19'}",
+                //                        dataType: "json",
+                //                        async: false,
+                //                        success: function (data) {
+                //                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
+                //                            gridHistory.option('columns', data);
+                //                        }
+                //                    });
+                //                    //จบการกำหนด Column
+                //                })
+                //                .appendTo(container);
+                //    }
+                //}
 
                 ndata++;
             });
@@ -462,16 +462,16 @@ $(function () {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
 
-    var popup_history = $("#popup_history").dxPopup({
-        visible: false,
-        width: "60%",
-        height: "70%",
-        showTitle: true,
-        title: "ประวัติ",
-        contentTemplate: function (content) {
-            return $("<div id='gridHistory'>test</div>");
-        }
-    }).dxPopup("instance");
+    //var popup_history = $("#popup_history").dxPopup({
+    //    visible: false,
+    //    width: "60%",
+    //    height: "70%",
+    //    showTitle: true,
+    //    title: "ประวัติ",
+    //    contentTemplate: function (content) {
+    //        return $("<div id='gridHistory'>test</div>");
+    //    }
+    //}).dxPopup("instance");
     //function filter() {
     //    //console.log(dataGridAll);
     //    //เซ็ตอาเรย์เริ่มต้น

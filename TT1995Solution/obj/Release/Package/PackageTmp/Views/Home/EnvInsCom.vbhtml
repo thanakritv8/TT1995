@@ -1,14 +1,13 @@
 ﻿@Code
-    ViewData("Title") = "บริษัทประกันสินค้า"
+    ViewData("Title") = "บริษัทประกันภัยสิ่งแวดล้อม"
 End Code
 <style>
     .custom-file {
         overflow-y: auto;
         height: 100%;
     }
-
 </style>
-<div> <h4>บริษัทประกันสินค้า</h4> </div>
+<div> <h4>บริษัทประกันภัยสิ่งแวดล้อม</h4> </div>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
     <div id="context-menu"></div>
@@ -93,8 +92,6 @@ End Code
 <div class="widget-container">
     <div id="popup"></div>
 </div>
+<div id="popup_data"></div>
 <div id="popup_history"></div>
-<div id="popup_protection"></div>
-<div id="popup_not_protection"></div>
-<script src="~/scripts/Home/proInsCom.js"></script>
-
+<script src="~/scripts/Home/EnvInsCom.js"></script>

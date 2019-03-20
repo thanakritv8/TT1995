@@ -895,7 +895,7 @@ $(function () {
 
         $.ajax({
             type: "POST",
-            url: "../Home/UpdateProtection",
+            url: "../Home/UpdateProtectionAic",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             data: "{aic_id:'" + aic_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",

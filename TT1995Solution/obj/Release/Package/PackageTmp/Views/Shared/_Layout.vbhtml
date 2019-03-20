@@ -25,7 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <style>
         .bg-custom {
-            background-color: rgb(0,128,0);
+            background-color: rgb(0,128,0); /*rgb(0,128,0)*/
         }
     </style>
 </head>
@@ -56,13 +56,10 @@
                 </li>
             </ul>
         End If
-
-
-
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)">
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)"> @*rgb(34,139,34)*@
             @*rgb(34,139,34)*@
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
@@ -98,9 +95,9 @@
                     <span Class="text-light"> ใบอนุญาต</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a> @*../Home/LicenseCambodia*@
+                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a>
                     <a Then Class="dropdown-item" href="../Home/LicenseMekongRiver">ลุ่มน้ำโขง</a>
-                    <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
+                    <a Then Class="dropdown-item" href="../Home/LicenseFactory">เข้าโรงงาน</a>
                     <a Then Class="dropdown-item" href="../Home/LicenseV8">วัตถุอันตราย(วอ.8)</a>
                 </div>
             </li>
@@ -113,7 +110,7 @@
                     <a Then Class="dropdown-item" href="../Home/ActInsurance">พรบ</a>
                     <a Then Class="dropdown-item" href="../Home/MainInsurance">ภัยรถยนต์</a>
                     <a Then Class="dropdown-item" href="../Home/DomProIns">สินค้าภายในประเทศ</a>
-                    <a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">สิ่งแวดล้อม</a>
+                    <a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">ภัยสิ่งแวดล้อม</a>
                 </div>
              </li>
             <li Class="nav-item dropdown">
@@ -125,6 +122,7 @@
                     <a Then Class="dropdown-item" href="../Home/ActInsCom">พรบ</a>
                     <a Then Class="dropdown-item" href="../Home/MainInsCom">ภัยรถยนต์</a>
                     <a Then Class="dropdown-item" href="../Home/ProInsCom">สินค้า</a>
+                    <a Then Class="dropdown-item" href="../Home/EnvInsCom">ภัยสิ่งแวดล้อม</a>
                 </div>
             </li>
             <li class="nav-item">
@@ -191,9 +189,8 @@
                 </a>
                 @<div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <a Then Class="dropdown-item" href="#">Group</a>
-                    <a Then Class="dropdown-item" href="#">Account</a>
-                    <a Then Class="dropdown-item" href="#">Premission</a>
-                     <a Then Class="dropdown-item" href="#">Setting</a>
+                    <a Then Class="dropdown-item" href="../Account/Account">Account</a>
+                    <a Then Class="dropdown-item" href="../Account/Permission">Permission</a>
                     <a Then Class="dropdown-item" href="../Manage/Lookup">Manage Lookup</a>
                 </div>
                 End If

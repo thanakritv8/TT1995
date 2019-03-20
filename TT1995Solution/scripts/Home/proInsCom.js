@@ -1,14 +1,10 @@
-﻿var itemEditing = [];
+﻿var itemEditing = [[],[],[],[]];
 var columnHide = [];
 var gbTableId = '5';
 var tableName = "product_insurance_company";
 var idFile;
-var data_lookup_number_car;
-var _dataSource;
-var dataGridAll;
-var dataLookupFilter;
 var gbE;
-
+var statusUpdateProtection = 0;
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
     { text: 'New File' },
@@ -25,7 +21,8 @@ var contextMenuItemsFile = [
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
-
+var html_editor_protection;
+var html_editor_not_protection;
 $(function () {
     function getDataPic() {
         var dataValue = [];
@@ -38,11 +35,11 @@ $(function () {
             async: false,
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].start_date);
-                    data[i].start_date = d;
+                    //var d = parseJsonDate(data[i].start_date);
+                    //data[i].start_date = d;
 
-                    var d = parseJsonDate(data[i].end_date);
-                    data[i].end_date = d;
+                    //var d = parseJsonDate(data[i].end_date);
+                    //data[i].end_date = d;
                 }
             }
         }).responseJSON;
@@ -79,9 +76,6 @@ $(function () {
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
-        onContentReady: function (e) {
-            filter();
-        },
         dataSource: getDataPic(),
         searchPanel: {
             visible: true,
@@ -108,17 +102,64 @@ $(function () {
             allowDeleting: true,
             allowAdding: true,
             form: {
-                items: itemEditing,
-                colCount: 6,
+                colCount: 2,
+                items: [{
+                    itemType: "group",
+                    caption: "ข้อมูล",
+                    items: itemEditing[0]
+                }, {
+                    itemType: "group",
+                    caption: "ข้อตกลงคุ้มครอง",
+                    items: itemEditing[1]
+                }, {
+                    itemType: "group",
+                    caption: "คุ้มครอง",
+                    items: itemEditing[2]
+                }, {
+                    itemType: "group",
+                    caption: "ไม่คุ้มครอง",
+                    items: itemEditing[3]
+                }]
             },
             popup: {
                 title: "รายการบริษัทประกันสินค้า",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
-                onHidden: function (e) {
-                    setDefaultNumberCar();
-                }
+                toolbarItems: [{
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Save",
+                        onClick: function (e) {
+                            //alert(statusUpdateProtection);
+                            //console.log(gbE);
+                            ////console.log(gbE);
+                            ////console.log(dataGrid);
+                            if (typeof gbE != "undefined") {
+                                if (statusUpdateProtection == 2) {
+                                    updateProtection(gbE.data.pic_id, html_editor_protection.option("value"));
+                                    updateNotProtection(gbE.data.pic_id, html_editor_not_protection.option("value"));
+                                    gbE.data.protection = html_editor_protection.option("value");
+                                    gbE.data.not_protection = html_editor_not_protection.option("value");
+                                }
+                            }
+                            dataGrid.saveEditData();
+                        }
+                    }
+                }, {
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Cancel",
+                        onClick: function (args) {
+                            console.log(args);
+                            dataGrid.cancelEditData();
+                        }
+                    }
+                }]
             },
             useIcons: true,
         },
@@ -134,42 +175,34 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[0].allowEditing', false);
-        },
-        onInitNewRow: function (e) {
-            var arr = {
-                dataSource: dataLookupFilter,
-                displayExpr: "number_car",
-                valueExpr: "number_car"
+            statusUpdateProtection = 0;
+            gbE = e;
+        }, onEditorPrepared: function (e) {
+
+            if (typeof html_editor_protection != "undefined" && typeof html_editor_not_protection != "undefined") {
+                //console.log(e.row.key.protection);
+                //console.log(e.row.key.not_protection);
+                //console.log(html_editor_protection);
+                //console.log(html_editor_not_protection);
+                //html_editor_protection.option("value",'test');
+                html_editor_not_protection.option("value", '1');
             }
 
-            dataGrid.option('columns[0].lookup', arr);
-
-            dataGrid.option('columns[0].allowEditing', true);
+        },
+        onInitNewRow: function (e) {
         },
         onRowUpdating: function (e) {
             fnUpdatePIC(e.newData, e.key.pic_id);
         },
         onRowInserting: function (e) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarTew",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });
-            e.data.pic_id = fnInsertPIC(e.data);
 
-            //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
+            e.data.history = "ประวัติ";
+            e.data.protection_view = "View";
+            e.data.not_protection_view = "View";
+            e.data.pic_id = fnInsertPIC(e.data, html_editor_protection.option("value"), html_editor_not_protection.option("value"));
+            e.data.protection = html_editor_protection.option("value");
+            e.data.not_protection = html_editor_not_protection.option("value");
+
         },
         onRowRemoving: function (e) {
             fnDeletePIC(e.key.pic_id);
@@ -181,10 +214,6 @@ $(function () {
                 });
             });
 
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-
-            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -395,49 +424,161 @@ $(function () {
                                 .appendTo(container);
                     }
                 }
+                //popup
+                if (item.dataField == "protection_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    console.log(options);
+                                    console.log(e);
+                                    console.log(popup_protection);
+                                    popup_protection._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_protection .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_protection' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
 
+                                    $("#popup_protection").dxPopup("show");
+
+                                    $("#html_protection").empty();
+                                    $('#html_protection').append(options.data.protection);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+                //popup
+                if (item.dataField == "not_protection_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    console.log(options);
+                                    console.log(e);
+                                    console.log(popup_not_protection);
+                                    popup_not_protection._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_not_protection .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_not_protection' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_not_protection").dxPopup("show");
+
+                                    $("#html_not_protection").empty();
+                                    $('#html_not_protection').append(options.data.not_protection);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "pic_id" && item.dataField != "history") {
-                    if (item.dataField == "number_car") {
-                        itemEditing.push({
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "pic_id" && item.dataField != "history" && item.dataField != "protection_view" && item.dataField != "not_protection_view") {
+                    if (item.group_field == "1") {
+                        itemEditing[0].push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
                             width: "100%",
-                            editorOptions: {
-                                disabled: false
-                            },
+                            label: {
+                                location: item.location,
+                                alignment: item.alignment
+                            }
                         });
-                    } else if (item.dataField != "license_car") {
-                        itemEditing.push({
+                    } else if (item.group_field == "2") {
+                        itemEditing[1].push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
                             width: "100%",
+                            label: {
+                                location: item.location,
+                                alignment: item.alignment
+                            }
+                        });
+                    } else if (item.group_field == "3") {
+                        itemEditing[2].push({
+                            colSpan: 6,
+                            dataField: "สินค้าที่คุ้มครอง",
+                            template: function (data, itemElement) {
+                                itemElement.append($('<div class="html-editor-protection"></div>'));
+                                html_editor_protection = $(".html-editor-protection").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateProtection == 0) {
+                                            statusUpdateProtection = 1;
+                                        } else if (statusUpdateProtection = 1) {
+                                            statusUpdateProtection = 2;
+                                        }
+                                    }
+                                }).dxHtmlEditor("instance");
+                            },
+                            label: {
+                                location: item.location,
+                                alignment: item.alignment
+                            }
+                        });
+                    } else if (item.group_field == "4") {
+
+                        itemEditing[3].push({
+                            colSpan: 6,
+                            dataField: "สินค้าที่ไม่คุ้มครอง",
+                            template: function (data, itemElement) {
+                                itemElement.append($('<div class="html-editor-not-protection"></div>'));
+                                html_editor_not_protection = $(".html-editor-not-protection").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateProtection == 0) {
+                                            statusUpdateProtection = 1;
+                                        } else if (statusUpdateProtection = 1) {
+                                            statusUpdateProtection = 2;
+                                        }
+                                    }
+                                }).dxHtmlEditor("instance");
+                            },
+                            label: {
+                                location: item.location,
+                                alignment: item.alignment
+                                }
                         });
                     }
 
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetNumberCar",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                async: false,
-                success: function (dataLookup) {
-                    data_lookup_number_car = dataLookup;
-                    data[0].lookup = {
-                        dataSource: dataLookup,
-                        displayExpr: "number_car",
-                        valueExpr: "number_car"
-                    }
-
-                }
-            });
-            _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
         }
@@ -467,9 +608,11 @@ $(function () {
     }
 
     //Function Insert ข้อมูล gps_company
-    function fnInsertPIC(dataGrid) {
+    function fnInsertPIC(dataGrid, dataHtmlEditorProtection, dataHtmlEditorNotProtection) {
         //console.log(dataGrid);
         dataGrid.IdTable = gbTableId;
+        dataGrid.DataHtmlEditorProtection = dataHtmlEditorProtection;
+        dataGrid.dataHtmlEditorNotProtection = dataHtmlEditorNotProtection;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -766,33 +909,6 @@ $(function () {
         }
     }).dxPopup("instance");
 
-    function filter() {
-        //เซ็ตอาเรย์เริ่มต้น
-        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
-        //เซ็ตอาเรย์ที่จะกรอง
-        var filter = dataGridAll;
-        //กรองอาเรย์
-        filter.forEach(function (filterdata) {
-            dataLookupAll = dataLookupAll.filter(function (arr) {
-                return arr.license_id != filterdata.license_id;
-            });
-        });
-        dataLookupFilter = dataLookupAll;
-    }
-    //event button close 
-    //$(document).on("dxclick", ".dx-closebutton", function () {
-    //    setDefaultNumberCar();
-    //});
-
-    function setDefaultNumberCar() {
-        var arr = {
-            dataSource: _dataSource,
-            displayExpr: "number_car",
-            valueExpr: "number_car"
-        }
-        dataGrid.option('columns[0].lookup', arr);
-    }
-
     $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
         var dataColumnVisible = "",
             dataColumnHide = "";
@@ -825,4 +941,67 @@ $(function () {
         });
     });
 
+    var popup_protection = $("#popup_protection").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "สินค้าที่คุ้มครอง",
+        contentTemplate: function (content) {
+            return $("<div id='html_protection'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    var popup_not_protection = $("#popup_not_protection").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "สินค้าที่ไม่คุ้มครอง",
+        contentTemplate: function (content) {
+            return $("<div id='html_not_protection'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    function updateProtection(pic_id, data) {
+
+        //alert(aic_id + data);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/UpdateProtectionPic",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{pic_id:'" + pic_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
+
+    function updateNotProtection(pic_id, data) {
+
+        //alert(aic_id + data);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/UpdateNotProtectionPic",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{pic_id:'" + pic_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
 });
