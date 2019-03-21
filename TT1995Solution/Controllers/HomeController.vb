@@ -3321,7 +3321,7 @@ Namespace Controllers
         Public Sub SetDataOfConfigColumnData()
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim dt As DataTable = New DataTable
-            Dim _SQL As String = "INSERT INTO [config_column_data]"
+            Dim _SQL As String = "INSERT INTO [config_column_data]
                                     SELECT cc.column_id,'" & Session("UserId") & "',cc.visible
                                     FROM [dbo].[config_column] as cc  left join (select * FROM [dbo].[config_column_data] where user_id = " & Session("UserId").ToString & ") as ccd on cc.column_id = ccd.cc_id  
                                     where  ccd.user_id is null"
