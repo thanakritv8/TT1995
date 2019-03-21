@@ -8,6 +8,7 @@ var _dataSource;
 var dataGridAll;
 var dataLookupFilter;
 var gbE;
+var statusUpdateInstallationList = 0;
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
     { text: 'New File' },
@@ -41,8 +42,8 @@ $(function () {
                     var d = parseJsonDate(data[i].start_date);
                     data[i].start_date = d;
 
-                    var d = parseJsonDate(data[i].expire_date);
-                    data[i].expire_date = d;
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
 
                     var d = parseJsonDate(data[i].create_date);
                     data[i].create_date = d;
@@ -124,7 +125,39 @@ $(function () {
                 position: { my: "center", at: "center", of: window },
                 onHidden: function (e) {
                     setDefaultNumberCar();
-                }
+                },
+                toolbarItems: [{
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Save",
+                        onClick: function (e) {
+                            //alert(statusUpdateProtection);
+                            //console.log(gbE);
+                            ////console.log(gbE);
+                            ////console.log(dataGrid);
+                            if (typeof gbE != "undefined") {
+                                if (statusUpdateInstallationList == 2) {
+                                    updateInstallation_list(gbE.data.gps_car_id, html_editor.option("value"));
+                                    gbE.data.Installation_list = html_editor.option("value");
+                                }
+                            }
+                            dataGrid.saveEditData();
+                        }
+                    }
+                }, {
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Cancel",
+                        onClick: function (args) {
+                            console.log(args);
+                            dataGrid.cancelEditData();
+                        }
+                    }
+                }]
             },
             useIcons: true,
         },
@@ -141,6 +174,14 @@ $(function () {
         },
         onEditingStart: function (e) {
             dataGrid.option('columns[0].allowEditing', false);
+            statusUpdateInstallationList = 0;
+            gbE = e;
+        }, onEditorPrepared: function (e) {
+            if (typeof html_editor != "undefined" && typeof e.row != "undefined") {
+                //console.log(e.row.key.protection);
+                html_editor.option("value", e.row.key.Installation_list);
+            }
+
         },
         onInitNewRow: function (e) {
             filter();
@@ -360,11 +401,35 @@ $(function () {
                     }
                 }
 
+                //popup
+                if (item.dataField == "Installation_list_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    console.log(options);
+                                    console.log(e);
+                                    console.log(popup_Installation_list);
+                                    popup_Installation_list._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_Installation_list .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_Installation_list' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_Installation_list").dxPopup("show");
+
+                                    $("#html_Installation_list").empty();
+                                    $('#html_Installation_list').append(options.data.Installation_list);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "gps_car_id" && item.dataField != "history") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "gps_car_id" && item.dataField != "history" && item.dataField != "Installation_list_view") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -374,7 +439,45 @@ $(function () {
                                 disabled: false
                             },
                         });
-                    } else if (item.dataField != "license_car") {
+                    } else if (item.dataField == "Installation_list") {
+                        itemEditing.push({
+                            colSpan: 6,
+                            dataField: "รายการติดตั้ง",
+                            template: function (data, itemElement) {
+                                itemElement.append($('<div class="html-editor"></div>'));
+                                html_editor = $(".html-editor").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateInstallationList == 0) {
+                                            statusUpdateInstallationList = 1;
+                                        } else if (statusUpdateInstallationList = 1) {
+                                            statusUpdateInstallationList = 2;
+                                        }
+                                        //alert(statusUpdateProtection);
+                                        //$(".value-content").text(e.component.option("value"));
+                                    }
+                                }).dxHtmlEditor("instance");
+                            }
+                        });
+                    }
+                    else if (item.dataField != "license_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
@@ -752,6 +855,17 @@ $(function () {
         }
     }).dxPopup("instance");
 
+    var popup_Installation_list = $("#popup_Installation_list").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "รายการติดตั้ง",
+        contentTemplate: function (content) {
+            return $("<div id='html_Installation_list'>test</div>");
+        }
+    }).dxPopup("instance");
+
     function filter() {
         console.log(dataGridAll);
         //console.log(dataGrid._options.columns[0].lookup.dataSource);
@@ -809,5 +923,26 @@ $(function () {
             }
         });
     });
+
+    function updateInstallation_list(gps_car_id, data) {
+
+        //alert(aic_id + data);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/updateInstallation_list",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{gps_car_id:'" + gps_car_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
 
 });

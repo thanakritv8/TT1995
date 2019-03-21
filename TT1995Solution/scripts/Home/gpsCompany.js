@@ -3,9 +3,6 @@ var columnHide = [];
 var gbTableId = '2';
 var tableName = "gps_company";
 var idFile;
-var _dataSource;
-var dataGridAll;
-var dataLookupFilter;
 var gbE;
 
 //คลิกขวาโชว์รายการ   
@@ -70,15 +67,9 @@ $(function () {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
 
-    dataGridAll = getDataGc();
-    //console.log(dataGridAll);
-
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
         dataSource: getDataGc(),
-        onContentReady: function (e) {
-            filter();
-        },
         searchPanel: {
             visible: true,
             width: 240,
@@ -111,10 +102,7 @@ $(function () {
                 title: "รายการบริษัท GPS",
                 showTitle: true,
                 width: "70%",
-                position: { my: "center", at: "center", of: window },
-                onHidden: function (e) {
-                        setDefaultNumberCar();
-                }
+                position: { my: "center", at: "center", of: window }
             },
             useIcons: true,
         },
@@ -130,59 +118,23 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
-            dataGrid.option('columns[0].allowEditing', false);
+
         },
         onInitNewRow: function (e) {
-            var arr = {
-                dataSource: dataLookupFilter,
-                displayExpr: "number_car",
-                valueExpr: "number_car"
-            }
 
-            dataGrid.option('columns[0].lookup', arr);
-
-            dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
             //console.log(e);
             fnUpdateGpsCompany(e.newData, e.key.gc_id);
         },
         onRowInserting: function (e) {
-            //console.log(e);
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarTew",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });
+
+            e.data.history = "ประวัติ";
             e.data.gc_id = fnInsertGpsCompany(e.data);
 
-            //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
             fnDeleteGpsCompany(e.key.gc_id);
-
-            //กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
-                });
-            });
-
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-
-            setDefaultNumberCar();
         },
         masterDetail: {
             enabled: false,
@@ -417,23 +369,7 @@ $(function () {
                 }
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetNumberCar",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                async: false,
-                success: function (dataLookup) {
-                    data_lookup_number_car = dataLookup;
-                    data[0].lookup = {
-                        dataSource: dataLookup,
-                        displayExpr: "number_car",
-                        valueExpr: "number_car"
-                    }
 
-                }
-            });
-            _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
             //console.log(dataGrid);
@@ -770,60 +706,5 @@ $(function () {
             return $("<div id='gridHistory'>test</div>");
         }
     }).dxPopup("instance");
-
-    function filter() {
-        //เซ็ตอาเรย์เริ่มต้น
-        var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
-        //เซ็ตอาเรย์ที่จะกรอง
-        var filter = dataGridAll;
-        //กรองอาเรย์
-        filter.forEach(function (filterdata) {
-            dataLookupAll = dataLookupAll.filter(function (arr) {
-                return arr.license_id != filterdata.license_id;
-            });
-        });
-        dataLookupFilter = dataLookupAll;
-    }
-
-    function setDefaultNumberCar() {
-        var arr = {
-            dataSource: _dataSource,
-            displayExpr: "number_car",
-            valueExpr: "number_car"
-        }
-        dataGrid.option('columns[0].lookup', arr);
-    }
-
-    $(document).on("dxclick", ".dx-datagrid-column-chooser .dx-closebutton", function () {
-        var dataColumnVisible = "",
-            dataColumnHide = "";
-        var columnCount = dataGrid.columnCount(),
-            i;
-        for (i = 0; i < columnCount; i++) {
-            if (dataGrid.columnOption(i, "visible")) {
-                dataColumnVisible = dataColumnVisible + "*" + dataGrid.columnOption(i).column_id;;
-            } else {
-                dataColumnHide = dataColumnHide + "*" + dataGrid.columnOption(i).column_id;
-            }
-        }
-
-        //alert(dataColumnVisible);
-        //alert(dataColumnHide);
-
-        $.ajax({
-            type: "POST",
-            url: "../Home/SetColumnHide",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: "{dataColumnVisible:'" + dataColumnVisible + "',dataColumnHide:'" + dataColumnHide + "'}",
-            success: function (data) {
-                if (data = 1) {
-                    //alert('Update Column Hide OK');
-                } else {
-                    alert('Update Column Hide error!!');
-                }
-            }
-        });
-    });
 
 });

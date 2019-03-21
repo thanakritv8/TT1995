@@ -8,6 +8,7 @@ var _dataSource;
 var dataGridAll;
 var dataLookupFilter;
 var gbE;
+var statusUpdateFirstDamages = 0;
 
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
@@ -25,7 +26,7 @@ var contextMenuItemsFile = [
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
-
+var html_editor;
 $(function () {
     function getDataDpi() {
         var dataValue = [];
@@ -38,11 +39,11 @@ $(function () {
             async: false,
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].insurance_date);
-                    data[i].insurance_date = d;
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
 
-                    var d = parseJsonDate(data[i].expire_date);
-                    data[i].expire_date = d;
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
                 }
             }
         }).responseJSON;
@@ -127,6 +128,37 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                toolbarItems: [{
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Save",
+                        onClick: function (e) {
+                            //console.log(gbE);
+                            ////console.log(gbE);
+                            ////console.log(dataGrid);
+                            if (typeof gbE != "undefined") {
+                                if (statusUpdateFirstDamages == 2) {
+                                    updateFirstDamages(gbE.data.dpi_id, html_editor.option("value"));
+                                    gbE.data.first_damages = html_editor.option("value");
+                                }
+                            }
+                            dataGrid.saveEditData();
+                        }
+                    }
+                }, {
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Cancel",
+                        onClick: function (args) {
+                            console.log(args);
+                            dataGrid.cancelEditData();
+                        }
+                    }
+                }],
                 onHidden: function (e) {
                     setDefaultNumberCar();
                 }
@@ -146,6 +178,15 @@ $(function () {
         },
         onEditingStart: function (e) {
             dataGrid.option('columns[0].allowEditing', false);
+            statusUpdateFirstDamages = 0;
+            gbE = e;
+        }, onEditorPrepared: function (e) {
+
+            if (typeof html_editor != "undefined" && typeof e.row != "undefined") {
+                //console.log(e);
+                html_editor.option("value", e.row.key.first_damages);
+            }
+
         },
         onInitNewRow: function (e) {
 
@@ -173,10 +214,15 @@ $(function () {
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
                     e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
+                    
                 }
             });
-            e.data.dpi_id = fnInsertDPI(e.data);
+            
+            e.data.dpi_id = fnInsertDPI(e.data, html_editor.option("value"));
+            e.data.first_damages_view = 'View';
+            e.data.first_damages = html_editor.option("value");
+            alert(html_editor.option("value"));
+            e.data.history = "ประวัติ";
 
             //ตัด number_car ออก
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
@@ -408,11 +454,35 @@ $(function () {
                     }
                 }
 
+                //popup
+                if (item.dataField == "first_damages_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    console.log(options);
+                                    console.log(e);
+                                    console.log(popup_first_damages);
+                                    popup_first_damages._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_first_damages .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_first_damages' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_first_damages").dxPopup("show");
+
+                                    $("#html_first_damages").empty();
+                                    $('#html_first_damages').append(options.data.first_damages);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "dpi_id" && item.dataField != "license_id" && item.dataField != "history") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "dpi_id" && item.dataField != "license_id" && item.dataField != "history" && item.dataField != "first_damages_view") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -422,7 +492,42 @@ $(function () {
                                 disabled: false
                             },
                         });
-                    } else if (item.dataField != "license_car") {
+                    } else if (item.dataField == "first_damages") {
+                        itemEditing.push({
+                            colSpan: 6,
+                            dataField: "ค่าเสียหายส่วนแรก",
+                            template: function (data, itemElement) {
+                                itemElement.append($('<div class="html-editor"></div>'));
+                                html_editor = $(".html-editor").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateFirstDamages == 0) {
+                                            statusUpdateFirstDamages = 1;
+                                        } else if (statusUpdateFirstDamages = 1) {
+                                            statusUpdateFirstDamages = 2;
+                                        }
+                                    }
+                                }).dxHtmlEditor("instance");
+                            }
+                        });
+                    }else if (item.dataField != "license_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
@@ -479,8 +584,9 @@ $(function () {
     }
 
     //Function Insert ข้อมูล gps_company
-    function fnInsertDPI(dataGrid) {
+    function fnInsertDPI(dataGrid,dataHtmlEditor) {
         dataGrid.IdTable = gbTableId;
+        dataGrid.first_damages = dataHtmlEditor;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -780,6 +886,17 @@ $(function () {
         }
     }).dxPopup("instance");
 
+    var popup_first_damages = $("#popup_first_damages").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "การคุ้มครอง",
+        contentTemplate: function (content) {
+            return $("<div id='html_first_damages'>test</div>");
+        }
+    }).dxPopup("instance");
+
     function filter() {
         //เซ็ตอาเรย์เริ่มต้น
         var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
@@ -834,4 +951,25 @@ $(function () {
             }
         });
     });
+
+    function updateFirstDamages(dpi_id, data) {
+
+        //alert(aic_id + data);
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/updateFirstDamages",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{aic_id:'" + dpi_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
 });

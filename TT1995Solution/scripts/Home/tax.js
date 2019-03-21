@@ -706,14 +706,15 @@ $(function () {
                     var itemData = fnGetFiles(data[0].Status);
                     fnChangeTreeview(data[0].Status, itemData);
                 } else {
-                    DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้!!!", "error");
                 }
             },
             error: function (error) {
+                console.log(error);
                 $("#mdNewFile").modal('hide');
                 $("#mdNewFolder").modal('hide');
                 document.getElementById("lbNewFolder").value = '';
-                DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+                DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้!", "error");
             }
         });
     }

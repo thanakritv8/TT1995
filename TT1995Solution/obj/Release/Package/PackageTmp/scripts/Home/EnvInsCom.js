@@ -124,7 +124,7 @@ $(function () {
                 }]
             },
             popup: {
-                title: "รายการบริษัทประกัน พรบ",
+                title: "รายการบริษัทประกันภัยสิ่งแวดล้อม",
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window }

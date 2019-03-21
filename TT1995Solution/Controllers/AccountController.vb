@@ -136,7 +136,7 @@ Namespace Controllers
         Public Function GetAccount() As String
             Dim dtApp As DataTable = New DataTable
             Using cn = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-                Dim _SQL As String = "SELECT user_id, username, '******' as password, tel, address, firstname, lastname, group_id FROM account"
+                Dim _SQL As String = "SELECT user_id, username, password, tel, address, firstname, lastname, group_id FROM account"
                 dtApp = objDB.SelectSQL(_SQL, cn)
             End Using
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In dtApp.Rows Select dtApp.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -146,7 +146,7 @@ Namespace Controllers
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "INSERT INTO account (username, password, tel, address, firstname, lastname, group_id, create_by_user_id) OUTPUT Inserted.user_id VALUES "
-            _SQL &= "('" & username & "', '" & password & "', '" & tel & "', '" & address & "', '" & firstname & "', '" & lastname & "', '" & group_id & "', '" & Session("UserId") & "')"
+            _SQL &= "('" & username & "', '" & EncryptSHA256Managed(password) & "', '" & tel & "', '" & address & "', '" & firstname & "', '" & lastname & "', '" & group_id & "', '" & Session("UserId") & "')"
             If Not username Is Nothing And Not password Is Nothing And Not group_id Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
@@ -163,7 +163,7 @@ Namespace Controllers
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [account] SET "
             Dim StrTbLc() As String = {"username", "password", "tel", "address", "firstname", "lastname", "group_id"}
-            Dim TbLc() As Object = {username, password, tel, address, firstname, lastname, group_id}
+            Dim TbLc() As Object = {username, EncryptSHA256Managed(password), tel, address, firstname, lastname, group_id}
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"

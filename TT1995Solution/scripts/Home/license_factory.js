@@ -187,6 +187,7 @@ $(function () {
             //        e.data.history = "ประวัติ";
             //    }
             //});
+            e.data.history = "ประวัติ";
             e.data.license_factory_id = fnInsertLicenseFactory(e.data);
 
             //ตัด number_car ออก

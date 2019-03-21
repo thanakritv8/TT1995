@@ -131,7 +131,7 @@ $(function () {
                             //console.log(gbE);
                             ////console.log(gbE);
                             ////console.log(dataGrid);
-                            if (typeof gbE != "undefined") {
+                            if (typeof gbE != "undefined" ) {
                                 if (statusUpdateProtection == 2) {
                                     updateProtection(gbE.data.aic_id, html_editor.option("value"));
                                     gbE.data.protection = html_editor.option("value");
@@ -170,9 +170,8 @@ $(function () {
             statusUpdateProtection = 0;
             gbE = e;
         }, onEditorPrepared: function (e) {
-
-            if (typeof html_editor != "undefined") {
-                console.log(e.row.key.protection);
+            if (typeof html_editor != "undefined" && typeof e.row != "undefined") {
+                //console.log(e.row.key.protection);
                 html_editor.option("value", e.row.key.protection);
             }
 
@@ -440,8 +439,6 @@ $(function () {
                                 .appendTo(container);
                     }
                 }
-
-
 
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown

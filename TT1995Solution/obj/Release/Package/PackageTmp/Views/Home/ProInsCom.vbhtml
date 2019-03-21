@@ -6,6 +6,7 @@ End Code
         overflow-y: auto;
         height: 100%;
     }
+
 </style>
 <div> <h4>บริษัทประกันสินค้า</h4> </div>
 <div>
@@ -93,5 +94,7 @@ End Code
     <div id="popup"></div>
 </div>
 <div id="popup_history"></div>
+<div id="popup_protection"></div>
+<div id="popup_not_protection"></div>
 <script src="~/scripts/Home/proInsCom.js"></script>
 

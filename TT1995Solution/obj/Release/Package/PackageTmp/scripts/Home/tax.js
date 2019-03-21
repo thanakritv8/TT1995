@@ -710,6 +710,7 @@ $(function () {
                 }
             },
             error: function (error) {
+                console.log(error);
                 $("#mdNewFile").modal('hide');
                 $("#mdNewFolder").modal('hide');
                 document.getElementById("lbNewFolder").value = '';

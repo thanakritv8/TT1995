@@ -101,4 +101,5 @@ End Code
     </div>
 </div>
 <div id="popup_history"></div>
+<div id="popup_Installation_list"></div>
 <script src="~/scripts/Home/Gps_car.js"></script>

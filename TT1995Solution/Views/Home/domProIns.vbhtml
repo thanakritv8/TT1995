@@ -93,6 +93,7 @@ End Code
     <div id="popup"></div>
 </div>
 <div id="popup_history"></div>
+<div id="popup_first_damages"></div>
 <script src="~/scripts/Home/domProIns.js"></script>
 
 
