@@ -43,6 +43,11 @@ Namespace Controllers
                 Session("UserId") = DtAccount.Rows(0)("user_id")
                 Session("GroupId") = DtAccount.Rows(0)("group_id")
                 Session("FirstName") = DtAccount.Rows(0)("firstname")
+                _SQL = "select ct.table_id as application_id, permission_status from config_table as ct left join permission as p on ct.table_id = p.application_id and p.group_id = " & DtAccount.Rows(0)("group_id")
+                Dim DtPermission As DataTable = objDB.SelectSQL(_SQL, cn)
+                For Each _Item In DtPermission.Rows
+                    Session(_Item("application_id").ToString) = IIf(Not IsDBNull(_Item("permission_status")), _Item("permission_status"), 0)
+                Next
             Else
                 Session("StatusLogin") = "0"
             End If

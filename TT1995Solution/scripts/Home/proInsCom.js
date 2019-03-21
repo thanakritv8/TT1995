@@ -1,4 +1,5 @@
-﻿var itemEditing = [[], []];
+﻿
+var itemEditing = [[], []];
 var itemEditing2 = [];
 var columnHide = [];
 var gbTableId = '5';
@@ -101,9 +102,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 colCount: 2,
                 items: [{
@@ -118,9 +119,11 @@ $(function () {
                     colSpan: 6,
                     dataField: "สินค้าที่คุ้มครอง",
                     template: function (e, itemElement) {
-                        //console.log(e);
-                        //alert(e.component._options.validationGroup.key.protection);
-                        itemElement.append($('<div class="html-editor">' + e.component._options.validationGroup.key.protection + '</div>'));
+                        var content = "";
+                        if (typeof e.component._options.validationGroup.key.not_protection != "undefined") {
+                            content = e.component._options.validationGroup.key.not_protection
+                        }
+                        itemElement.append($('<div class="html-editor">' + content + '</div>'));
                         html_editor = $(".html-editor").dxHtmlEditor({
                             height: 300,
                             toolbar: {
@@ -143,7 +146,7 @@ $(function () {
                             onValueChanged: function (e) {
                                 if (statusUpdateProtection == 0) {
                                     statusUpdateProtection = 1;
-                                } 
+                                }
                             }
                         }).dxHtmlEditor("instance");
                     },
@@ -155,7 +158,11 @@ $(function () {
                     colSpan: 6,
                     dataField: "สินค้าที่ไม่คุ้มครอง",
                     template: function (e, itemElement) {
-                        itemElement.append($('<div class="html-editor-not-protection">' + e.component._options.validationGroup.key.not_protection + '</div>'));
+                        var content = "";
+                        if (typeof e.component._options.validationGroup.key.not_protection != "undefined") {
+                            content = e.component._options.validationGroup.key.not_protection
+                        }
+                        itemElement.append($('<div class="html-editor-not-protection">' + content + '</div>'));
                         html_editor_not_protection = $(".html-editor-not-protection").dxHtmlEditor({
                             height: 300,
                             toolbar: {
@@ -267,7 +274,7 @@ $(function () {
         }
         //,
         //onEditorPrepared: function (e) {
-            
+
         //    if (typeof html_editor != "undefined" && typeof e.row != "undefined") {
         //        alert(html_editor);
         //        alert(e.row.key.protection);
@@ -283,16 +290,16 @@ $(function () {
         },
         onRowUpdating: function (e) {
             fnUpdatePIC(e.newData, e.key.pic_id);
-            
+
         },
         onRowInserting: function (e) {
 
-            
+
             e.data.pic_id = fnInsertPIC(e.data, html_editor.option("value"));
             e.data.history = "ประวัติ";
             e.data.protection_view = "View";
             e.data.protection = html_editor.option("value");
-            
+
 
         },
         onRowRemoving: function (e) {
@@ -563,6 +570,20 @@ $(function () {
                 }
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
+
+                //popup
+                data[0].cellTemplate = function (container, options) {
+                    $('<a style="color:green" />').addClass('dx-link')
+                            .text(options.value)
+                            .on('dxclick', function () {
+                                popup_data.option("contentTemplate", null);
+                                popup_data._options.contentTemplate = function (content) {
+                                    content.append("<div><table border=1 width='100%'><tr class='black white-text' ><td width='35%' align='left'>จำนวนเงินจำกัดความรับผิดสำหรับค่าสินไหมทดแทน</td></tr><tr ><td valign='top'>1. จำนวนเงินจำกัดความรับผิดชอบรวม " + options.data.t1 + " บาท<br>2. จำนวนเงินจำกัดความรับผิดต่อการเรียกร้องหรือต่ออุบัติเหตุแต่ละครั้ง " + options.data.t2 + " บาท<br>3. จำนวนเงินจำกัดความรับผิดต่อหนึ่งยานพาหนะ " + options.data.t3 + " บาท<br>4. จำนวนเงินจำกัดความรับผิดเพื่อการส่งมอบชักช้าต่อการเรียกร้องหรือต่ออุบัติเหตุแต่ละครั้งและต่อหนึ่งยานพาหนะ " + options.data.t4 + " บาท</td></tr></table></div>")
+                                }
+                                $("#popup_data").dxPopup("show");
+                            })
+                            .appendTo(container);
+                }
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "pic_id" && item.dataField != "history" && item.dataField != "protection_view" && item.dataField != "not_protection_view") {
@@ -908,6 +929,18 @@ $(function () {
             }
         });
     }
+
+    var popup_data = $("#popup_data").dxPopup({
+        visible: false,
+        width: "auto",
+        height: "auto",
+        showTitle: true,
+        title: "รายละเอียด",
+        contentTemplate: function (content) {
+            return $("")
+
+        }
+    }).dxPopup("instance");
 
     var popup_history = $("#popup_history").dxPopup({
         visible: false,

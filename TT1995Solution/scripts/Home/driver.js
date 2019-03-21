@@ -17,9 +17,9 @@
         },
         editing: {
             mode: "row",
-            allowDeleting: true,
-            allowAdding: true,
-            allowUpdating: true,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
+            allowUpdating: boolStatus,
             useIcons: true,
         },
         "export": {

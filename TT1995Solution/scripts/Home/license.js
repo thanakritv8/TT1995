@@ -36,6 +36,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+
     $("#setPosition").click(function () {
         console.log($("#setPosition"))
         if ($("#setPosition")[0].checked == true) {
@@ -387,9 +388,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,                

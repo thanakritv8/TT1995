@@ -101,4 +101,18 @@ End Code
         </div>
     </div>
 </div>
+<script>
+    //Control Read Only and Read Write
+    var boolStatus = false;
+    var permission_status = '@Session("9")'; //1 = Read Only, 2 = Read and Write
+    if (permission_status == 1) {
+        boolStatus = false;
+        $("#context-menu").hide();
+    } else {
+        boolStatus = true;
+        $("#context-menu").show();
+    }
+    console.log(!boolStatus);
+    //End Control
+</script>
 <script src="~/scripts/Home/Expressway.js"></script>

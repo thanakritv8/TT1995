@@ -36,8 +36,10 @@ Namespace Controllers
             _SQL &= "union select l.license_id, N'ใบอนุญาตกัมพูชา' as tablename, lc.lc_number as data_number, lc.lc_start as date_start, lc.lc_expire as date_expire, isnull(lc.lc_status, '') as data_status from license as l join license_cambodia_permission as lcp on l.license_id = lcp.license_id_head join license_cambodia as lc on lcp.lc_id = lc.lc_id where l.license_id = " & license_id
             _SQL &= "union select l.license_id, N'ใบอนุญาตลุ่มแม่น้ำโขง' as tablename, lmr.lmr_number as data_number, lmr.lmr_start as date_start, lmr.lmr_expire as date_expire, isnull(lmr.lmr_status, '') as data_status from license as l join license_mekong_river_permission as lmrp on l.license_id = lmrp.license_id_head join license_mekong_river as lmr on lmrp.lmr_id = lmr.lmr_id where l.license_id = " & license_id
             _SQL &= "union select l.license_id, N'ใบอนุญาต(วอ.8)' as tablename, lv8.lv8_number as data_number, lv8.lv8_start as date_start, lv8.lv8_expire as date_expire, isnull(lv8.lv8_status, '') as data_status from license as l join license_v8 as lv8 on l.license_id = lv8.license_id where l.license_id = " & license_id
-            _SQL &= "union select l.license_id, N'ประกัน พรบ' as tablename, ai.policy_number as data_number, ai.start_date as date_start, ai.end_date as date_expire, isnull(ai.status, '') as data_status from license as l join act_insurance as ai on l.license_id = ai.license_id where l.license_id = " & license_id
-            _SQL &= "union select l.license_id, N'ประกัน หลัก' as tablename, mi.policy_number as data_number, mi.start_date as date_start, mi.end_date as date_expire, isnull(mi.status, '') as data_status from license as l join main_insurance as mi on l.license_id = mi.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ประกันพรบ.' as tablename, ai.policy_number as data_number, ai.start_date as date_start, ai.end_date as date_expire, isnull(ai.status, '') as data_status from license as l join act_insurance as ai on l.license_id = ai.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ประกันภัยรถยนต์' as tablename, mi.policy_number as data_number, mi.start_date as date_start, mi.end_date as date_expire, isnull(mi.status, '') as data_status from license as l join main_insurance as mi on l.license_id = mi.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ประกันภัยสินค้าภายในประเทศ' as tablename, dpi.policy_number as data_number, dpi.start_date as date_start, dpi.end_date as date_expire, isnull(dpi.status, '') as data_status from license as l join domestic_product_insurance as dpi on l.license_id = dpi.license_id where l.license_id = " & license_id
+            _SQL &= "union select l.license_id, N'ประกันภัยสิ่งแวดล้อม' as tablename, ei.policy_number as data_number, ei.start_date as date_start, ei.end_date as date_expire, isnull(ei.status, '') as data_status from license as l join environment_insurance as ei on l.license_id = ei.license_id where l.license_id = " & license_id
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2578,13 +2580,13 @@ Namespace Controllers
         End Function
 
         Public Function UpdateAI(ByVal number_car As String, ByVal insurance_company As String, ByVal start_date As String, ByVal end_date As String, ByVal note As String _
-                                  , ByVal price As String, ByVal policy_number As String, ByVal first_damages As String, ByVal add_damages As String, ByVal key As String, ByVal IdTable As String) As String
+                                  , ByVal status As String, ByVal price As String, ByVal policy_number As String, ByVal first_damages As String, ByVal add_damages As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [act_insurance] SET "
-            Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "price", "policy_number", "first_damages", "add_damages"}
-            Dim TbAI() As Object = {insurance_company, start_date, end_date, note, price, policy_number, first_damages, add_damages}
+            Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "status", "price", "policy_number", "first_damages", "add_damages"}
+            Dim TbAI() As Object = {insurance_company, start_date, end_date, note, status, price, policy_number, first_damages, add_damages}
             For n As Integer = 0 To TbAI.Length - 1
                 If Not TbAI(n) Is Nothing Then
                     _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
@@ -2601,19 +2603,20 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
         Public Function InsertAI(ByVal number_car As String, ByVal insurance_company As String, ByVal start_date As String, ByVal end_date As String, ByVal note As String _
-                                  , ByVal price As String, ByVal policy_number As String, ByVal first_damages As String, ByVal add_damages As String, ByVal key As String, ByVal IdTable As String) As String
+                                  , ByVal status As String, ByVal price As String, ByVal policy_number As String, ByVal first_damages As String, ByVal add_damages As String, ByVal key As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
 
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim license_id As Integer = objDB.SelectSQL("SELECT * FROM [dbo].[license] where number_car = '" & number_car & "'", cn).Rows(0).Item("license_id")
-            Dim _SQL As String = "INSERT INTO [act_insurance] ([license_id],[insurance_company],[start_date],[end_date],[note],[price],[policy_number],[first_damages],[add_damages],[create_date],[create_by_user_id]) OUTPUT Inserted.ai_id"
+            Dim _SQL As String = "INSERT INTO [act_insurance] ([license_id],[insurance_company],[start_date],[end_date],[note],[status],[price],[policy_number],[first_damages],[add_damages],[create_date],[create_by_user_id]) OUTPUT Inserted.ai_id"
             _SQL &= " VALUES (" & IIf(license_id.ToString Is Nothing, 0, license_id.ToString) & ","
             _SQL &= "N'" & IIf(insurance_company Is Nothing, String.Empty, insurance_company) & "',"
             _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
             _SQL &= "N'" & IIf(end_date Is Nothing, String.Empty, end_date) & "',"
             _SQL &= "N'" & IIf(note Is Nothing, String.Empty, note) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "',"
             _SQL &= "N'" & IIf(price Is Nothing, String.Empty, price) & "',"
             _SQL &= "N'" & IIf(policy_number Is Nothing, String.Empty, policy_number) & "',"
             _SQL &= "N'" & IIf(first_damages Is Nothing, String.Empty, first_damages) & "',"
@@ -2625,7 +2628,7 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "price", "policy_number", "first_damages", "add_damages"}
+            Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "status", "price", "policy_number", "first_damages", "add_damages"}
             Dim TbAI() As Object = {insurance_company, start_date, end_date, note, price, policy_number, first_damages, add_damages}
             For n As Integer = 0 To TbAI.Length - 1
                 If Not TbAI(n) Is Nothing Then
@@ -3329,7 +3332,7 @@ Namespace Controllers
 
             Else
 
-                End If
+            End If
 
         End Sub
 
@@ -3529,15 +3532,15 @@ Namespace Controllers
             Return GbFnPoom.fnRename(Request, "Gps_car")
         End Function
 
-        Public Function UpdateGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal end_date As String, ByVal reading_data As String _
+        Public Function UpdateGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal reading_data As String _
                                       , ByVal usage As String, ByVal price As String, ByVal number_book As String, ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal Installation_list As String _
                                       , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [gps_car] SET "
-            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "end_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
-            Dim TbGps_car() As Object = {company, sim_no, start_date, end_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
+            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
+            Dim TbGps_car() As Object = {company, sim_no, start_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
             For n As Integer = 0 To TbGps_car.Length - 1
                 If Not TbGps_car(n) Is Nothing Then
                     _SQL &= StrTbGps_car(n) & "=N'" & TbGps_car(n) & "',"
@@ -3553,7 +3556,7 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
-        Public Function InsertGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal end_date As String, ByVal reading_data As String _
+        Public Function InsertGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal reading_data As String _
                                       , ByVal usage As String, ByVal price As String, ByVal number_book As String, ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal Installation_list As String _
                                       , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
@@ -3566,7 +3569,6 @@ Namespace Controllers
             _SQL &= "N'" & IIf(company Is Nothing, 0, company) & "',"
             _SQL &= "N'" & IIf(sim_no Is Nothing, 0, sim_no) & "',"
             _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
-            _SQL &= "N'" & IIf(end_date Is Nothing, String.Empty, end_date) & "',"
             _SQL &= "N'" & IIf(reading_data Is Nothing, 0, reading_data) & "',"
             _SQL &= "N'" & IIf(usage Is Nothing, 0, usage) & "',"
             _SQL &= "N'" & IIf(price Is Nothing, 0, price) & "',"
@@ -3588,8 +3590,8 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "end_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
-            Dim TbGps_car() As Object = {company, sim_no, start_date, end_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
+            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
+            Dim TbGps_car() As Object = {company, sim_no, start_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
             For n As Integer = 0 To TbGps_car.Length - 1
                 If Not TbGps_car(n) Is Nothing Then
                     GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
