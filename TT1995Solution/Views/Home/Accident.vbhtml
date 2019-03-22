@@ -1,13 +1,19 @@
 ﻿@Code
-    ViewData("Title") = "เล่มทะเบียน"
+    ViewData("Title") = "Accident"
 End Code
 <style>
+    #gridContainer {
+        width: 100%;
+    }
+
     .custom-file {
         overflow-y: auto;
         height: 100%;
     }
 </style>
-<div> <h4>เล่มทะเบียน</h4> </div>
+<div> <h4>Accident - บันทึกอุบัติเหตุ </h4> </div>
+
+
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
     <div id="context-menu"></div>
@@ -15,60 +21,41 @@ End Code
 <div class="widget-container">
     <div id="popup"></div>
 </div>
-
 @*<div id="popup"></div>*@
 @*<div class="modal" id="mdShowPic">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div id="gallery"></div>
-            </div>
-            
-        </div>
-    </div>
-</div>*@
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="gallery"></div>
+                </div>
 
+            </div>
+        </div>
+    </div>*@
 <!--New File-->
+
 <div class="modal" id="mdNewFile">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <!-- Modal body -->
             <div class="modal-header">
                 <label>เพิ่มไฟล์</label>
-            </div>            
+            </div>
             <div class="modal-body">
-                <div class="row" id="picCar">
-                    <div class="col-5 ml-2">
-                        <div class="form-group">
-                            <select class="form-control" id="positionSelect">
-                                <option value="1">ด้านหน้า</option>
-                                <option value="2">ด้านหลัง</option>
-                                <option value="3">ด้านข้างซ้าย</option>
-                                <option value="4">ด้านข้างขวา</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-5">
-                        <input class="mr-2 mt-2" id="setPosition" type="checkbox" value="">ตั้งค่าตำแหน่งรูปรถ
-                    </div>
-                </div>
-                <div class="row">
+                <div class="row mb-2">
                     <div class="col-sm">
                         <div class="custom-file"></div>
                     </div>
                 </div>
             </div>
-
             <!-- Modal footer -->
             <div class="modal-footer">
                 <button type="button" id="btnSave" class="btn btn-success btn-sm">Save</button>
                 <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
             </div>
-
         </div>
     </div>
 </div>
-
 <!--New Folder-->
 <div class="modal" id="mdNewFolder">
     <div class="modal-dialog modal-dialog-centered">
@@ -92,7 +79,6 @@ End Code
         </div>
     </div>
 </div>
-
 <!--Rename-->
 <div class="modal" id="mdRename">
     <div class="modal-dialog modal-dialog-centered">
@@ -113,32 +99,13 @@ End Code
                     </div>
                 </div>
             </div>
-
             <!-- Modal footer -->
             <div class="modal-footer">
                 <button type="button" id="btnRename" class="btn btn-success">Rename</button>
                 <button type="button" id="btnClose" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
-
         </div>
     </div>
 </div>
 <div id="popup_history"></div>
-
-<script>
-    //Control Read Only and Read Write
-    var boolStatus = false;
-    var permission_status = '@Session("1")'; //1 = Read Only, 2 = Read and Write
-    if (permission_status == 1) {
-        boolStatus = false;
-        $("#context-menu").hide();
-    } else {
-        boolStatus = true;
-        $("#context-menu").show();
-    }
-    console.log(!boolStatus);
-    //End Control
-</script>
-
-<script src="~/scripts/Home/license.js"></script>
-
+<script src="~/scripts/Home/Accident.js"></script>

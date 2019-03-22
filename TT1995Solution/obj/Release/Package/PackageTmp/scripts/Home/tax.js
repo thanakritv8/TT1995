@@ -111,9 +111,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -706,7 +706,7 @@ $(function () {
                     var itemData = fnGetFiles(data[0].Status);
                     fnChangeTreeview(data[0].Status, itemData);
                 } else {
-                    DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้!!!", "error");
                 }
             },
             error: function (error) {
@@ -714,7 +714,7 @@ $(function () {
                 $("#mdNewFile").modal('hide');
                 $("#mdNewFolder").modal('hide');
                 document.getElementById("lbNewFolder").value = '';
-                DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้", "error");
+                DevExpress.ui.notify("ไม่สามารถเพิ่มไฟล์ได้!", "error");
             }
         });
     }

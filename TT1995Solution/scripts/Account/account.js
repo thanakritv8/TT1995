@@ -59,7 +59,7 @@
                 valueExpr: "group_id"
             }
         }];
-        console.log(dataColumn);
+        //console.log(dataColumn);
         dataGrid.option('columns', dataColumn);
     }
 
@@ -91,18 +91,22 @@
             applyFilter: "auto"
         },
         onEditorPreparing(e) {
-            console.log(e);
-            if(e.parentType == "dataRow" && e.dataField == "password")
-                e.editorOptions.mode = 'password';
+            //console.log(e);
+            //if(e.parentType == "dataRow" && e.dataField == "password")
+            //    e.editorOptions.mode = 'password';
         },
         onInitialized: function(e){
-            console.log(e);
+            //console.log(e);
         },
         onRowInserting: function (e) {
             e.data.user_id = fnInsertAccount(e.data);
+            e.data.password = '●●●●●●●●●●●●●●';
         },
         onRowUpdating: function (e) {
+            //console.log(e);
             fnUpdateAccount(e.newData, e.key.user_id);
+            e.newData.password = '●●●●●●●●●●●●●●';
+            //console.log(e);
         },
         onRowRemoving: function (e) {
             fnDeleteAccount(e.key.user_id);
@@ -174,7 +178,7 @@
 
     function fnUpdateAccount(newData, keyItem) {
         newData.user_id = keyItem;
-        console.log(keyItem);
+        //console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Account/UpdateAccount",

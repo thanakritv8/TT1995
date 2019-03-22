@@ -120,9 +120,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -187,6 +187,7 @@ $(function () {
             //        e.data.history = "ประวัติ";
             //    }
             //});
+            e.data.history = "ประวัติ";
             e.data.license_factory_id = fnInsertLicenseFactory(e.data);
 
             //ตัด number_car ออก

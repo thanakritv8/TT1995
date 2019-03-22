@@ -1,10 +1,14 @@
-﻿var itemEditing = [[],[],[],[]];
+﻿
+var itemEditing = [[], []];
+var itemEditing2 = [];
 var columnHide = [];
 var gbTableId = '5';
 var tableName = "product_insurance_company";
 var idFile;
 var gbE;
 var statusUpdateProtection = 0;
+var statusUpdateNotProtection = 0;
+var t;
 //คลิกขวาโชว์รายการ   
 var contextMenuItemsRoot = [
     { text: 'New File' },
@@ -21,7 +25,7 @@ var contextMenuItemsFile = [
     { text: 'Delete' }
 ];
 var OptionsMenu = contextMenuItemsFolder;
-var html_editor_protection;
+var html_editor;
 var html_editor_not_protection;
 $(function () {
     function getDataPic() {
@@ -98,9 +102,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 colCount: 2,
                 items: [{
@@ -112,14 +116,87 @@ $(function () {
                     caption: "ข้อตกลงคุ้มครอง",
                     items: itemEditing[1]
                 }, {
-                    itemType: "group",
-                    caption: "คุ้มครอง",
-                    items: itemEditing[2]
+                    colSpan: 6,
+                    dataField: "สินค้าที่คุ้มครอง",
+                    template: function (e, itemElement) {
+                        var content = "";
+                        if (typeof e.component._options.validationGroup.key.not_protection != "undefined") {
+                            content = e.component._options.validationGroup.key.not_protection
+                        }
+                        itemElement.append($('<div class="html-editor">' + content + '</div>'));
+                        html_editor = $(".html-editor").dxHtmlEditor({
+                            height: 300,
+                            toolbar: {
+                                items: [
+                                    "undo", "redo", "separator",
+                                    {
+                                        formatName: "size",
+                                        formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                    },
+                                    {
+                                        formatName: "font",
+                                        formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                    },
+                                    "separator",
+                                    "bold", "italic", "strike", "underline", "separator",
+                                    "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                    "color", "background"
+                                ]
+                            },
+                            onValueChanged: function (e) {
+                                if (statusUpdateProtection == 0) {
+                                    statusUpdateProtection = 1;
+                                }
+                            }
+                        }).dxHtmlEditor("instance");
+                    },
+                    label: {
+                        location: 'top',
+                        alignment: 'left'
+                    }
                 }, {
-                    itemType: "group",
-                    caption: "ไม่คุ้มครอง",
-                    items: itemEditing[3]
-                }]
+                    colSpan: 6,
+                    dataField: "สินค้าที่ไม่คุ้มครอง",
+                    template: function (e, itemElement) {
+                        var content = "";
+                        if (typeof e.component._options.validationGroup.key.not_protection != "undefined") {
+                            content = e.component._options.validationGroup.key.not_protection
+                        }
+                        itemElement.append($('<div class="html-editor-not-protection">' + content + '</div>'));
+                        html_editor_not_protection = $(".html-editor-not-protection").dxHtmlEditor({
+                            height: 300,
+                            toolbar: {
+                                items: [
+                                    "undo", "redo", "separator",
+                                    {
+                                        formatName: "size",
+                                        formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                    },
+                                    {
+                                        formatName: "font",
+                                        formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                    },
+                                    "separator",
+                                    "bold", "italic", "strike", "underline", "separator",
+                                    "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                    "color", "background"
+                                ]
+                            },
+                            onValueChanged: function (e) {
+                                if (statusUpdateNotProtection == 0) {
+                                    statusUpdateNotProtection = 1;
+                                }
+                            }
+                        }).dxHtmlEditor("instance");
+                    },
+                    label: {
+                        location: 'top',
+                        alignment: 'left'
+                    }
+                }
+                //JSON.stringify(itemEditing2[0])
+                ]
+                //items: [JSON.stringify(itemEditing2[0])]
             },
             popup: {
                 title: "รายการบริษัทประกันสินค้า",
@@ -138,10 +215,13 @@ $(function () {
                             ////console.log(gbE);
                             ////console.log(dataGrid);
                             if (typeof gbE != "undefined") {
-                                if (statusUpdateProtection == 2) {
-                                    updateProtection(gbE.data.pic_id, html_editor_protection.option("value"));
+                                if (statusUpdateProtection == 1) {
+                                    updateProtection(gbE.data.pic_id, html_editor.option("value"));
+                                    gbE.data.protection = html_editor.option("value");
+                                }
+
+                                if (statusUpdateNotProtection == 1) {
                                     updateNotProtection(gbE.data.pic_id, html_editor_not_protection.option("value"));
-                                    gbE.data.protection = html_editor_protection.option("value");
                                     gbE.data.not_protection = html_editor_not_protection.option("value");
                                 }
                             }
@@ -175,33 +255,51 @@ $(function () {
             visible: true
         },
         onEditingStart: function (e) {
+            //alert(e.key.protection);
+            //alert(e.key.not_protection);
+            //if (e.key.protection == null) {
+            //    statusUpdateProtection = 1;
+            //} else {
+            //    statusUpdateProtection = 0;
+            //}
+
+            //if (e.key.not_protection == null) {
+            //    statusUpdateNotProtection = 1;
+            //} else {
+            //    statusUpdateNotProtection = 0;
+            //}
             statusUpdateProtection = 0;
+            statusUpdateNotProtection = 0;
             gbE = e;
-        }, onEditorPrepared: function (e) {
+        }
+        //,
+        //onEditorPrepared: function (e) {
 
-            if (typeof html_editor_protection != "undefined" && typeof html_editor_not_protection != "undefined") {
-                //console.log(e.row.key.protection);
-                //console.log(e.row.key.not_protection);
-                //console.log(html_editor_protection);
-                //console.log(html_editor_not_protection);
-                //html_editor_protection.option("value",'test');
-                html_editor_not_protection.option("value", '1');
-            }
+        //    if (typeof html_editor != "undefined" && typeof e.row != "undefined") {
+        //        alert(html_editor);
+        //        alert(e.row.key.protection);
 
-        },
+        //        //console.log(e.row.key.protection);
+        //        html_editor.option("value", e.row.key.protection);
+        //        console.log(html_editor);
+        //    }
+
+        //}
+        ,
         onInitNewRow: function (e) {
         },
         onRowUpdating: function (e) {
             fnUpdatePIC(e.newData, e.key.pic_id);
+
         },
         onRowInserting: function (e) {
 
+
+            e.data.pic_id = fnInsertPIC(e.data, html_editor.option("value"));
             e.data.history = "ประวัติ";
             e.data.protection_view = "View";
-            e.data.not_protection_view = "View";
-            e.data.pic_id = fnInsertPIC(e.data, html_editor_protection.option("value"), html_editor_not_protection.option("value"));
-            e.data.protection = html_editor_protection.option("value");
-            e.data.not_protection = html_editor_not_protection.option("value");
+            e.data.protection = html_editor.option("value");
+
 
         },
         onRowRemoving: function (e) {
@@ -473,6 +571,20 @@ $(function () {
                 ndata++;
                 //จบการตั้งค่าโชว์ Dropdown
 
+                //popup
+                data[0].cellTemplate = function (container, options) {
+                    $('<a style="color:green" />').addClass('dx-link')
+                            .text(options.value)
+                            .on('dxclick', function () {
+                                popup_data.option("contentTemplate", null);
+                                popup_data._options.contentTemplate = function (content) {
+                                    content.append("<div><table border=1 width='100%'><tr class='black white-text' ><td width='35%' align='left'>จำนวนเงินจำกัดความรับผิดสำหรับค่าสินไหมทดแทน</td></tr><tr ><td valign='top'>1. จำนวนเงินจำกัดความรับผิดชอบรวม " + options.data.t1 + " บาท<br>2. จำนวนเงินจำกัดความรับผิดต่อการเรียกร้องหรือต่ออุบัติเหตุแต่ละครั้ง " + options.data.t2 + " บาท<br>3. จำนวนเงินจำกัดความรับผิดต่อหนึ่งยานพาหนะ " + options.data.t3 + " บาท<br>4. จำนวนเงินจำกัดความรับผิดเพื่อการส่งมอบชักช้าต่อการเรียกร้องหรือต่ออุบัติเหตุแต่ละครั้งและต่อหนึ่งยานพาหนะ " + options.data.t4 + " บาท</td></tr></table></div>")
+                                }
+                                $("#popup_data").dxPopup("show");
+                            })
+                            .appendTo(container);
+                }
+
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
                 if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "pic_id" && item.dataField != "history" && item.dataField != "protection_view" && item.dataField != "not_protection_view") {
                     if (item.group_field == "1") {
@@ -494,85 +606,6 @@ $(function () {
                                 location: item.location,
                                 alignment: item.alignment
                             }
-                        });
-                    } else if (item.group_field == "3") {
-                        itemEditing[2].push({
-                            colSpan: 6,
-                            dataField: "สินค้าที่คุ้มครอง",
-                            template: function (data, itemElement) {
-                                itemElement.append($('<div class="html-editor-protection"></div>'));
-                                html_editor_protection = $(".html-editor-protection").dxHtmlEditor({
-                                    height: 300,
-                                    toolbar: {
-                                        items: [
-                                            "undo", "redo", "separator",
-                                            {
-                                                formatName: "size",
-                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
-                                            },
-                                            {
-                                                formatName: "font",
-                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
-                                            },
-                                            "separator",
-                                            "bold", "italic", "strike", "underline", "separator",
-                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
-                                            "color", "background"
-                                        ]
-                                    },
-                                    onValueChanged: function (e) {
-                                        if (statusUpdateProtection == 0) {
-                                            statusUpdateProtection = 1;
-                                        } else if (statusUpdateProtection = 1) {
-                                            statusUpdateProtection = 2;
-                                        }
-                                    }
-                                }).dxHtmlEditor("instance");
-                            },
-                            label: {
-                                location: item.location,
-                                alignment: item.alignment
-                            }
-                        });
-                    } else if (item.group_field == "4") {
-
-                        itemEditing[3].push({
-                            colSpan: 6,
-                            dataField: "สินค้าที่ไม่คุ้มครอง",
-                            template: function (data, itemElement) {
-                                itemElement.append($('<div class="html-editor-not-protection"></div>'));
-                                html_editor_not_protection = $(".html-editor-not-protection").dxHtmlEditor({
-                                    height: 300,
-                                    toolbar: {
-                                        items: [
-                                            "undo", "redo", "separator",
-                                            {
-                                                formatName: "size",
-                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
-                                            },
-                                            {
-                                                formatName: "font",
-                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
-                                            },
-                                            "separator",
-                                            "bold", "italic", "strike", "underline", "separator",
-                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
-                                            "color", "background"
-                                        ]
-                                    },
-                                    onValueChanged: function (e) {
-                                        if (statusUpdateProtection == 0) {
-                                            statusUpdateProtection = 1;
-                                        } else if (statusUpdateProtection = 1) {
-                                            statusUpdateProtection = 2;
-                                        }
-                                    }
-                                }).dxHtmlEditor("instance");
-                            },
-                            label: {
-                                location: item.location,
-                                alignment: item.alignment
-                                }
                         });
                     }
 
@@ -608,11 +641,10 @@ $(function () {
     }
 
     //Function Insert ข้อมูล gps_company
-    function fnInsertPIC(dataGrid, dataHtmlEditorProtection, dataHtmlEditorNotProtection) {
+    function fnInsertPIC(dataGrid, dataHtmlEditorProtection) {
         //console.log(dataGrid);
         dataGrid.IdTable = gbTableId;
         dataGrid.DataHtmlEditorProtection = dataHtmlEditorProtection;
-        dataGrid.dataHtmlEditorNotProtection = dataHtmlEditorNotProtection;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -897,6 +929,18 @@ $(function () {
             }
         });
     }
+
+    var popup_data = $("#popup_data").dxPopup({
+        visible: false,
+        width: "auto",
+        height: "auto",
+        showTitle: true,
+        title: "รายละเอียด",
+        contentTemplate: function (content) {
+            return $("")
+
+        }
+    }).dxPopup("instance");
 
     var popup_history = $("#popup_history").dxPopup({
         visible: false,

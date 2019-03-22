@@ -86,7 +86,7 @@ Namespace Controllers
         Public Function GetGroup() As String
             Dim dtApp As DataTable = New DataTable
             Using cn = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-                Dim _SQL As String = "SELECT group_id, name as group_name FROM [group]"
+                Dim _SQL As String = "SELECT group_id, name as group_name, remark FROM [group]"
                 dtApp = objDB.SelectSQL(_SQL, cn)
             End Using
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In dtApp.Rows Select dtApp.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -141,7 +141,7 @@ Namespace Controllers
         Public Function GetAccount() As String
             Dim dtApp As DataTable = New DataTable
             Using cn = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-                Dim _SQL As String = "SELECT user_id, username, password, tel, address, firstname, lastname, group_id FROM account"
+                Dim _SQL As String = "SELECT user_id, username, N'●●●●●●●●●●●●●●' as password, tel, address, firstname, lastname, group_id FROM account"
                 dtApp = objDB.SelectSQL(_SQL, cn)
             End Using
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In dtApp.Rows Select dtApp.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -196,6 +196,75 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In dtStatus.Rows Select dtStatus.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
+        Function Group() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        Public Function InsertGroup(ByVal group_name As String, ByVal remark As String) As String
+            If Not remark Is Nothing Then
+                remark = String.Empty
+            End If
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO [group] (name, remark, create_by_user_id) OUTPUT Inserted.group_id VALUES "
+            _SQL &= "('" & group_name & "', '" & remark & "', '" & Session("UserId") & "')"
+            If Not group_name Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteGroup(ByVal keyId As String) As String
+            Dim dtStatus As DataTable = New DataTable
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            cn.Open()
+            Dim _SQL As String = "delete [group] where group_id = " & keyId
+            objDB.ExecuteSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            dtStatus.Columns.Add("Status")
+            dtStatus.Rows.Add("1")
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In dtStatus.Rows Select dtStatus.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Function Settings() As ActionResult
+            Dim HC As HomeController = New HomeController
+            If Session("StatusLogin") = "1" Then
+                'HC.SetDataOfConfigColumnData()
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        Public Function ChangePassword(ByVal Password As String, ByVal Old_Password As String)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT * FROM [account] WHERE user_id = '" & Session("UserId") & "' AND password = '" & EncryptSHA256Managed(Old_Password) & "'"
+            Dim DtAccount As DataTable = objDB.SelectSQL(_SQL, cn)
+            If DtAccount.Rows.Count > 0 Then
+                Dim _SQL_U As String = "UPDATE [account] SET password = '" & EncryptSHA256Managed(Password) & "' where user_id =" & Session("UserId")
+                If objDB.ExecuteSQL(_SQL_U, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Else
+                DtJson.Rows.Add("0")
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 #End Region
 
         '#Region "Account"

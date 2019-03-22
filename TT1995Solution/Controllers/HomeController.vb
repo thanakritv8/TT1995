@@ -2353,6 +2353,7 @@ Namespace Controllers
         'Global Function(Tew)
         Dim GbFn As GlobalFunction = New GlobalFunction
 
+
 #Region "Main Insurance"
         Function MainInsurance() As ActionResult
             If Session("StatusLogin") = "1" Then
@@ -3860,8 +3861,8 @@ Namespace Controllers
             End If
         End Function
         'Get data of table Accident
-        Public Function GetAccidentData() As String
-            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history   FROM [dbo].[accident] acd , [dbo].[license] li where acd.license_id = li.license_id order by li.number_car")
+        Public Function GetAccidentedData() As String
+            Return GbFnPoom.GetData("SELECT acded.acded_id,acded.license_id AS number_car,acded.license_id AS number_car,mi.insurance_company as insurance_company ,mi.start_date start_date ,mi.end_date AS end_date ,li.license_car,li.number_car  FROM  accidented acded inner join  license  li  on acded.license_id = li.license_id inner join main_insurance mi  on  acded.license_id = mi.license_id ")
         End Function
 
         'Rename Folder or Files(pic,pdf)

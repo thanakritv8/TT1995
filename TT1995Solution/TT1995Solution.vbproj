@@ -1714,6 +1714,7 @@
     <None Include="My Project\PublishProfiles\AppTT1995 - Web Deploy.pubxml" />
     <None Include="My Project\PublishProfiles\tt1995 - FTP.pubxml" />
     <None Include="My Project\PublishProfiles\tt1995 - Web Deploy.pubxml" />
+    <None Include="My Project\PublishProfiles\TT1995.pubxml" />
     <None Include="My Project\PublishProfiles\TT1995App - FTP.pubxml" />
     <None Include="My Project\PublishProfiles\TT1995App - Web Deploy.pubxml" />
     <None Include="My Project\Settings.settings">
@@ -1752,10 +1753,11 @@
     <Content Include="Views\Home\LicenseV8.vbhtml" />
     <Content Include="Views\Account\Account.vbhtml" />
     <Content Include="Views\Account\Group.vbhtml" />
-    <Content Include="Views\Account\Setting.vbhtml" />
+    <Content Include="Views\Account\Settings.vbhtml" />
     <Content Include="Views\Home\EnvInsCom.vbhtml" />
     <Content Include="Views\Home\LicenseFactory.vbhtml" />
     <Content Include="Views\Account\Permission.vbhtml" />
+    <Content Include="Views\Home\Accident.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
