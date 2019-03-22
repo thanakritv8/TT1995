@@ -97,10 +97,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2015 04:04:30</publishTime>
     </File>
     <File Include="bin/TT1995Solution.dll">
-      <publishTime>03/21/2019 19:10:42</publishTime>
+      <publishTime>03/22/2019 13:44:09</publishTime>
     </File>
     <File Include="bin/TT1995Solution.xml">
-      <publishTime>03/21/2019 19:10:42</publishTime>
+      <publishTime>03/22/2019 13:44:09</publishTime>
     </File>
     <File Include="Content/bootstrap.css">
       <publishTime>01/09/2019 07:18:08</publishTime>
@@ -4558,16 +4558,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/27/2019 15:10:32</publishTime>
     </File>
     <File Include="Img/pic.png">
-      <publishTime>01/27/2019 15:11:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="packages.config">
       <publishTime>01/23/2019 11:38:29</publishTime>
     </File>
     <File Include="scripts/Account/account.js">
-      <publishTime>03/19/2019 21:33:55</publishTime>
+      <publishTime>03/22/2019 11:41:07</publishTime>
     </File>
     <File Include="scripts/Account/group.js">
-      <publishTime>03/19/2019 20:05:49</publishTime>
+      <publishTime>03/21/2019 19:47:05</publishTime>
     </File>
     <File Include="scripts/Account/login.js">
       <publishTime>01/24/2019 15:50:29</publishTime>
@@ -4576,10 +4576,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/19/2019 19:57:26</publishTime>
     </File>
     <File Include="scripts/Account/setting.js">
-      <publishTime>03/19/2019 18:14:18</publishTime>
+      <publishTime>03/22/2019 09:52:17</publishTime>
     </File>
     <File Include="scripts/Home/Accident.js">
-      <publishTime>03/16/2019 23:17:59</publishTime>
+      <publishTime>03/22/2019 08:24:27</publishTime>
     </File>
     <File Include="scripts/Home/actInsCom.js">
       <publishTime>03/21/2019 18:53:47</publishTime>
@@ -4597,7 +4597,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/21/2019 18:55:41</publishTime>
     </File>
     <File Include="scripts/Home/driver.js">
-      <publishTime>03/21/2019 18:56:23</publishTime>
+      <publishTime>03/21/2019 21:46:51</publishTime>
     </File>
     <File Include="scripts/Home/EnvInsCom.js">
       <publishTime>03/21/2019 18:56:38</publishTime>
@@ -4621,7 +4621,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/21/2019 18:58:06</publishTime>
     </File>
     <File Include="scripts/Home/license.js">
-      <publishTime>03/21/2019 16:44:08</publishTime>
+      <publishTime>03/22/2019 13:38:57</publishTime>
     </File>
     <File Include="scripts/Home/licenseV8.js">
       <publishTime>03/21/2019 18:59:42</publishTime>
@@ -4642,7 +4642,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/21/2019 19:00:33</publishTime>
     </File>
     <File Include="scripts/Home/officer_records.js">
-      <publishTime>03/21/2019 19:01:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="scripts/Home/proInsCom.js">
       <publishTime>03/21/2019 19:01:22</publishTime>
@@ -4666,7 +4666,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/19/2019 20:39:16</publishTime>
     </File>
     <File Include="Views/Account/Group.vbhtml">
-      <publishTime>03/19/2019 18:46:24</publishTime>
+      <publishTime>03/21/2019 19:43:39</publishTime>
     </File>
     <File Include="Views/Account/Login.vbhtml">
       <publishTime>01/26/2019 16:39:08</publishTime>
@@ -4677,8 +4677,14 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Views/Account/Setting.vbhtml">
       <publishTime>03/19/2019 18:12:45</publishTime>
     </File>
+    <File Include="Views/Account/Settings.vbhtml">
+      <publishTime>03/22/2019 08:29:06</publishTime>
+    </File>
+    <File Include="Views/Home/Accident.vbhtml">
+      <publishTime>03/21/2019 21:47:58</publishTime>
+    </File>
     <File Include="Views/Home/ActInsCom.vbhtml">
-      <publishTime>03/21/2019 18:42:45</publishTime>
+      <publishTime>03/22/2019 09:31:15</publishTime>
     </File>
     <File Include="Views/Home/actInsurance.vbhtml">
       <publishTime>03/21/2019 18:43:25</publishTime>
@@ -4741,7 +4747,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/21/2019 18:51:46</publishTime>
     </File>
     <File Include="Views/Home/ProInsCom.vbhtml">
-      <publishTime>03/21/2019 18:51:58</publishTime>
+      <publishTime>03/22/2019 12:20:04</publishTime>
     </File>
     <File Include="Views/Home/Tax.vbhtml">
       <publishTime>03/21/2019 18:52:10</publishTime>
@@ -4753,7 +4759,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/04/2019 19:38:15</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.vbhtml">
-      <publishTime>03/21/2019 19:05:10</publishTime>
+      <publishTime>03/22/2019 13:46:55</publishTime>
     </File>
     <File Include="Views/web.config">
       <publishTime>01/15/2019 21:54:59</publishTime>

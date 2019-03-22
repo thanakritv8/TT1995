@@ -25,17 +25,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <style>
         .bg-custom {
-            background-color: rgb(0,128,0); /*rgb(0,128,0)*/
+            background-color: rgb(0,128,0);
+            /*background-color: #1a52c6;*/
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
-
+        
         <a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
-        @*<Button Class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-            <i Class="fas fa-bars" style="color:rgb(16,91,172)"></i>   
-        </Button>*@
+        @*<a class="navbar-brand mr-1 text-muted" href="~/Home/Index">Document Management System</a>*@
         @If Session("StatusLogin") = "1" Then
             @<ul Class="navbar-nav ml-auto">
                 <li Class="nav-item">
@@ -49,7 +48,7 @@
                         <i Class="fas fa-user-circle fa-fw"></i>
                     </a>
                     <div Class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                        <a Class="dropdown-item" href="#">Settings</a>
+                        <a Class="dropdown-item" href="../Account/Settings">Settings</a>
                         <div Class="dropdown-divider"></div>
                         <a Class="dropdown-item" href="../Account/Logout" data-toggle="modal" data-target="#logoutModal">Logout</a>
                     </div>
@@ -59,7 +58,8 @@
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)"> 
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(0,79,162)"> @*0,79,162*@ @*34,139,34*@
+
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
                     <i class="fas fa-home"></i>
@@ -125,7 +125,7 @@
             @<li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
-                    <span Class="text-light">บริษัทประกัน</span>
+                    <span Class="text-light">บริษัท</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     @If Session("8") <> 0 Then @<a Then Class="dropdown-item" href="../Home/ActInsCom">ประกัน พรบ</a>End If
@@ -179,18 +179,18 @@
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
                     @*<a Then Class="dropdown-item" href="../Home/AccidentView">ข้อมูลบันทึกอุบัติเหตุ</a>*@
-                    @*<a Then Class="dropdown-item" href="../Home/Accident">จัดการบันทึกอุบัติเหตุ</a>*@
+                    <a Then Class="dropdown-item" href="#">จัดการบันทึกอุบัติเหตุ</a>
                 </div>
             </li>
             End if
-            @If Session("GroupId") = "1" Then
+            @If Session("GroupId") = "1" Or Session("GroupId") = "3" Then
             @<li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light"> Administrator</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="#">Group</a>
+                    <a Then Class="dropdown-item" href="../Account/Group">Group</a>
                     <a Then Class="dropdown-item" href="../Account/Account">Account</a>
                     <a Then Class="dropdown-item" href="../Account/Permission">Permission</a>
                     <a Then Class="dropdown-item" href="../Manage/Lookup">Manage Lookup</a>

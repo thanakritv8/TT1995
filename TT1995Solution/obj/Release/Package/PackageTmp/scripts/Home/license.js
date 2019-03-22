@@ -53,6 +53,7 @@ $(function () {
                 fileDataPic.append('position', $("#positionSelect").val());
             }
             fnInsertFiles(fileDataPic);
+            
         }
     });
     
@@ -84,6 +85,7 @@ $(function () {
             fileDataPic.append('rename', folderName);
             fileDataPic.append('table_id', 1);
             fnRename(fileDataPic);
+            //showDate();
         } else {
             DevExpress.ui.notify("กรุณากรอกชื่อโฟล์เดอร์", "error");
         }
@@ -470,7 +472,7 @@ $(function () {
                     },
                     //โชว์รายการคลิกขวา
                     onItemContextMenu: function (e) {
-                        var item = e.itemData;
+                        var item = e.node.itemData;
                         if (item.file_id) {
                             name = item.name_file
                             var type_file = item.type_file
@@ -485,6 +487,12 @@ $(function () {
                             }
                             getContextMenu();
                         }
+                    },
+                    onItemExpanded: function (e) {
+                        var item = e.itemData;
+                        showDate();
+                        //console.log(item);
+                        //ExpandedAndCollapsed(item.id, 1);                            
                     },
                 }).dxTreeView("instance");
                 //จบการสร้าง treeview
@@ -555,7 +563,40 @@ $(function () {
             filter: ["fk_id", "=", license_id]
         });
         treeview.option("dataSource", dts);
+        showDate();
     }
+
+    //20190322 Edit Show position
+    
+    function showDate() {
+
+        var dataNode = $(".dx-treeview-node-is-leaf");
+        console.log(dataNode);
+        for (var i = 0; i < dataNode.length; i++) {
+            var str = dataNode[i].innerHTML;
+            if (str.indexOf("badge") == -1) {
+                var positionStart = str.indexOf("<span>");
+                var positionEndStart = str.indexOf("</span>") + 7;
+                var subStr = str.substring(positionStart, positionEndStart);
+                console.log(treeview._options.items);
+                var data_filter = treeview._options.items.filter(element => element.file_id == dataNode[i].dataset.itemId)
+                if (data_filter[0].position != null) {
+                    var dp;
+                    if (data_filter[0].position == 1) {
+                        dp = 'ด้านหน้า';
+                    } else if (data_filter[0].position == 2) {
+                        dp = 'ด้านหลัง';
+                    } else if (data_filter[0].position == 3) {
+                        dp = 'ด้านซ้าย';
+                    } else if (data_filter[0].position == 4) {
+                        dp = 'ด้านขวา';
+                    }
+                    $(".dx-treeview-node-is-leaf")[i].innerHTML = str.replace(subStr, subStr + '<span class="badge badge-success ml-1 mr-2 mt-1" data-toggle="tooltip" title="ตำแหน่ง" style="float:right;">' + dp + '</span>');
+                }
+            }
+        }
+    }
+
 
     //Function Insert ข้อมูลทะเบียน
     function fnInsertLicense(dataGrid) {

@@ -31,10 +31,10 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand navbar-dark bg-light static-top">
+    <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
         
-        @*<a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>*@
-        <a class="navbar-brand mr-1 text-muted" href="~/Home/Index">Document Management System</a>
+        <a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
+        @*<a class="navbar-brand mr-1 text-muted" href="~/Home/Index">Document Management System</a>*@
         @If Session("StatusLogin") = "1" Then
             @<ul Class="navbar-nav ml-auto">
                 <li Class="nav-item">
