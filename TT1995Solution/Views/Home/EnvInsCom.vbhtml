@@ -107,5 +107,11 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d5").next().toggle();
+    $(".d5").click(function (e) {
+        e.stopPropagation();
+        $(".d5").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/EnvInsCom.js"></script>

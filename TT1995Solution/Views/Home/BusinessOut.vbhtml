@@ -54,6 +54,12 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d2").next().toggle();
+    $(".d2").click(function (e) {
+        e.stopPropagation();
+        $(".d2").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/business_out.js"></script>
 

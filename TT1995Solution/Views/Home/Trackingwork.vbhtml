@@ -114,5 +114,11 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d7").next().toggle();
+    $(".d7").click(function (e) {
+        e.stopPropagation();
+        $(".d7").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/Trackingwork.js"></script>

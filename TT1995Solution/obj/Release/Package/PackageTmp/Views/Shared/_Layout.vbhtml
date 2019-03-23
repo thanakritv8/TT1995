@@ -58,7 +58,7 @@
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(0,79,162)"> @*0,79,162*@ @*34,139,34*@
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)"> @*0,79,162*@ @*34,139,34*@
 
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
@@ -171,7 +171,7 @@
             </li>
             End If
             
-            @If Session("26") <> 0 Then
+            @If Session("26") <> 3 Then
             @<li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>

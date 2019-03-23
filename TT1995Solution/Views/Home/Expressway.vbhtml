@@ -114,5 +114,11 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d6").next().toggle();
+    $(".d6").click(function (e) {
+        e.stopPropagation();
+        $(".d6").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/Expressway.js"></script>

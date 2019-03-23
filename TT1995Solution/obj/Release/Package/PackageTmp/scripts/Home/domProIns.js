@@ -221,7 +221,6 @@ $(function () {
             e.data.dpi_id = fnInsertDPI(e.data, html_editor.option("value"));
             e.data.first_damages_view = 'View';
             e.data.first_damages = html_editor.option("value");
-            alert(html_editor.option("value"));
             e.data.history = "ประวัติ";
 
             //ตัด number_car ออก

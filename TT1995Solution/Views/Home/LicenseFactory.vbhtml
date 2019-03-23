@@ -55,6 +55,12 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d3").next().toggle();
+    $(".d3").click(function (e) {
+        e.stopPropagation();
+        $(".d3").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/license_factory.js"></script>
 

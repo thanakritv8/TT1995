@@ -2386,6 +2386,11 @@ Namespace Controllers
                     _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
                     GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
                 End If
+                If StrTbAI(n) = "status" Then
+                    If Not TbAI(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
+                End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE mi_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
@@ -2480,6 +2485,11 @@ Namespace Controllers
                 If Not TbDPI(n) Is Nothing Then
                     _SQL &= StrTbDPI(n) & "=N'" & TbDPI(n) & "',"
                     GbFn.KeepLog(StrTbDPI(n), TbDPI(n), "Editing", IdTable, key)
+                End If
+                If StrTbDPI(n) = "status" Then
+                    If Not TbDPI(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE dpi_id = " & key
@@ -2593,6 +2603,11 @@ Namespace Controllers
                     _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
                     GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
                 End If
+                If StrTbAI(n) = "status" Then
+                    If Not TbAI(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
+                End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE ai_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
@@ -2686,6 +2701,11 @@ Namespace Controllers
                 If Not TbEI(n) Is Nothing Then
                     _SQL &= StrTbEI(n) & "=N'" & TbEI(n) & "',"
                     GbFn.KeepLog(StrTbEI(n), TbEI(n), "Editing", IdTable, key)
+                End If
+                If StrTbEI(n) = "status" Then
+                    If Not TbEI(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE ei_id = " & key
