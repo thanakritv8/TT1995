@@ -36,9 +36,7 @@ $(function () {
             async: false,
             success: function (data) {
                 //console.log(data);
-                for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
+                for (var i = 0; i < data.length; i++) { 
 
                     var d = parseJsonDate(data[i].start_date);
                     data[i].start_date = d;
@@ -46,9 +44,7 @@ $(function () {
                     var d = parseJsonDate(data[i].last_date);
                     data[i].last_date = d;
                     var d = parseJsonDate(data[i].postponement_itm);
-                    data[i].postponement_itm = d;
-                    var d = parseJsonDate(data[i].update_date);
-                    data[i].update_date = d;
+                    data[i].postponement_itm = d; 
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -156,10 +152,14 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdateInstallment(e.newData, e.key.itm_id);
+            if (fnUpdateInstallment(e.newData, e.key.itm_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
             console.log(e);
+            var st = fnInsertInstallment(e.data);
+            if (st != 0) {
             $.ajax({
                 type: "POST",
                 url: "../Home/GetLicenseCarPoom",
@@ -179,9 +179,15 @@ $(function () {
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
             filter();
             setDefaultNumberCar();
+            }
+            else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteInstallment(e.key.itm_id);
+            filter();
+
+            e.cancel = fnDeleteInstallment(e.key.itm_id);
 
             ////กรองอาเรย์
             dataGridAll.forEach(function (filterdata) {
@@ -632,7 +638,7 @@ $(function () {
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
-        maxFileSize: 4000000,
+        maxFileSize: 10000000,
         multiple: true,
         allowedFileExtensions: [".pdf", ".jpg", ".jpeg", ".png"],
         accept: "image/*,.pdf",
@@ -682,6 +688,7 @@ $(function () {
     //Function Update ข้อมูล Installment
     function fnUpdateInstallment(newData, keyItem) {
         console.log(keyItem);
+        var boolUpd = false;
         newData.key = keyItem;
         newData.IdTable = gbTableId;
         $.ajax({
@@ -693,11 +700,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    boolUpd = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
-                }
+                    boolUpd = false;
+                } 
             }
         });
+        return boolUpd;
     }
 
     //Function Insert ข้อมูล Installment
@@ -717,7 +727,7 @@ $(function () {
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
-                }
+                } 
             }
         });
         return returnId;
@@ -725,6 +735,7 @@ $(function () {
 
     //Function Delete ข้อมูล Installment
     function fnDeleteInstallment(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteInstallment",
@@ -734,11 +745,15 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
+
             }
         });
+        return boolDel;
     }
 
     var popup_history = $("#popup_history").dxPopup({

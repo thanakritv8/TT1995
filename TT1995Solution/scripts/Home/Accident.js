@@ -41,11 +41,7 @@ $(function () {
                     var d = parseJsonDate(data[i].acd_date);
                     data[i].acd_date = d;
 
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
 
-                    var d = parseJsonDate(data[i].update_date);
-                    data[i].update_date = d;
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -141,22 +137,27 @@ $(function () {
         },
         onInitNewRow: function (e) {
             filter();
-            //console.log(dataGrid._options.columns[0].lookup.dataSource);
             var arr = {
                 dataSource: dataLookupFilter,
                 displayExpr: "number_car",
                 valueExpr: "number_car"
             }
 
-            dataGrid.option('columns[0].lookup', arr);
+            //dataGrid.option('columns[0].lookup', arr);
 
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdateAccident(e.newData, e.key.acd_id);
+            if (fnUpdateAccident(e.newData, e.key.acd_id)) {
+                e.newData = e.oldData;
+            }
+          
+            
         },
         onRowInserting: function (e) {
             console.log(e);
+            var st = fnInsertAccident(e.data);
+            if (st != 0) {
             $.ajax({
                 type: "POST",
                 url: "../Home/GetLicenseCarPoom",
@@ -169,16 +170,22 @@ $(function () {
                     e.data.license_id = data[0].license_id;
                     e.data.history = "ประวัติ";
                 }
-            });
+            });   
             e.data.acd_id = fnInsertAccident(e.data);
-
             ////ตัด number_car ออก
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
             filter();
             setDefaultNumberCar();
+              }
+                 else {
+              e.data = null;
+            } 
+        
         },
         onRowRemoving: function (e) {
-            fnDeleteAccident(e.key.acd_id);
+            filter();
+
+            e.cancel = fnDeleteAccident(e.key.acd_id);
 
             ////กรองอาเรย์
             dataGridAll.forEach(function (filterdata) {
@@ -629,7 +636,7 @@ $(function () {
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
-        maxFileSize: 4000000,
+        maxFileSize: 10000000,
         multiple: true,
         allowedFileExtensions: [".pdf", ".jpg", ".jpeg", ".png"],
         accept: "image/*,.pdf",
@@ -679,6 +686,7 @@ $(function () {
     //Function Update ข้อมูล Accident
     function fnUpdateAccident(newData, keyItem) {
         console.log(keyItem);
+        var boolUpd = false;
         newData.key = keyItem;
         newData.IdTable = gbTableId;
         $.ajax({
@@ -690,11 +698,15 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    boolUpd = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpd = false;
                 }
+                
             }
         });
+        return boolUpd;
     }
 
     //Function Insert ข้อมูล Accident
@@ -714,7 +726,8 @@ $(function () {
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
-                }
+
+                } 
             }
         });
         return returnId;
@@ -722,6 +735,8 @@ $(function () {
 
     //Function Delete ข้อมูล Accident
     function fnDeleteAccident(keyItem) {
+
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteAccident",
@@ -731,11 +746,15 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    boolDel = true; 
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false; 
                 }
+            
             }
         });
+        return boolDel;
     }
 
     var popup_history = $("#popup_history").dxPopup({

@@ -46,12 +46,7 @@ $(function () {
 
                     var d = parseJsonDate(data[i].endschedule);
                     data[i].endschedule = d;
-
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
-
-                    var d = parseJsonDate(data[i].update_date);
-                    data[i].update_date = d;
+               
                 }
                 //dataGrid.option('dataSource', data);
             }

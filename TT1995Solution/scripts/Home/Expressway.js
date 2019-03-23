@@ -36,9 +36,7 @@ $(function () {
             async: false,
             success: function (data) {
                 //console.log(data);
-                for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
+                for (var i = 0; i < data.length; i++) { 
 
                     var d = parseJsonDate(data[i].start_date);
                     data[i].start_date = d;
@@ -90,6 +88,9 @@ $(function () {
             width: 240,
             placeholder: "Search..."
         },
+        scrolling: {
+            mode: "standard"
+        },
         showBorders: true,
         columnChooser: {
             enabled: true,
@@ -118,9 +119,9 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
-                onHidden: function (e) {
-                    setDefaultNumberCar();
-                }
+                //onHidden: function (e) {
+                //    setDefaultNumberCar();
+                //}
             },
             useIcons: true,
         },
@@ -152,10 +153,14 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdateExpressway(e.newData, e.key.epw_id);
+            if (fnUpdateExpressway(e.newData, e.key.epw_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
             console.log(e);
+            var st = fnInsertExpressway(e.data);
+            if (st != 0) {
             $.ajax({
                 type: "POST",
                 url: "../Home/GetLicenseCarPoom",
@@ -175,9 +180,15 @@ $(function () {
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
             filter();
             setDefaultNumberCar();
+            }
+            else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteExpressway(e.key.epw_id);
+            filter();
+
+            e.cancel = fnDeleteExpressway(e.key.epw_id);
 
             ////กรองอาเรย์
             dataGridAll.forEach(function (filterdata) {
@@ -628,7 +639,7 @@ $(function () {
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
-        maxFileSize: 4000000,
+        maxFileSize: 10000000,
         multiple: true,
         allowedFileExtensions: [".pdf", ".jpg", ".jpeg", ".png"],
         accept: "image/*,.pdf",
@@ -678,6 +689,7 @@ $(function () {
     //Function Update ข้อมูล Expressway
     function fnUpdateExpressway(newData, keyItem) {
         console.log(keyItem);
+        var boolUpd = false;
         newData.key = keyItem;
         newData.IdTable = gbTableId;
         $.ajax({
@@ -689,11 +701,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    boolUpd = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
-                }
+                    boolUpd = false;
+                } 
             }
         });
+        return boolUpd;
     }
 
     //Function Insert ข้อมูล Expressway
@@ -713,7 +728,7 @@ $(function () {
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
-                }
+                } 
             }
         });
         return returnId;
@@ -721,6 +736,7 @@ $(function () {
 
     //Function Delete ข้อมูล Expressway
     function fnDeleteExpressway(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteExpressway",
@@ -729,12 +745,16 @@ $(function () {
             dataType: "json",
             success: function (data) {
                 if (data[0].Status == 1) {
-                    DevExpress.ui.notify("ลบข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
+
             }
         });
+        return boolDel;
     }
 
     var popup_history = $("#popup_history").dxPopup({
