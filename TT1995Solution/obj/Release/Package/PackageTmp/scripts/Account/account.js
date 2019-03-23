@@ -99,17 +99,24 @@
             //console.log(e);
         },
         onRowInserting: function (e) {
-            e.data.user_id = fnInsertAccount(e.data);
-            e.data.password = '●●●●●●●●●●●●●●';
+            //console.log(e);
+            var statusInsert = fnInsertAccount(e.data);
+            if (statusInsert != '0') {
+                e.data.user_id = statusInsert;
+                e.data.password = '●●●●●●●●●●●●●●';
+            } else {
+                e.data = null;
+            }
         },
         onRowUpdating: function (e) {
-            //console.log(e);
-            fnUpdateAccount(e.newData, e.key.user_id);
+            if (!fnUpdateAccount(e.newData, e.key.user_id)) {
+                e.newData = e.oldData;
+            }
             e.newData.password = '●●●●●●●●●●●●●●';
-            //console.log(e);
+            
         },
         onRowRemoving: function (e) {
-            fnDeleteAccount(e.key.user_id);
+            e.cancel = !fnDeleteAccount(e.key.user_id)
         },
         selection: {
             mode: "single"
@@ -155,7 +162,7 @@
     }
 
     function fnDeleteAccount(keyItem) {
-        console.log(keyItem);
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Account/DeleteAccount",
@@ -166,19 +173,24 @@
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
+                
             },
             error: function (request, status, error) {
-                console.log(request);
+                //console.log(request);
+                boolDel = false;
             }
         });
+        return boolDel;
     }
 
     function fnUpdateAccount(newData, keyItem) {
+        var boolUpdate = false;
         newData.user_id = keyItem;
-        //console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Account/UpdateAccount",
@@ -189,11 +201,15 @@
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
-                }
-            }
+                    boolUpdate = false;
+                }                
+            }            
         });
+        return boolUpdate;
+
     }
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts

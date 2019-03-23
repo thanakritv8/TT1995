@@ -457,30 +457,29 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertTax(ByVal license_id As String, ByVal tax_expire As DateTime, ByVal tax_rate As String, ByVal tax_startdate As DateTime, ByVal tax_status As String, ByVal special_expenses_1 As String, ByVal special_expenses_2 As String, ByVal contract_wages As String, ByVal IdTable As String) As String
+        Public Function InsertTax(ByVal license_id As String, ByVal tax_expire As String, ByVal tax_rate As String, ByVal tax_startdate As String, ByVal tax_status As String, ByVal special_expenses_1 As String, ByVal special_expenses_2 As String, ByVal contract_wages As String, ByVal IdTable As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "INSERT INTO tax (tax_expire, tax_startdate, tax_rate, tax_status, license_id, create_by_user_id, create_date, special_expenses_1, special_expenses_2, contract_wages) OUTPUT Inserted.tax_id VALUES "
             _SQL &= "('" & tax_expire & "', '" & tax_startdate & "', '" & tax_rate & "', N'" & tax_status & "', '" & license_id & "', '" & Session("UserId") & "', GETDATE(), " & IIf(special_expenses_1 Is Nothing, 0, special_expenses_1) & ", " & IIf(special_expenses_2 Is Nothing, 0, special_expenses_2) & ", " & IIf(special_expenses_2 Is Nothing, 0, contract_wages) & ")"
-            If Not license_id Is Nothing Then
+            If Not license_id Is Nothing And Not tax_expire Is Nothing And Not tax_startdate Is Nothing Then
                 Try
                     DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                    Dim StrTbTax() As String = {"tax_expire", "tax_rate", "tax_startdate", "tax_status", "special_expenses_1", "special_expenses_2", "contract_wages"}
+                    Dim TbTax() As Object = {tax_expire, tax_rate, tax_startdate, tax_status, special_expenses_1, special_expenses_2, contract_wages}
+                    For n As Integer = 0 To TbTax.Length - 1
+                        If Not TbTax(n) Is Nothing Then
+                            GbFn.KeepLog(StrTbTax(n), TbTax(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                        End If
+                    Next
                 Catch ex As Exception
                     DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
                 End Try
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
-            Dim StrTbTax() As String = {"tax_expire", "tax_rate", "tax_startdate", "tax_status", "special_expenses_1", "special_expenses_2", "contract_wages"}
-            Dim TbTax() As Object = {tax_expire, tax_rate, tax_startdate, tax_status, special_expenses_1, special_expenses_2, contract_wages}
-            For n As Integer = 0 To TbTax.Length - 1
-                If Not TbTax(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbTax(n), TbTax(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))

@@ -419,14 +419,22 @@ $(function () {
             visible: true
         },
         onRowUpdating: function (e) {
-            fnUpdateLicense(e.newData, e.key.license_id);
+            if (!fnUpdateLicense(e.newData, e.key.license_id)) {
+                e.newData = e.oldData;
+            }
+            
         },
         onRowInserting: function (e) {
-            e.data.license_id = fnInsertLicense(e.data);
-            e.data.history = "ประวัติ";
+            var statusInsert = fnInsertLicense(e.data);
+            if (statusInsert != '0') {
+                e.data.license_id = statusInsert;
+                e.data.history = "ประวัติ";
+            } else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteLicense(e.key.license_id);
+            e.cancel = !fnDeleteLicense(e.key.license_id);
         },
         masterDetail: {
             enabled: false,
@@ -630,6 +638,7 @@ $(function () {
 
     //Function Update ข้อมูลทะเบียน
     function fnUpdateLicense(newData, keyItem) {
+        var boolUpdate = false;
         newData.key = keyItem;
         newData.IdTable = gbTableId;
         $.ajax({
@@ -641,15 +650,19 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     //Function Delete ข้อมูลทะเบียน
     function fnDeleteLicense(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLicense",
@@ -659,11 +672,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการจดทะเบียนเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     //Function Insert file in treeview

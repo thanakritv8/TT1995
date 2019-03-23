@@ -43,10 +43,15 @@
             applyFilter: "auto"
         },
         onRowInserting: function (e) {
-            e.data.group_id = fnInsertGroup(e.data);
+            var statusInsert = fnInsertGroup(e.data);
+            if (statusInsert != '0') {
+                e.data.group_id = statusInsert;
+            } else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteGroup(e.key.group_id);
+            e.cancel = !fnDeleteGroup(e.key.group_id);
         },
         selection: {
             mode: "single"
@@ -61,7 +66,7 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 dataGrid.option('dataSource', data);
                 //console.log(data);
             }
@@ -93,7 +98,7 @@
     }
 
     function fnDeleteGroup(keyItem) {
-        console.log(keyItem);
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Account/DeleteGroup",
@@ -104,14 +109,18 @@
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             },
             error: function (request, status, error) {
-                console.log(request);
+                //console.log(request);
+                boolDel = false
             }
         });
+        return boolDel;
     }
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts
