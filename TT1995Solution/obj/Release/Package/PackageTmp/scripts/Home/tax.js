@@ -164,9 +164,8 @@ $(function () {
             dataGrid.option('columns[0].lookup', arr);
         },
         onRowUpdating: function (e) {
-            if (!fnUpdateTax(e.newData, e.key.tax_id)) {
-                e.newData = e.oldData;
-            }
+            e.cancel = !fnUpdateTax(e.newData, e.key.tax_id);
+            
         },
         onRowInserting: function (e) {
 
@@ -189,8 +188,9 @@ $(function () {
                 filter();
                 setDefaultNumberCar();
             } else {
-                e.data = null;
+                e.cancel = true;
             }
+            
         },
         onRowRemoving: function (e) {
             if (!fnDeleteTax(e.key.tax_id)) {
@@ -668,6 +668,7 @@ $(function () {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลภาษีเรียบร้อยแล้ว", "success");
@@ -683,20 +684,25 @@ $(function () {
 
     //Function Delete ข้อมูลภาษี
     function fnDeleteTax(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteTax",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     //Function Insert file in treeview
