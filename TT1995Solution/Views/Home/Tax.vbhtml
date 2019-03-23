@@ -6,6 +6,9 @@ End Code
         overflow-y: auto;
         height: 100%;
     }
+    #gridContainer{
+        width: 100%;
+    }
 </style>
 <div> <h4>ภาษี</h4> </div>
 <div>

@@ -78,7 +78,8 @@ $(function () {
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
-
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         dataSource: getDataEi(),
         searchPanel: {
             visible: true,

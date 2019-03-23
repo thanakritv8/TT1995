@@ -88,6 +88,8 @@ $(function () {
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         dataSource: GetTrackingworkData(),
         onContentReady: function (e) {
             //filter();

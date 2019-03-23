@@ -39,6 +39,8 @@ $(function () {
     //จบการกำหนด Upload files
 
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         showBorders: true,
         searchPanel: {
             visible: true,

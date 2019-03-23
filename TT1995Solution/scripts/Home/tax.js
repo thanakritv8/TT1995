@@ -90,6 +90,8 @@ $(function () {
         onContentReady: function (e) {
             filter();
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         searchPanel: {
             visible: true,
             width: 240,

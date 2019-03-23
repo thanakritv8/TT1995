@@ -15,6 +15,8 @@
             allowedPageSizes: [5, 10, 20],
             showInfo: true
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         editing: {
             mode: "row",
             allowDeleting: boolStatus,

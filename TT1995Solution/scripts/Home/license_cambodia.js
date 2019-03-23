@@ -48,6 +48,8 @@ $(function () {
         selection: {
             mode: "single"
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         editing: {
             mode: "popup",
             allowUpdating: boolStatus,

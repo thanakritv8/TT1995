@@ -90,6 +90,8 @@ $(function () {
     dataGridAll = getLv8();
     console.log(dataGridAll);
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         dataSource: getLv8(),
         showBorders: true,
         selection: {

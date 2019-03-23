@@ -84,6 +84,8 @@ $(function () {
 
     //กำหนดการแสดงผลของ datagrid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         dataSource: dataGridAll,
         onContentReady: function (e) {
             filter();
