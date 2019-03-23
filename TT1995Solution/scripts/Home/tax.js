@@ -164,8 +164,9 @@ $(function () {
             dataGrid.option('columns[0].lookup', arr);
         },
         onRowUpdating: function (e) {
-            fnUpdateTax(e.newData, e.key.tax_id);
-            
+            if (!fnUpdateTax(e.newData, e.key.tax_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
 
@@ -181,26 +182,31 @@ $(function () {
                     e.data.history = "ประวัติ";
                 }
             });
-            e.data.tax_id = fnInsertTax(e.data);
-
-            //ตัด number_car ออก
-            filter();
-            setDefaultNumberCar();
+            var statusInsert = fnInsertTax(e.data);
+            if (statusInsert != '0') {
+                e.data.tax_id = statusInsert;
+                //ตัด number_car ออก
+                filter();
+                setDefaultNumberCar();
+            } else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteTax(e.key.tax_id);
-
-            //กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
+            if (!fnDeleteTax(e.key.tax_id)) {
+                e.cancel = true;
+            } else {
+                //กรองอาเรย์
+                dataGridAll.forEach(function (filterdata) {
+                    dataGridAll = dataGridAll.filter(function (arr) {
+                        return arr.license_id != e.key.license_id;
+                    });
                 });
-            });
 
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-
-            setDefaultNumberCar();
+                //push array
+                dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+                setDefaultNumberCar();
+            }
         },
         masterDetail: {
             enabled: false,
@@ -652,6 +658,7 @@ $(function () {
 
     //Function Update ข้อมูลภาษี
     function fnUpdateTax(newData, keyItem) {
+        var boolUpdate = false;
         newData.tax_id = keyItem;
         newData.IdTable = gbTableId;
         //console.log(keyItem);
@@ -664,11 +671,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลภาษีเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     //Function Delete ข้อมูลภาษี

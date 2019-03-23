@@ -147,6 +147,10 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In dtApp.Rows Select dtApp.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
         Public Function InsertAccount(ByVal username As String, ByVal password As String, ByVal tel As String, ByVal address As String, ByVal firstname As String, ByVal lastname As String, ByVal group_id As String) As String
+            tel = IIf(tel Is Nothing, String.Empty, tel)
+            address = IIf(address Is Nothing, String.Empty, address)
+            firstname = IIf(firstname Is Nothing, String.Empty, firstname)
+            lastname = IIf(lastname Is Nothing, String.Empty, lastname)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
@@ -168,10 +172,16 @@ Namespace Controllers
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [account] SET "
             Dim StrTbLc() As String = {"username", "password", "tel", "address", "firstname", "lastname", "group_id"}
-            Dim TbLc() As Object = {username, EncryptSHA256Managed(password), tel, address, firstname, lastname, group_id}
+            Dim TbLc() As Object = {username, password, tel, address, firstname, lastname, group_id}
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
-                    _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                    If StrTbLc(n) = "password" Then
+                        _SQL &= StrTbLc(n) & "=N'" & EncryptSHA256Managed(TbLc(n)) & "',"
+                    Else
+                        _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
+                    End If
+
+
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE user_id = " & user_id

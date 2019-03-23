@@ -37,19 +37,13 @@ $(function () {
             async: false,
             success: function (data) {
                 //console.log(data);
-                for (var i = 0; i < data.length; i++) {
 
+                for (var i = 0; i < data.length; i++) {
                     var d = parseJsonDate(data[i].start_date);
                     data[i].start_date = d;
 
                     var d = parseJsonDate(data[i].end_date);
                     data[i].end_date = d;
-
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
-
-                    var d = parseJsonDate(data[i].update_date);
-                    data[i].update_date = d;
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -214,7 +208,8 @@ $(function () {
                     e.data.history = "ประวัติ";
                 }
             });
-            e.data.gps_car_id = fnInsertGps_car(e.data);
+            e.data.Installation_list_view = "View";
+            e.data.gps_car_id = fnInsertGps_car(e.data, html_editor.option("value"));
 
             ////ตัด number_car ออก
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
@@ -222,6 +217,7 @@ $(function () {
             setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
+            filter();
             fnDeleteGps_car(e.key.gps_car_id);
 
             ////กรองอาเรย์
@@ -237,8 +233,6 @@ $(function () {
             setDefaultNumberCar();
 
         },
-        allowColumnResizing: true,
-        columnResizingMode: "widget",
         masterDetail: {
             enabled: false,
             template: function (container, options) {
@@ -806,8 +800,9 @@ $(function () {
     }
 
     //Function Insert ข้อมูล Gps_car
-    function fnInsertGps_car(dataGrid) {
+    function fnInsertGps_car(dataGrid, Installation_list) {
         dataGrid.IdTable = gbTableId;
+        dataGrid.Installation_list = Installation_list;
         var returnId = 0;
         $.ajax({
             type: "POST",

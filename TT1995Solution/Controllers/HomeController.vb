@@ -465,12 +465,11 @@ Namespace Controllers
             Dim _SQL As String = "INSERT INTO tax (tax_expire, tax_startdate, tax_rate, tax_status, license_id, create_by_user_id, create_date, special_expenses_1, special_expenses_2, contract_wages) OUTPUT Inserted.tax_id VALUES "
             _SQL &= "('" & tax_expire & "', '" & tax_startdate & "', '" & tax_rate & "', N'" & tax_status & "', '" & license_id & "', '" & Session("UserId") & "', GETDATE(), " & IIf(special_expenses_1 Is Nothing, 0, special_expenses_1) & ", " & IIf(special_expenses_2 Is Nothing, 0, special_expenses_2) & ", " & IIf(special_expenses_2 Is Nothing, 0, contract_wages) & ")"
             If Not license_id Is Nothing Then
-                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-                'If objDB.ExecuteSQL(_SQL, cn) Then
-                '    DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-                'Else
-                '    DtJson.Rows.Add("0")
-                'End If
+                Try
+                    DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+                Catch ex As Exception
+                    DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+                End Try
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
