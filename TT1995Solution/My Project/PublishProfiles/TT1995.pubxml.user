@@ -16,25 +16,25 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/15/2019 21:55:56</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.Agent.Intercept.dll">
-      <publishTime>12/07/2015 19:04:38</publishTime>
+      <publishTime>07/12/2015 19:04:38</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.DependencyCollector.dll">
-      <publishTime>03/10/2016 14:26:18</publishTime>
+      <publishTime>10/03/2016 14:26:18</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.PerfCounterCollector.dll">
-      <publishTime>03/10/2016 14:26:26</publishTime>
+      <publishTime>10/03/2016 14:26:26</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.ServerTelemetryChannel.dll">
-      <publishTime>03/09/2016 12:00:14</publishTime>
+      <publishTime>09/03/2016 12:00:14</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.Web.dll">
-      <publishTime>03/10/2016 14:26:26</publishTime>
+      <publishTime>10/03/2016 14:26:26</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.WindowsServer.dll">
-      <publishTime>03/10/2016 14:26:26</publishTime>
+      <publishTime>10/03/2016 14:26:26</publishTime>
     </File>
     <File Include="bin/Microsoft.ApplicationInsights.dll">
-      <publishTime>03/09/2016 11:57:34</publishTime>
+      <publishTime>09/03/2016 11:57:34</publishTime>
     </File>
     <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
       <publishTime>06/15/2015 02:06:24</publishTime>
@@ -103,10 +103,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/22/2019 18:02:25</publishTime>
     </File>
     <File Include="Content/bootstrap.css">
-      <publishTime>01/09/2019 07:18:08</publishTime>
+      <publishTime>09/01/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/bootstrap.min.css">
-      <publishTime>01/09/2019 07:18:08</publishTime>
+      <publishTime>09/01/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/css/sb-admin.css">
       <publishTime>01/10/2019 16:54:39</publishTime>
@@ -118,7 +118,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/10/2019 21:57:32</publishTime>
     </File>
     <File Include="Content/jquery.fileupload.css">
-      <publishTime>01/09/2019 07:18:08</publishTime>
+      <publishTime>09/01/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/js/demo/chart-area-demo.js">
       <publishTime>01/10/2019 16:54:39</publishTime>
@@ -139,16 +139,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/10/2019 16:54:39</publishTime>
     </File>
     <File Include="Content/sb-admin.css">
-      <publishTime>01/09/2019 07:18:08</publishTime>
+      <publishTime>09/01/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/sb-admin.min.css">
       <publishTime>02/13/2019 13:19:18</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>01/09/2019 07:18:08</publishTime>
+      <publishTime>09/01/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/Toast.css">
-      <publishTime>01/09/2019 07:18:08</publishTime>
+      <publishTime>09/01/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/vendor/bootstrap/css/bootstrap-grid.css">
       <publishTime>01/10/2019 16:54:31</publishTime>
@@ -4570,7 +4570,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/21/2019 19:47:05</publishTime>
     </File>
     <File Include="scripts/Account/login.js">
-      <publishTime>01/24/2019 15:50:29</publishTime>
+      <publishTime>03/23/2019 13:41:16</publishTime>
     </File>
     <File Include="scripts/Account/permission.js">
       <publishTime>03/19/2019 19:57:26</publishTime>
@@ -4582,97 +4582,97 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/22/2019 08:24:27</publishTime>
     </File>
     <File Include="scripts/Home/actInsCom.js">
-      <publishTime>03/21/2019 18:53:47</publishTime>
+      <publishTime>03/23/2019 14:11:29</publishTime>
     </File>
     <File Include="scripts/Home/actInsurance.js">
-      <publishTime>03/21/2019 18:54:49</publishTime>
+      <publishTime>03/23/2019 14:11:43</publishTime>
     </File>
     <File Include="scripts/Home/business_in.js">
-      <publishTime>03/21/2019 18:55:23</publishTime>
+      <publishTime>03/23/2019 14:11:56</publishTime>
     </File>
     <File Include="scripts/Home/business_out.js">
-      <publishTime>03/21/2019 18:55:15</publishTime>
+      <publishTime>03/23/2019 14:12:23</publishTime>
     </File>
     <File Include="scripts/Home/domProIns.js">
-      <publishTime>03/22/2019 18:21:25</publishTime>
+      <publishTime>03/23/2019 14:12:35</publishTime>
     </File>
     <File Include="scripts/Home/driver.js">
-      <publishTime>03/21/2019 21:46:51</publishTime>
+      <publishTime>03/23/2019 14:12:48</publishTime>
     </File>
     <File Include="scripts/Home/EnvInsCom.js">
-      <publishTime>03/21/2019 18:56:38</publishTime>
+      <publishTime>03/23/2019 14:12:57</publishTime>
     </File>
     <File Include="scripts/Home/environmentInsurance.js">
-      <publishTime>03/21/2019 18:57:03</publishTime>
+      <publishTime>03/23/2019 14:13:04</publishTime>
     </File>
     <File Include="scripts/Home/Expressway.js">
-      <publishTime>03/21/2019 18:57:18</publishTime>
+      <publishTime>03/23/2019 14:13:08</publishTime>
     </File>
     <File Include="scripts/Home/gpsCompany.js">
-      <publishTime>03/21/2019 18:57:52</publishTime>
+      <publishTime>03/23/2019 14:13:21</publishTime>
     </File>
     <File Include="scripts/Home/Gps_car.js">
-      <publishTime>03/21/2019 18:57:32</publishTime>
+      <publishTime>03/23/2019 14:13:13</publishTime>
     </File>
     <File Include="scripts/Home/index.js">
       <publishTime>03/16/2019 13:25:41</publishTime>
     </File>
     <File Include="scripts/Home/Installment.js">
-      <publishTime>03/21/2019 18:58:06</publishTime>
+      <publishTime>03/23/2019 14:13:40</publishTime>
     </File>
     <File Include="scripts/Home/license.js">
-      <publishTime>03/22/2019 13:38:57</publishTime>
+      <publishTime>03/23/2019 14:24:20</publishTime>
     </File>
     <File Include="scripts/Home/licenseV8.js">
-      <publishTime>03/21/2019 18:59:42</publishTime>
+      <publishTime>03/23/2019 14:14:21</publishTime>
     </File>
     <File Include="scripts/Home/license_cambodia.js">
-      <publishTime>03/21/2019 18:58:37</publishTime>
+      <publishTime>03/23/2019 14:13:47</publishTime>
     </File>
     <File Include="scripts/Home/license_factory.js">
-      <publishTime>03/21/2019 18:58:52</publishTime>
+      <publishTime>03/23/2019 14:14:05</publishTime>
     </File>
     <File Include="scripts/Home/license_mekong_river.js">
-      <publishTime>03/21/2019 18:59:28</publishTime>
+      <publishTime>03/23/2019 14:14:11</publishTime>
     </File>
     <File Include="scripts/Home/mainInsCom.js">
-      <publishTime>03/21/2019 19:00:09</publishTime>
+      <publishTime>03/23/2019 14:14:29</publishTime>
     </File>
     <File Include="scripts/Home/mainInsurance.js">
-      <publishTime>03/21/2019 19:00:33</publishTime>
+      <publishTime>03/23/2019 14:14:35</publishTime>
     </File>
     <File Include="scripts/Home/officer_records.js">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>03/23/2019 14:14:44</publishTime>
     </File>
     <File Include="scripts/Home/proInsCom.js">
-      <publishTime>03/21/2019 19:01:22</publishTime>
+      <publishTime>03/23/2019 14:14:52</publishTime>
     </File>
     <File Include="scripts/Home/tax.js">
-      <publishTime>03/21/2019 19:01:42</publishTime>
+      <publishTime>03/23/2019 14:10:41</publishTime>
     </File>
     <File Include="scripts/Home/Trackingwork.js">
-      <publishTime>03/21/2019 19:02:07</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="scripts/Manage/lookup.js">
       <publishTime>02/11/2019 22:12:54</publishTime>
     </File>
     <File Include="scripts/sb-admin.min.js">
-      <publishTime>09/11/2018 09:15:32</publishTime>
+      <publishTime>11/09/2018 09:15:32</publishTime>
     </File>
     <File Include="Service References/Application Insights/ConnectedService.json">
       <publishTime>01/15/2019 21:55:57</publishTime>
     </File>
     <File Include="Views/Account/Account.vbhtml">
-      <publishTime>03/19/2019 20:39:16</publishTime>
+      <publishTime>03/23/2019 13:31:04</publishTime>
     </File>
     <File Include="Views/Account/Group.vbhtml">
-      <publishTime>03/21/2019 19:43:39</publishTime>
+      <publishTime>03/23/2019 13:31:08</publishTime>
     </File>
     <File Include="Views/Account/Login.vbhtml">
       <publishTime>01/26/2019 16:39:08</publishTime>
     </File>
     <File Include="Views/Account/Permission.vbhtml">
-      <publishTime>03/19/2019 19:08:59</publishTime>
+      <publishTime>03/23/2019 13:31:18</publishTime>
     </File>
     <File Include="Views/Account/Setting.vbhtml">
       <publishTime>03/19/2019 18:12:45</publishTime>
@@ -4684,82 +4684,82 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/21/2019 21:47:58</publishTime>
     </File>
     <File Include="Views/Home/ActInsCom.vbhtml">
-      <publishTime>03/22/2019 09:31:15</publishTime>
+      <publishTime>03/23/2019 13:27:31</publishTime>
     </File>
     <File Include="Views/Home/actInsurance.vbhtml">
-      <publishTime>03/21/2019 18:43:25</publishTime>
+      <publishTime>03/23/2019 13:26:12</publishTime>
     </File>
     <File Include="Views/Home/BusinessIn.vbhtml">
-      <publishTime>03/21/2019 18:47:50</publishTime>
+      <publishTime>03/23/2019 13:23:59</publishTime>
     </File>
     <File Include="Views/Home/BusinessOut.vbhtml">
-      <publishTime>03/21/2019 18:47:36</publishTime>
+      <publishTime>03/23/2019 13:23:51</publishTime>
     </File>
     <File Include="Views/Home/domProIns.vbhtml">
-      <publishTime>03/21/2019 18:43:44</publishTime>
+      <publishTime>03/23/2019 13:26:49</publishTime>
     </File>
     <File Include="Views/Home/Driver.vbhtml">
-      <publishTime>03/21/2019 18:47:06</publishTime>
+      <publishTime>03/23/2019 13:22:48</publishTime>
     </File>
     <File Include="Views/Home/EnvInsCom.vbhtml">
-      <publishTime>03/21/2019 18:44:19</publishTime>
+      <publishTime>03/23/2019 13:28:12</publishTime>
     </File>
     <File Include="Views/Home/environmentInsurance.vbhtml">
-      <publishTime>03/21/2019 18:44:30</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="Views/Home/Expressway.vbhtml">
-      <publishTime>03/21/2019 18:45:06</publishTime>
+      <publishTime>03/23/2019 13:29:04</publishTime>
     </File>
     <File Include="Views/Home/GpsCompany.vbhtml">
-      <publishTime>03/21/2019 18:45:25</publishTime>
+      <publishTime>03/23/2019 13:28:25</publishTime>
     </File>
     <File Include="Views/Home/Gps_car.vbhtml">
-      <publishTime>03/21/2019 18:45:16</publishTime>
+      <publishTime>03/23/2019 13:27:12</publishTime>
     </File>
     <File Include="Views/Home/Index.vbhtml">
       <publishTime>03/21/2019 18:45:33</publishTime>
     </File>
     <File Include="Views/Home/Installment.vbhtml">
-      <publishTime>03/21/2019 18:45:50</publishTime>
+      <publishTime>03/23/2019 13:30:22</publishTime>
     </File>
     <File Include="Views/Home/License.vbhtml">
-      <publishTime>03/21/2019 18:40:34</publishTime>
+      <publishTime>03/23/2019 13:22:26</publishTime>
     </File>
     <File Include="Views/Home/LicenseCambodia.vbhtml">
-      <publishTime>03/21/2019 18:50:44</publishTime>
+      <publishTime>03/23/2019 13:24:34</publishTime>
     </File>
     <File Include="Views/Home/LicenseFactory.vbhtml">
-      <publishTime>03/21/2019 18:50:49</publishTime>
+      <publishTime>03/23/2019 13:24:46</publishTime>
     </File>
     <File Include="Views/Home/LicenseMekongRiver.vbhtml">
-      <publishTime>03/21/2019 18:51:09</publishTime>
+      <publishTime>03/23/2019 13:24:50</publishTime>
     </File>
     <File Include="Views/Home/LicenseV8.vbhtml">
-      <publishTime>03/21/2019 18:51:16</publishTime>
+      <publishTime>03/23/2019 13:24:55</publishTime>
     </File>
     <File Include="Views/Home/MainInsCom.vbhtml">
-      <publishTime>03/21/2019 18:51:26</publishTime>
+      <publishTime>03/23/2019 13:27:45</publishTime>
     </File>
     <File Include="Views/Home/mainInsurance.vbhtml">
-      <publishTime>03/21/2019 18:51:35</publishTime>
+      <publishTime>03/23/2019 13:26:36</publishTime>
     </File>
     <File Include="Views/Home/OfficerRecords.vbhtml">
-      <publishTime>03/21/2019 18:51:46</publishTime>
+      <publishTime>03/23/2019 13:23:09</publishTime>
     </File>
     <File Include="Views/Home/ProInsCom.vbhtml">
-      <publishTime>03/22/2019 12:20:04</publishTime>
+      <publishTime>03/23/2019 13:27:59</publishTime>
     </File>
     <File Include="Views/Home/Tax.vbhtml">
-      <publishTime>03/21/2019 18:52:10</publishTime>
+      <publishTime>03/23/2019 13:58:58</publishTime>
     </File>
     <File Include="Views/Home/Trackingwork.vbhtml">
-      <publishTime>03/21/2019 18:52:43</publishTime>
+      <publishTime>03/23/2019 13:29:47</publishTime>
     </File>
     <File Include="Views/Manage/Lookup.vbhtml">
-      <publishTime>02/04/2019 19:38:15</publishTime>
+      <publishTime>03/23/2019 13:31:26</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.vbhtml">
-      <publishTime>03/22/2019 17:59:43</publishTime>
+      <publishTime>03/23/2019 14:25:45</publishTime>
     </File>
     <File Include="Views/web.config">
       <publishTime>01/15/2019 21:54:59</publishTime>

@@ -80,6 +80,8 @@ $(function () {
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         dataSource: getDataPic(),
         searchPanel: {
             visible: true,

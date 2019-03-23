@@ -192,6 +192,8 @@ $(function () {
             setDefaultNumberCar();
 
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         masterDetail: {
             enabled: false,
             template: function (container, options) {

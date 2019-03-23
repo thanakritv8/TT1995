@@ -77,6 +77,8 @@ $(function () {
         selection: {
             mode: "single"
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         editing: {
             mode: "popup",
             allowUpdating: boolStatus,
@@ -134,6 +136,7 @@ $(function () {
                         width: 240,
                         placeholder: "Search..."
                     },
+
                     //groupPanel: {
                     //    visible: true
                     //},

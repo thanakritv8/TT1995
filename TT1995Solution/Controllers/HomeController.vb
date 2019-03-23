@@ -3553,15 +3553,15 @@ Namespace Controllers
             Return GbFnPoom.fnRename(Request, "Gps_car")
         End Function
 
-        Public Function UpdateGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal reading_data As String _
+        Public Function UpdateGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal end_date As String, ByVal reading_data As String _
                                       , ByVal usage As String, ByVal price As String, ByVal number_book As String, ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal Installation_list As String _
                                       , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [gps_car] SET "
-            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
-            Dim TbGps_car() As Object = {company, sim_no, start_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
+            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "end_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
+            Dim TbGps_car() As Object = {company, sim_no, start_date, end_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
             For n As Integer = 0 To TbGps_car.Length - 1
                 If Not TbGps_car(n) Is Nothing Then
                     _SQL &= StrTbGps_car(n) & "=N'" & TbGps_car(n) & "',"
@@ -3577,7 +3577,7 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
-        Public Function InsertGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal reading_data As String _
+        Public Function InsertGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal end_date As String, ByVal reading_data As String _
                                       , ByVal usage As String, ByVal price As String, ByVal number_book As String, ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal Installation_list As String _
                                       , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
 
@@ -3590,6 +3590,7 @@ Namespace Controllers
             _SQL &= "N'" & IIf(company Is Nothing, 0, company) & "',"
             _SQL &= "N'" & IIf(sim_no Is Nothing, 0, sim_no) & "',"
             _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
+            _SQL &= "N'" & IIf(end_date Is Nothing, String.Empty, end_date) & "',"
             _SQL &= "N'" & IIf(reading_data Is Nothing, 0, reading_data) & "',"
             _SQL &= "N'" & IIf(usage Is Nothing, 0, usage) & "',"
             _SQL &= "N'" & IIf(price Is Nothing, 0, price) & "',"
@@ -3611,8 +3612,8 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
-            Dim TbGps_car() As Object = {company, sim_no, start_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
+            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "end_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
+            Dim TbGps_car() As Object = {company, sim_no, start_date, end_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
             For n As Integer = 0 To TbGps_car.Length - 1
                 If Not TbGps_car(n) Is Nothing Then
                     GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)

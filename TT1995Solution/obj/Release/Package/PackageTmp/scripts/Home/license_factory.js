@@ -90,6 +90,8 @@ $(function () {
     dataGridAll = getLicenseFactory();
 
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         dataSource: getLicenseFactory(),
         showBorders: true,
         selection: {

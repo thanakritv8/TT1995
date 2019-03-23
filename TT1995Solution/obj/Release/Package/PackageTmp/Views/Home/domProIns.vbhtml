@@ -107,6 +107,12 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d4").next().toggle();
+    $(".d4").click(function (e) {
+        e.stopPropagation();
+        $(".d4").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/domProIns.js"></script>
 

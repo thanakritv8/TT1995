@@ -113,5 +113,11 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d8").next().toggle();
+    $(".d8").click(function (e) {
+        e.stopPropagation();
+        $(".d8").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/Installment.js"></script>

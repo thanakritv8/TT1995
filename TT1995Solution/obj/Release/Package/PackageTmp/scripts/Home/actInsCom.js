@@ -80,6 +80,8 @@ $(function () {
             width: 240,
             placeholder: "Search..."
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         showBorders: true,
         columnChooser: {
             enabled: true,

@@ -369,6 +369,8 @@ $(function () {
     var treeview;
     //กำหนดการแสดงผลของ datagrid
     var dataGrid = $("#gridContainer").dxDataGrid({
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         searchPanel: {
             visible: true,
             width: 240,
@@ -579,8 +581,12 @@ $(function () {
                 var positionEndStart = str.indexOf("</span>") + 7;
                 var subStr = str.substring(positionStart, positionEndStart);
                 console.log(treeview._options.items);
-                var data_filter = treeview._options.items.filter(element => element.file_id == dataNode[i].dataset.itemId)
-                if (data_filter[0].position != null) {
+                var data_filter = treeview._options.items.filter(function (x) { return x.file_id == dataNode[i].dataset.itemId; })
+                console.log(dataNode[i].dataset.itemId);
+                
+                //var data_filter = treeview._options.items.filter(element => element.file_id == dataNode[i].dataset.itemId)
+                console.log(data_filter);
+                if (data_filter[0].position != null && data_filter[0].position != '') {
                     var dp;
                     if (data_filter[0].position == 1) {
                         dp = 'ด้านหน้า';

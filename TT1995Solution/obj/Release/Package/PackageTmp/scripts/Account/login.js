@@ -1,4 +1,13 @@
 ﻿$("#btnLogin").click(function () {
+    checkLogin();
+});
+$('#txtPassword').on('keypress', function (e) {
+    if (e.which === 13) {
+        checkLogin();
+    }
+});
+
+function checkLogin() {
     console.log("test");
     var strUsername = document.getElementById('txtUsername').value;
     var strPassword = document.getElementById('txtPassword').value;
@@ -17,7 +26,7 @@
                 document.getElementById('lbError').innerHTML = "Please check the information."
             }
         }, error: function (xhr, status, error) {
-            
+
         }
     });
-});
+}

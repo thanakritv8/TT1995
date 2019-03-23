@@ -6,6 +6,9 @@ End Code
         overflow-y: auto;
         height: 100%;
     }
+    #gridContainer{
+        width: 100%;
+    }
 </style>
 <div> <h4>ภาษี</h4> </div>
 <div>
@@ -109,6 +112,11 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+    $(".d1").next().toggle();
+    $(".d1").click(function (e) {
+        e.stopPropagation();
+        $(".d1").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/tax.js"></script>
 

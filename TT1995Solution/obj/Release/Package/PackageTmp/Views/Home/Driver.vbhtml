@@ -26,6 +26,12 @@ End Code
     }
     console.log(!boolStatus);
     //End Control
+
+    $(".d1").next().toggle();
+    $(".d1").click(function (e) {
+        e.stopPropagation();
+        $(".d1").next().toggle();
+    });
 </script>
 <script src="~/scripts/Home/driver.js"></script>
 
