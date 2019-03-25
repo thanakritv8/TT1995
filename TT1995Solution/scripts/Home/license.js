@@ -36,7 +36,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-
+    $("a:contains('เล่มทะเบียน')").addClass("active");
     $("#setPosition").click(function () {
         console.log($("#setPosition"))
         if ($("#setPosition")[0].checked == true) {

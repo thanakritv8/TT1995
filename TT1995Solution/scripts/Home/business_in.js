@@ -17,7 +17,7 @@ var dataLookupFilter;
 var gc;
 
 $(function () {
-    
+    $("a:contains('ภายในประเทศ')").addClass("active");
     function fnGetHistory(table, idOfTable) {
         //โชว์ข้อมูลประวัติ
         return $.ajax({
@@ -113,14 +113,19 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            fnUpdateBusinessIn(e.newData, e.key.business_id);
+            e.cancel = !fnUpdateBusinessIn(e.newData, e.key.business_id);
         },
         onRowInserting: function (e) {
-            e.data.business_id = fnInsertBusinessIn(e.data);
-            e.data.history = "ประวัติ";
+            var statusInsert = fnInsertBusinessIn(e.data);
+            if (statusInsert != '0') {
+                e.data.business_id = statusInsert;
+                e.data.history = "ประวัติ";
+            } else {
+                e.cancel = true;
+            }                        
         },
         onRowRemoving: function (e) {
-            fnDeleteBusinessIn(e.key.business_id);
+            e.cancel = !fnDeleteBusinessIn(e.key.business_id);
         },
         masterDetail: {
             enabled: false,
@@ -481,6 +486,7 @@ $(function () {
 
 
     function fnUpdateBusinessIn(newData, keyItem) {
+        var boolUpdate = false;
         newData.business_id = keyItem;
         newData.IdTable = gbTableId;
         console.log(keyItem);
@@ -493,14 +499,18 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteBusinessIn(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteBusinessIn",
@@ -510,11 +520,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function fnInsertFiles(fileUpload) {

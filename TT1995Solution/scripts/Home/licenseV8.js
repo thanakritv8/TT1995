@@ -16,6 +16,7 @@ var gbTableId = '28';
 var fileOpen;
 
 $(function () {
+    $("a:contains('วัตถุอันตราย(วอ.8)')").addClass("active");
     //กำหนดปุ่มเพิ่มรูปภาพเข้าไปในระบบ
     $("#btnSave").dxButton({
         onClick: function () {

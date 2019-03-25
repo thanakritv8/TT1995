@@ -28,6 +28,7 @@ var OptionsMenu = contextMenuItemsFolder;
 var html_editor;
 var html_editor_not_protection;
 $(function () {
+    $("a:contains('ประกันภัยสินค้า')").addClass("active");
     function getDataPic() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid

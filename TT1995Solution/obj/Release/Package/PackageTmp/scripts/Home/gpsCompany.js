@@ -34,8 +34,8 @@ $(function () {
             async: false,
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
+                    //var d = parseJsonDate(data[i].create_date);
+                    //data[i].create_date = d;
                 }
             }
         }).responseJSON;
@@ -127,16 +127,21 @@ $(function () {
         },
         onRowUpdating: function (e) {
             //console.log(e);
-            fnUpdateGpsCompany(e.newData, e.key.gc_id);
+            if (!fnUpdateGpsCompany(e.newData, e.key.gc_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
-
-            e.data.history = "ประวัติ";
-            e.data.gc_id = fnInsertGpsCompany(e.data);
-
+            var idInsert = fnInsertGpsCompany(e.data);
+            if (idInsert != 0) {
+                e.data.history = "ประวัติ";
+                e.data.gc_id = idInsert;
+            } else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteGpsCompany(e.key.gc_id);
+            e.cancel = fnDeleteGpsCompany(e.key.gc_id);
         },
         masterDetail: {
             enabled: false,
@@ -639,7 +644,8 @@ $(function () {
         //console.log(keyItem);
         //console.log(newData);
         newData.key = keyItem;
-        newData.IdTable  = gbTableId;
+        newData.IdTable = gbTableId;
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateGpsCompany",
@@ -649,11 +655,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    returnStatus = false;
                 }
             }
         });
+        return returnStatus;
     }
 
     //Function Insert ข้อมูล gps_company
@@ -669,11 +678,11 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
+                returnId = data[0].Status;
                 if (data[0].Status != "0") {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
-                    returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });
@@ -682,20 +691,25 @@ $(function () {
 
     //Function Delete ข้อมูล gps_company
     function fnDeleteGpsCompany(keyItem) {
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteGpsCompany",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = false;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    returnStatus = true;
                 }
             }
         });
+        return returnStatus;
     }
 
     var popup_history = $("#popup_history").dxPopup({

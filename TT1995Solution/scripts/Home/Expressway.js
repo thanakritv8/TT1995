@@ -26,6 +26,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
+    $("a:contains('จัดการข้อมูลทางด่วน')").addClass("active");
     function GetExpresswayData() {
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
         return $.ajax({
@@ -182,7 +183,7 @@ $(function () {
                 setDefaultNumberCar();
             }
             else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {

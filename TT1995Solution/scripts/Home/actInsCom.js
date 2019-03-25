@@ -26,9 +26,7 @@ var OptionsMenu = contextMenuItemsFolder;
 var html_editor;
 
 $(function () {
-    $(document).on("dxclick", ".dx-savebutton", function () {
-        alert('tests');
-    });
+    $("a:contains('พรบ')").addClass("active");
     function getDataAic() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid

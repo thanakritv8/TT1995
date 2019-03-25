@@ -203,35 +203,43 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdateDPI(e.newData, e.key.dpi_id);
+            if (!fnUpdateDPI(e.newData, e.key.dpi_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarTew",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    
-                }
-            });
-            
-            e.data.dpi_id = fnInsertDPI(e.data, html_editor.option("value"));
-            e.data.first_damages_view = 'View';
-            e.data.first_damages = html_editor.option("value");
-            e.data.history = "ประวัติ";
+            var idInsert = fnInsertDPI(e.data, html_editor.option("value"));
+            if (idInsert != 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLicenseCarTew",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{number_car: '" + e.data.number_car + "'}",
+                    async: false,
+                    success: function (data) {
+                        e.data.license_car = data[0].license_car;
+                        e.data.license_id = data[0].license_id;
 
-            //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
+                    }
+                });
+
+                e.data.dpi_id = idInsert;
+                e.data.first_damages_view = 'View';
+                e.data.first_damages = html_editor.option("value");
+                e.data.history = "ประวัติ";
+
+                //ตัด number_car ออก
+                dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                filter();
+                setDefaultNumberCar();
+            } else {
+                e.data = null;
+            }
+            
         },
         onRowRemoving: function (e) {
-            fnDeleteDPI(e.key.dpi_id);
+            e.cancel = fnDeleteDPI(e.key.dpi_id);
 
             //กรองอาเรย์
             dataGridAll.forEach(function (filterdata) {
@@ -567,6 +575,7 @@ $(function () {
         //console.log(keyItem);
         newData.key = keyItem;
         newData.IdTable = gbTableId;
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateDPI",
@@ -577,11 +586,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    returnStatus = false;
                 }
             }
         });
+        return returnStatus;
     }
 
     //Function Insert ข้อมูล gps_company
@@ -598,11 +610,11 @@ $(function () {
             async: false,
             success: function (data) {
                 //console.log(data);
+                returnId = data[0].Status;
                 if (data[0].Status != "0") {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
-                    returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });
@@ -611,20 +623,25 @@ $(function () {
 
     //Function Delete ข้อมูล gps_company
     function fnDeleteDPI(keyItem) {
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteDPI",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = false;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    returnStatus = true;
                 }
             }
         });
+        return returnStatus;
     }
 
     //กำหนดรายการคลิกขวาใน treeview และเงื่อนไขกรณีที่มีการคลิกเลือกรายการ

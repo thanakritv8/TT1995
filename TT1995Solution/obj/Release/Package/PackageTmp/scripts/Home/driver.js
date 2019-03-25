@@ -59,17 +59,21 @@
             //        e.data.license_car_tail = data[0].license_car;
             //    }
             //});
+            var statusInsert = fnInsertDriver(e.data);
+            if (statusInsert != '0') {
+                e.data.driver_id = statusInsert;
+            } else {
+                e.cancel = true;
+            }
 
-            e.data.driver_id = fnInsertDriver(e.data);
-            console.log(e.data.driver_id);
+            //console.log(e.data.driver_id);
             //fnInsertDriver(e.data);
         },
         onRowUpdating: function (e) {
-            console.log(e.key.driver_id);
-            fnUpdateDriver(e.newData, e.key.driver_id);
+            e.cancel = !fnUpdateDriver(e.newData, e.key.driver_id);
         },
         onRowRemoving: function (e) {
-            fnDeleteDriver(e.key.driver_id);
+            e.cancel = !fnDeleteDriver(e.key.driver_id);
         },
         selection: {
             mode: "single"
@@ -234,6 +238,7 @@
 
     //Function Update ข้อมูล
     function fnUpdateDriver(newData, keyItem) {
+        var boolUpdate = false;
         newData.driver_id = keyItem;
         console.log(keyItem);
         $.ajax({
@@ -246,14 +251,18 @@
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูล พขร เรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteDriver(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteDriver",
@@ -264,11 +273,14 @@
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการค้นหาเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     //Function Convert ตัวแปรประเภท Type date ของ javascripts

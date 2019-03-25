@@ -181,7 +181,7 @@ $(function () {
                 setDefaultNumberCar();
             }
             else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {

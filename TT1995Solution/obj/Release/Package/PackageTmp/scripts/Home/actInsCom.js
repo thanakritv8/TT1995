@@ -182,32 +182,23 @@ $(function () {
             //$(".test").append("<p>Test</p>");
         },
         onRowUpdating: function (e) {
-
-            fnUpdateAIC(e.newData, e.key.aic_id);
+            if (!fnUpdateAIC(e.newData, e.key.aic_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
-
-            //$.ajax({
-            //    type: "POST",
-            //    url: "../Home/GetLicenseCarTew",
-            //    contentType: "application/json; charset=utf-8",
-            //    dataType: "json",
-            //    data: "{number_car: '" + e.data.number_car + "'}",
-            //    async: false,
-            //    success: function (data) {
-            //        e.data.license_car = data[0].license_car;
-            //        e.data.license_id = data[0].license_id;
-            //        e.data.history = "ประวัติ";
-            //    }
-            //});
-            e.data.aic_id = fnInsertAIC(e.data, html_editor.option("value"));
-            e.data.protection_view = 'View';
-            e.data.protection = html_editor.option("value");
-            e.data.history = "ประวัติ";
-
+            var idInsert = fnInsertAIC(e.data, html_editor.option("value"));
+            if (idInsert != 0) {
+                e.data.aic_id = idInsert;
+                e.data.protection_view = 'View';
+                e.data.protection = html_editor.option("value");
+                e.data.history = "ประวัติ";
+            } else {
+                e.data = null;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteAIC(e.key.aic_id);
+            e.cancel = fnDeleteAIC(e.key.aic_id);
         },
         masterDetail: {
             enabled: false,
@@ -524,6 +515,7 @@ $(function () {
         //console.log(keyItem);
         newData.key = keyItem;
         newData.IdTable = gbTableId;
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateAIC",
@@ -534,11 +526,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    returnStatus = false;
                 }
             }
         });
+        return returnStatus;
     }
 
     //Function Insert ข้อมูล gps_company
@@ -555,11 +550,11 @@ $(function () {
             async: false,
             success: function (data) {
                 //console.log(data);
+                returnId = data[0].Status;
                 if (data[0].Status != "0") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
-                    returnId = data[0].Status;
+                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");                    
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });
@@ -568,20 +563,25 @@ $(function () {
 
     //Function Delete ข้อมูล gps_company
     function fnDeleteAIC(keyItem) {
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteAIC",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = false;
                 } else {
-                    DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error"); returnStatus = true;
+                    returnStatus = true;
                 }
             }
         });
+        return returnStatus;
     }
 
     //กำหนดรายการคลิกขวาใน treeview และเงื่อนไขกรณีที่มีการคลิกเลือกรายการ

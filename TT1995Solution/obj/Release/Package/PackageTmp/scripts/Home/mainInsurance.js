@@ -91,6 +91,7 @@ $(function () {
             enabled: true,
             mode: "select"
         }, onContentReady: function (e) {
+            //dataGrid.columnOption('number_car', 'filterValue', [14]);
             filter();
 
             var columnChooserView = e.component.getView("columnChooserView");
@@ -161,31 +162,39 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            fnUpdateMI(e.newData, e.key.mi_id);
+            if (!fnUpdateMI(e.newData, e.key.mi_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarTew",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });
-            e.data.mi_id = fnInsertMI(e.data);
+            var idInsert = fnInsertMI(e.data);
+            if (idInsert != 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLicenseCarTew",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{number_car: '" + e.data.number_car + "'}",
+                    async: false,
+                    success: function (data) {
+                        e.data.license_car = data[0].license_car;
+                        e.data.license_id = data[0].license_id;
+                        e.data.history = "ประวัติ";
+                    }
+                });
+                e.data.mi_id = idInsert;
 
-            //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
+                //ตัด number_car ออก
+                dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                filter();
+                setDefaultNumberCar();
+            } else {
+                e.data = null;
+            }
+            
         },
         onRowRemoving: function (e) {
-            fnDeleteMI(e.key.mi_id);
+            e.cancel = fnDeleteMI(e.key.mi_id);
 
             //กรองอาเรย์
             dataGridAll.forEach(function (filterdata) {
@@ -422,12 +431,15 @@ $(function () {
                             editorOptions: {
                                 disabled: false
                             },
+                            
                         });
                     } else if (item.dataField != "license_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
                             dataField: item.dataField,
                             width: "100%",
+
+                            
                         });
                     }
                 }
@@ -449,10 +461,11 @@ $(function () {
 
                 }
             });
-            //console.log(data);
+            console.log(data);
             _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
+            
         }
     });
     //จบการกำหนด Column
@@ -462,6 +475,7 @@ $(function () {
         //console.log(keyItem);
         newData.key = keyItem;
         newData.IdTable = gbTableId;
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateMI",
@@ -472,11 +486,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    returnStatus = false;
                 }
             }
         });
+        return returnStatus;
     }
 
     //Function Insert ข้อมูล gps_company
@@ -491,12 +508,12 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
+                returnId = data[0].Status;
                 //console.log(data);
                 if (data[0].Status != "0") {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
-                    returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });
@@ -505,20 +522,25 @@ $(function () {
 
     //Function Delete ข้อมูล gps_company
     function fnDeleteMI(keyItem) {
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteMI",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = false;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    returnStatus = true;
                 }
             }
         });
+        return returnStatus;
     }
 
     //กำหนดรายการคลิกขวาใน treeview และเงื่อนไขกรณีที่มีการคลิกเลือกรายการ

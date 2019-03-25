@@ -16,6 +16,7 @@ var gbTableId = '30';
 var fileOpen;
 
 $(function () {
+    $("a:contains('เข้าโรงงาน')").addClass("active");
     //กำหนดปุ่มเพิ่มรูปภาพเข้าไปในระบบ
     $("#btnSave").dxButton({
         onClick: function () {

@@ -156,7 +156,7 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {            
-            fnUpdateOR(e.newData, e.key.or_id);
+            e.cancel = !fnUpdateOR(e.newData, e.key.or_id);
         },
         onRowInserting: function (e) {
             $.ajax({
@@ -171,26 +171,34 @@ $(function () {
                     e.data.history = "ประวัติ";
                 }
             });
-            e.data.or_id = fnInsertOR(e.data);
 
+            var statusInsert = fnInsertOR(e.data);
+            if (statusInsert != '0') {
+                e.data.or_id = statusInsert;
+                //ตัด number_car ออก
+                filter();
+                setDefaultNumberCar();
+            } else {
+                e.cancel = true;
+            }
             //ตัด number_car ออก
-            filter();
-            setDefaultNumberCar();
         },
         onRowRemoving: function (e) {            
-            fnDeleteOR(e.key.or_id);
-
-            //กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
+            if (fnDeleteOR(e.key.or_id)) {
+                //กรองอาเรย์
+                dataGridAll.forEach(function (filterdata) {
+                    dataGridAll = dataGridAll.filter(function (arr) {
+                        return arr.license_id != e.key.license_id;
+                    });
                 });
-            });
 
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+                //push array
+                dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
 
-            setDefaultNumberCar();
+                setDefaultNumberCar();
+            } else {
+                e.cancel = true;
+            }
         },
         masterDetail: {
             enabled: false,
@@ -623,6 +631,7 @@ $(function () {
 
     //Function Update ข้อมูล
     function fnUpdateOR(newData, keyItem) {
+        var boolUpdate = false;
         newData.or_id = keyItem;
         newData.IdTable = gbTableId;
         $.ajax({
@@ -634,15 +643,19 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     //Function Delete ข้อมูล
     function fnDeleteOR(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteOR",
@@ -652,11 +665,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     //Function Insert file in treeview

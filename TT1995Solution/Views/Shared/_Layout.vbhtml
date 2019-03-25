@@ -73,7 +73,7 @@
                     <span Class="text-light"> ทะเบียน</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    @If Session("1") <> 0 Then @<a Then Class= "dropdown-item" Href = "../Home/License" > เล่มทะเบียน</a>End If
+                    @If Session("1") <> 0 Then @<a Then Class= "dropdown-item" Href = "../Home/License" >เล่มทะเบียน</a>End If
                     @If Session("3") <> 0 Then @<a Then Class= "dropdown-item" href="../Home/Tax">ภาษี</a>End If
                     @If Session("4") <> 0 Then @<a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>End If
                     @If Session("6") <> 0 Then @<a Class="dropdown-item" href="../Home/Driver">พขร</a>End If
@@ -117,7 +117,7 @@
                     @If Session("15") <> 0 Then @<a Then Class="dropdown-item" href="../Home/MainInsurance">ภัยรถยนต์</a>End If
                     @If Session("16") <> 0 Then @<a Then Class="dropdown-item" href="../Home/DomProIns">ภัยสินค้าภายในประเทศ</a>End If
                     @If Session("18") <> 0 Then @<a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">ภัยสิ่งแวดล้อม</a>End If
-                    @If Session("10") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Gps_car">GPS</a>End if
+                    @If Session("10") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Gps_car">GPS ติดรถ</a>End if
                 </div>
              </li>
             End If
