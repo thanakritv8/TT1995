@@ -171,7 +171,7 @@ $(function () {
                         e.data.history = "ประวัติ";
                     }
                 });
-                e.data.acd_id = fnInsertAccident(e.data);
+                e.data.acd_id = st;//fnInsertAccident(e.data);
                 ////ตัด number_car ออก
                 dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
                 filter();

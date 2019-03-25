@@ -173,7 +173,7 @@ $(function () {
                         e.data.history = "ประวัติ";
                     }
                 });
-                e.data.itm_id = fnInsertInstallment(e.data);
+                e.data.itm_id = st;//fnInsertInstallment(e.data);
 
                 ////ตัด number_car ออก
                 dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
