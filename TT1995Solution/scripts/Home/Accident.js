@@ -150,7 +150,9 @@ $(function () {
         onRowUpdating: function (e) {
             if (fnUpdateAccident(e.newData, e.key.acd_id)) {
                 e.newData = e.oldData;
+                 
             }
+            
           
             
         },
@@ -178,7 +180,7 @@ $(function () {
             setDefaultNumberCar();
               }
                  else {
-              e.data = null;
+                e.cancel = true;
             } 
         
         },
