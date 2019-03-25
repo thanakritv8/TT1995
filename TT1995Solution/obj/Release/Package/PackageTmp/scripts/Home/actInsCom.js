@@ -26,7 +26,7 @@ var OptionsMenu = contextMenuItemsFolder;
 var html_editor;
 
 $(function () {
-    $("a:contains('พรบ')").addClass("active");
+    $("a:contains('พรบ')").last().addClass("active");
     function getDataAic() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid

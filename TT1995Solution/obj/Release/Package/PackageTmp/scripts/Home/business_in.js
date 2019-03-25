@@ -164,29 +164,38 @@ $(function () {
                             }
                         },
                     },
-                    onRowInserting: function (e) {                        
+                    onRowInserting: function (e) {
                         e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
-                        e.data.bip_id = fnInsertBusinessInPermission(e.data, options.key.business_id);
-
-                        //ตัด number_car ออก
-                        dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-                        filter();
-                        setDefaultNumberCar();
+                        var statusInsert = fnInsertBusinessInPermission(e.data, options.key.business_id);
+                        if (statusInsert != '0') {
+                            e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
+                            e.data.bip_id = statusInsert;
+                            //ตัด number_car ออก
+                            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                            filter();
+                            setDefaultNumberCar();
+                        } else {
+                            e.cancel = true;
+                        }
                     },
                     onRowRemoving: function (e) {
                         console.log(e);
-                        fnDeleteBusinessInPermission(e.key.bip_id, options.key.business_id, e.key.number_car);
-
-                        //กรองอาเรย์
-                        dataGridAll.forEach(function (filterdata) {
-                            dataGridAll = dataGridAll.filter(function (arr) {
-                                return arr.license_id != e.key.license_id;
+                        if (fnDeleteBusinessInPermission(e.key.bip_id, options.key.business_id, e.key.number_car)) {
+                            //กรองอาเรย์
+                            dataGridAll.forEach(function (filterdata) {
+                                dataGridAll = dataGridAll.filter(function (arr) {
+                                    return arr.license_id != e.key.license_id;
+                                });
                             });
-                        });
 
-                        //push array
-                        dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-                        setDefaultNumberCar();
+                            //push array
+                            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+                            setDefaultNumberCar();
+                        } else {
+                            e.cancel = true;
+                        }
+
+                        
                     },
                     onContentReady: function (e) {
                         filter();
@@ -496,6 +505,7 @@ $(function () {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
@@ -517,6 +527,7 @@ $(function () {
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
@@ -581,21 +592,26 @@ $(function () {
         return returnId;
     }
 
-    function fnDeleteBusinessInPermission(keyItem,biId, numberCar) {
+    function fnDeleteBusinessInPermission(keyItem, biId, numberCar) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteBusinessInPermission",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "',BiId:'"+ biId +"',IdTable:'" + gbTableId_p + "',NumberCar:'" + numberCar + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function parseJsonDate(jsonDateString) {
