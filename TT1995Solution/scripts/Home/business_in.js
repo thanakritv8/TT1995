@@ -164,7 +164,8 @@ $(function () {
                             }
                         },
                     },
-                    onRowInserting: function (e) {                        
+                    onRowInserting: function (e) {
+                        e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
                         var statusInsert = fnInsertBusinessInPermission(e.data, options.key.business_id);
                         if (statusInsert != '0') {
                             e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
