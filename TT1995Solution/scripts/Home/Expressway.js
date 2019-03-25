@@ -174,7 +174,7 @@ $(function () {
                     e.data.history = "ประวัติ";
                 }
             });
-            e.data.epw_id = fnInsertExpressway(e.data);
+            e.data.epw_id = st;
 
             ////ตัด number_car ออก
             dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
