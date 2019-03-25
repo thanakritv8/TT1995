@@ -47,11 +47,6 @@ $(function () {
                     var d = parseJsonDate(data[i].endschedule);
                     data[i].endschedule = d;
 
-                    var d = parseJsonDate(data[i].create_date);
-                    data[i].create_date = d;
-
-                    var d = parseJsonDate(data[i].update_date);
-                    data[i].update_date = d;
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -88,8 +83,6 @@ $(function () {
 
     //data grid
     var dataGrid = $("#gridContainer").dxDataGrid({
-        allowColumnResizing: true,
-        columnResizingMode: "widget",
         dataSource: GetTrackingworkData(),
         onContentReady: function (e) {
             //filter();
@@ -115,9 +108,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: boolStatus,
-            allowDeleting: boolStatus,
-            allowAdding: boolStatus,
+            allowUpdating: true,
+            allowDeleting: true,
+            allowAdding: true,
             form: {
                 items: itemEditing,
                 colCount: 6,

@@ -46,11 +46,11 @@ $(function () {
             async: false,
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d = parseJsonDate(data[i].start_date);
-                    data[i].start_date = d;
+                    //var d = parseJsonDate(data[i].start_date);
+                    //data[i].start_date = d;
 
-                    var d = parseJsonDate(data[i].end_date);
-                    data[i].end_date = d;
+                    //var d = parseJsonDate(data[i].end_date);
+                    //data[i].end_date = d;
                 }
             }
         }).responseJSON;
@@ -156,27 +156,34 @@ $(function () {
         onInitNewRow: function (e) {
         },
         onRowUpdating: function (e) {
-            fnUpdateMIC(e.newData, e.key.mic_id);
+            if (!fnUpdateMIC(e.newData, e.key.mic_id)) {
+                e.newData = e.oldData;
+            }
         },
         onRowInserting: function (e) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarTew",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });
-            e.data.mic_id = fnInsertMIC(e.data);
-           
+            var idInsert = fnInsertMIC(e.data);
+            if (idInsert != 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLicenseCarTew",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{number_car: '" + e.data.number_car + "'}",
+                    async: false,
+                    success: function (data) {
+                        e.data.license_car = data[0].license_car;
+                        e.data.license_id = data[0].license_id;
+                        e.data.history = "ประวัติ";
+                    }
+                });
+                e.data.mic_id = idInsert;
+            } else {
+                e.data = null;
+            }
+            
         },
         onRowRemoving: function (e) {
-            fnDeleteMIC(e.key.mic_id);
+           e.cancel = fnDeleteMIC(e.key.mic_id);
         },
         masterDetail: {
             enabled: false,
@@ -488,6 +495,7 @@ $(function () {
         //console.log(keyItem);
         newData.key = keyItem;
         newData.IdTable = gbTableId;
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateMIC",
@@ -498,11 +506,14 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    returnStatus = false;
                 }
             }
         });
+        return returnStatus;
     }
 
     //Function Insert ข้อมูล gps_company
@@ -517,11 +528,11 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
+                returnId = data[0].Status;
                 if (data[0].Status != "0") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
-                    returnId = data[0].Status;
+                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");                    
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });
@@ -530,20 +541,25 @@ $(function () {
 
     //Function Delete ข้อมูล gps_company
     function fnDeleteMIC(keyItem) {
+        var returnStatus;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteMIC",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
+                    returnStatus = false;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    returnStatus = true;
                 }
             }
         });
+        return returnStatus;
     }
 
     //กำหนดรายการคลิกขวาใน treeview และเงื่อนไขกรณีที่มีการคลิกเลือกรายการ

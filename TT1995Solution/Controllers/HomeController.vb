@@ -3775,7 +3775,124 @@ Namespace Controllers
         End Function
         'Get data of table Trackingwork
         Public Function GetTrackingworkData() As String
-            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history   FROM [dbo].[trackingwork] tkw , [dbo].[license] li where tkw.license_id = li.license_id order by li.number_car")
+            'Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history   FROM [dbo].[trackingwork] tkw , [dbo].[license] li where tkw.license_id = li.license_id order by li.number_car")
+            Dim SQL As String = "select l.license_id as number_car,l.license_id as license_car, t.tax_expire as date_expire , N'ภาษี' as tablename,
+                    CASE t.tax_status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = t.tax_status  order by la_id desc)
+                    END as operator ,
+                    t.tax_expire as start_schedule,dateadd(dd,90,t.tax_expire) as deadline,N'ไม่มี' as note ,isnull(t.tax_status, '') as data_status 
+                     from license as l 
+	                    join tax as t on l.license_id = t.license_id 
+		                    where (t.tax_status <> null or t.tax_status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car, bi.business_expire as date_expire , N'ใบประกอบการภายในประเทศ' as tablename,
+                    CASE bi.business_status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = bi.business_status  order by la_id desc)
+                    END as operator ,
+                    bi.business_expire as start_schedule,dateadd(dd,90,bi.business_expire) as deadline,N'ไม่มี' as note ,isnull(bi.business_status, '') as data_status 
+                     from license as l 
+	                    join business_in_permission as bip on l.license_id = bip.license_id 
+	                    join business_in as bi on bip.business_id = bi.business_id 
+		                    where (bi.business_status <> null or bi.business_status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car, bo.business_expire as date_expire , N'ใบประกอบการภายนอกประเทศ' as tablename,
+                    CASE bo.business_status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = bo.business_status  order by la_id desc)
+                    END as operator ,
+                    bo.business_expire as start_schedule,dateadd(dd,90,bo.business_expire) as deadline,N'ไม่มี' as note ,isnull(bo.business_status, '') as data_status 
+                     from license as l 
+	                    join business_out_permission as bop on l.license_id = bop.license_id 
+	                    join business_out as bo on bop.business_id = bo.business_id 
+		                    where (bo.business_status <> null or bo.business_status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car, lc.lc_expire as date_expire , N'ใบอนุญาตกัมพูชา' as tablename,
+                    CASE lc.lc_status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = lc.lc_status  order by la_id desc)
+                    END as operator ,
+                    lc.lc_expire as start_schedule,dateadd(dd,90,lc.lc_expire) as deadline,N'ไม่มี' as note ,isnull(lc.lc_status, '') as data_status 
+                     from license as l 
+	                    join license_cambodia_permission as lcp on l.license_id = lcp.license_id_head 
+		                    join license_cambodia as lc on lcp.lc_id = lc.lc_id 
+			                    where (lc.lc_status <> null or lc.lc_status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car, lmr.lmr_expire as date_expire , N'ใบอนุญาตลุ่มแม่น้ำโขง' as tablename,
+                    CASE lmr.lmr_status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = lmr.lmr_status  order by la_id desc)
+                    END as operator ,
+                    lmr.lmr_expire as start_schedule,dateadd(dd,90,lmr.lmr_expire) as deadline,N'ไม่มี' as note ,isnull(lmr.lmr_status, '') as data_status 
+                     from license as l 
+	                    join license_mekong_river_permission as lmrp on l.license_id = lmrp.license_id_head 
+	                    join license_mekong_river as lmr on lmrp.lmr_id = lmr.lmr_id 
+		                    where (lmr.lmr_status <> null or lmr.lmr_status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car,  lv8.lv8_expire as date_expire , N'ใบอนุญาต(วอ.8)' as tablename,
+                    CASE lv8.lv8_status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = lv8.lv8_status  order by la_id desc)
+                    END as operator ,
+                     lv8.lv8_expire as start_schedule,dateadd(dd,90, lv8.lv8_expire) as deadline,N'ไม่มี' as note ,isnull(lv8.lv8_status, '') as data_status 
+                     from license as l 
+	                    join license_v8 as lv8 on l.license_id = lv8.license_id 
+		                    where(lv8.lv8_status <> null or lv8.lv8_status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car,  ai.end_date as date_expire , N'ประกันพรบ.' as tablename,
+                    CASE ai.status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = ai.status order by la_id desc)
+                    END as operator ,
+                     ai.end_date as start_schedule,dateadd(dd,90, ai.end_date) as deadline,ai.note as note ,isnull(ai.status, '') as data_status 
+                     from license as l 
+	                    join act_insurance as ai on l.license_id = ai.license_id 
+		                    where (ai.status <> null or ai.status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car,  mi.end_date as date_expire , N'ประกันภัยรถยนต์.' as tablename,
+                    CASE mi.status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = mi.status order by la_id desc)
+                    END as operator ,
+                     mi.end_date as start_schedule,dateadd(dd,90, mi.end_date) as deadline,mi.note as note ,isnull(mi.status, '') as data_status 
+	                    from license as l 
+		                    join main_insurance as mi on l.license_id = mi.license_id 
+			                    where (mi.status <> null or mi.status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car,  dpi.end_date as date_expire , N'ประกันภัยรถยนต์.' as tablename,
+                    CASE dpi.status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = dpi.status order by la_id desc)
+                    END as operator ,
+                     dpi.end_date as start_schedule,dateadd(dd,90, dpi.end_date) as deadline,dpi.note as note ,isnull(dpi.status, '') as data_status 
+	                     from license as l 
+		                    join domestic_product_insurance as dpi on l.license_id = dpi.license_id 
+			                    where (dpi.status <> null or dpi.status <> '')
+
+                    union select l.license_id as number_car,l.license_id as license_car,  ei.end_date as date_expire , N'ประกันภัยรถยนต์.' as tablename,
+                    CASE ei.status 
+                      WHEN N'ยังไม่ได้ดำเนินการ' THEN N'ไม่มี' 
+                      WHEN N'ขาดต่อ' THEN N'ไม่มี' 
+                      ELSE (select top 1 ac.firstname from log_all la inner join account ac on la.by_user = ac.user_id  where column_id = 46 and _data = ei.status order by la_id desc)
+                    END as operator ,
+                     ei.end_date as start_schedule,dateadd(dd,90, ei.end_date) as deadline,ei.note as note ,isnull(ei.status, '') as data_status 
+	                    from license as l 
+		                    join environment_insurance as ei on l.license_id = ei.license_id 
+			                    where (ei.status <> null or ei.status <> '')
+
+                    order by date_expire
+                    "
+            Return GbFnPoom.GetData(SQL)
         End Function
 
         'Rename Folder or Files(pic,pdf)
