@@ -40,7 +40,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-
+    $("a:contains('ภาษี')").addClass("active");
     //โชว์ข้อมูลภาษีทั้งหมดใน datagrid
     function getDataTax() {
         return $.ajax({

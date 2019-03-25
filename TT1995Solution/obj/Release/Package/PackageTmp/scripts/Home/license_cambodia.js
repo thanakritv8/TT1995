@@ -8,7 +8,7 @@ var fileOpen;
 var isFirstClick = false;
 var rowIndex = 0;
 $(function () {
-
+    $("a:contains('กัมพูชา')").addClass("active");
     //กำหนดปุ่มเพิ่มรูปภาพเข้าไปในระบบ
     $("#btnSave").dxButton({
         onClick: function () {

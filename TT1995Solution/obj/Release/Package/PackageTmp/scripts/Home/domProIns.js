@@ -28,6 +28,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 var html_editor;
 $(function () {
+    $("a:contains('ภัยสินค้าภายในประเทศ')").addClass("active");
     function getDataDpi() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid

@@ -39,7 +39,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-
+    $("a:contains('บันทึกเจ้าหน้าที่')").addClass("active");
     function getDataOR() {
         //โชว์ข้อมูลทั้งหมดใน datagrid
         return $.ajax({
@@ -184,7 +184,7 @@ $(function () {
             //ตัด number_car ออก
         },
         onRowRemoving: function (e) {            
-            if (fnDeleteOR(e.key.or_id)) {
+            if (fnDeleteOR(e.key.or_id) == true) {
                 //กรองอาเรย์
                 dataGridAll.forEach(function (filterdata) {
                     dataGridAll = dataGridAll.filter(function (arr) {
@@ -640,6 +640,7 @@ $(function () {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");
@@ -662,6 +663,7 @@ $(function () {
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลรายการบันทึกเจ้าหน้าที่เรียบร้อยแล้ว", "success");

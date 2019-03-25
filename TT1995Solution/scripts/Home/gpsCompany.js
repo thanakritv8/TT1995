@@ -23,7 +23,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-    $("a:contains('GPS')").addClass("active");
+    $("a:contains('GPS')").last().addClass("active");
     function getDataGc() {
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
         return $.ajax({

@@ -34,7 +34,7 @@ var feed = {
 };
 
 $(function () {
-
+    $("a:contains('ภัยรถยนต์')").addClass("active");
     function getDataMic() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid

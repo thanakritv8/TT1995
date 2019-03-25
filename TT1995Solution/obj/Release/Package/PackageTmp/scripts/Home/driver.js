@@ -1,4 +1,5 @@
 ﻿$(function () {
+    $("a:contains('พขร')").addClass("active");
     var dataGrid = $("#gridContainer").dxDataGrid({
         searchPanel: {
             visible: true,

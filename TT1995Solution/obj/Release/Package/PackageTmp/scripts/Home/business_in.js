@@ -17,7 +17,7 @@ var dataLookupFilter;
 var gc;
 
 $(function () {
-    
+    $("a:contains('ภายในประเทศ')").addClass("active");
     function fnGetHistory(table, idOfTable) {
         //โชว์ข้อมูลประวัติ
         return $.ajax({

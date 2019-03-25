@@ -27,7 +27,7 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-    $("a:contains('ภัยสิ่งแวดล้อม')").addClass("active");
+    $("a:contains('ภัยสิ่งแวดล้อม')").first().addClass("active");
     function getDataEi() {
         var dataValue = [];
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid

@@ -8,7 +8,7 @@ var fileOpen;
 var isFirstClick = false;
 var rowIndex = 0;
 $(function () {
-
+    $("a:contains('ลุ่มน้ำโขง')").addClass("active");
     //กำหนดปุ่มเพิ่มรูปภาพเข้าไปในระบบ
     $("#btnSave").dxButton({
         onClick: function () {
