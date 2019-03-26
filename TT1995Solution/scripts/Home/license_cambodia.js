@@ -84,14 +84,18 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            fnUpdateLc(e.newData, e.key.lc_id);
+            e.cancel = !fnUpdateLc(e.newData, e.key.lc_id);
         },
-        onRowInserting: function (e) {
-            e.data.lc_id = fnInsertLc(e.data);
-            console.log(e.data.lc_id);
+        onRowInserting: function (e) {            
+            var statusInsert = fnInsertLc(e.data);
+            if (statusInsert != '0') {
+                e.data.lc_id = statusInsert;
+            } else {
+                e.cancel = true;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteLc(e.key.lc_id);
+            e.cancel = !fnDeleteLc(e.key.lc_id);
         },
         masterDetail: {
             enabled: false,
@@ -126,11 +130,16 @@ $(function () {
                     },
                     onRowInserting: function (e) {
                         e.data.lc_id = gbE.currentSelectedRowKeys[0].lc_id;
-                        e.data.lcp_id = fnInsertLcPermission(e.data);
+                        
+                        var statusInsert = fnInsertLcPermission(e.data);
+                        if (statusInsert != '0') {
+                            e.data.lcp_id = statusInsert;
+                        } else {
+                            e.cancel = true;
+                        }
                     },
                     onRowRemoving: function (e) {
-                        console.log(e);
-                        fnDeleteLcPermission(e.key.lcp_id);
+                        e.cancel = !fnDeleteLcPermission(e.key.lcp_id);
                     },
                     onContentReady: function (e) {
                         var $btnView = $('<div id="btnView" class="mr-2">').dxButton({
@@ -327,11 +336,11 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มข้อมูลในอนุญาตกัมพูชาเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณาตรวจสอบข้อมูล", "error");
                 }
             },
             error: function (error) {
@@ -343,40 +352,49 @@ $(function () {
 
 
     function fnUpdateLc(newData, keyItem) {
+        var boolUpdate = false;
         console.log(keyItem);
         newData.lc_id = keyItem;
-        console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Home/UpdateLc",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลใบอนุญาติเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteLc(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLc",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลใบอนุญาตกัมพูชาเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function fnInsertFiles(fileUpload) {
@@ -417,32 +435,41 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มการรถในใบอนุญาตกัมพูชาเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
+            },
+            error: function (error) {
+                DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
             }
+
         });
         return returnId;
     }
 
     function fnDeleteLcPermission(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLcPermission",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลใบอนุญาตกัมพูชาเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function parseJsonDate(jsonDateString) {

@@ -174,8 +174,7 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            console.log(e.newData);
-            fnUpdateLicenseFactory(e.newData, e.key.license_factory_id);
+            e.cancel = !fnUpdateLicenseFactory(e.newData, e.key.license_factory_id);
         },
         onRowInserting: function (e) {
             //$.ajax({
@@ -191,7 +190,13 @@ $(function () {
             //    }
             //});
             e.data.history = "ประวัติ";
-            e.data.license_factory_id = fnInsertLicenseFactory(e.data);
+             
+            var statusInsert = fnInsertLicenseFactory(e.data);
+            if (statusInsert != '0') {
+                e.data.license_factory_id = statusInsert;
+            } else {
+                e.cancel = true;
+            }
 
             //ตัด number_car ออก
             //dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
@@ -199,7 +204,7 @@ $(function () {
             //setDefaultNumberCar();
         },
         onRowRemoving: function (e) {
-            fnDeleteLicenseFactory(e.key.license_factory_id);
+            e.cancel = !fnDeleteLicenseFactory(e.key.license_factory_id);
 
             ////กรองอาเรย์
             //dataGridAll.forEach(function (filterdata) {
@@ -384,11 +389,11 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มข้อมูลใบอนุญาตโรงงานเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
             },
             error: function (error) {
@@ -399,41 +404,49 @@ $(function () {
     }
 
     function fnUpdateLicenseFactory(newData, keyItem) {
-
+        var boolUpdate = false;
         newData.license_factory_id = keyItem;
         newData.IdTable = gbTableId;
-        console.log(newData);
         $.ajax({
             type: "POST",
             url: "../Home/UpdateLicenseFactory",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลใบอนุญาติเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteLicenseFactory(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLicenseFactory",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลใบอนุญาตโรงงาน เรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function fnInsertFiles(fileUpload) {

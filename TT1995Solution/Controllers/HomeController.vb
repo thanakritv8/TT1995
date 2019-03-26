@@ -1335,7 +1335,7 @@ Namespace Controllers
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertLc(ByVal lc_number As String, ByVal lc_expire As DateTime, ByVal lc_start As DateTime, ByVal country_code As String, ByVal benefit As String, ByVal lc_status As String) As String
+        Public Function InsertLc(ByVal lc_number As String, ByVal lc_expire As String, ByVal lc_start As String, ByVal country_code As String, ByVal benefit As String, ByVal lc_status As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")

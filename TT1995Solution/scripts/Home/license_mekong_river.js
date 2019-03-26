@@ -84,14 +84,18 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            fnUpdateLmr(e.newData, e.key.lmr_id);
+            e.cancel = !fnUpdateLmr(e.newData, e.key.lmr_id);
         },
         onRowInserting: function (e) {
-            e.data.lmr_id = fnInsertLmr(e.data);
-            console.log(e.data.lmr_id);
+            var statusInsert = fnInsertLmr(e.data);
+            if (statusInsert != '0') {
+                e.data.lmr_id = statusInsert;
+            } else {
+                e.cancel = true;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteLmr(e.key.lmr_id);
+            e.cancel = !fnDeleteLmr(e.key.lmr_id);
         },
         masterDetail: {
             enabled: false,
@@ -126,11 +130,15 @@ $(function () {
                     },
                     onRowInserting: function (e) {
                         e.data.lmr_id = gbE.currentSelectedRowKeys[0].lmr_id;
-                        e.data.lmrp_id = fnInsertLmrPermission(e.data);
+                        var statusInsert = fnInsertLmrPermission(e.data);
+                        if (statusInsert != '0') {
+                            e.data.lmrp_id = statusInsert;
+                        } else {
+                            e.cancel = true;
+                        }                       
                     },
                     onRowRemoving: function (e) {
-                        console.log(e);
-                        fnDeleteLmrPermission(e.key.lmrp_id);
+                        e.cancel = !fnDeleteLmrPermission(e.key.lmrp_id);
                     },
                     onContentReady: function (e) {
                         var $btnView = $('<div id="btnView" class="mr-2">').dxButton({
@@ -318,7 +326,6 @@ $(function () {
     });
 
     function fnInsertLmr(dataGrid) {
-        console.log(dataGrid);
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -328,11 +335,11 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มข้อมูลในอนุญาตลุ่มน้ำโขงเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
             },
             error: function (error) {
@@ -344,40 +351,48 @@ $(function () {
 
 
     function fnUpdateLmr(newData, keyItem) {
-        console.log(keyItem);
+        var boolUpdate = false;
         newData.lmr_id = keyItem;
-        console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Home/UpdateLmr",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลใบอนุญาติเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteLmr(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLmr",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลใบอนุญาตลุ่มน้ำโขงเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function fnInsertFiles(fileUpload) {
@@ -418,11 +433,11 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มการรถในใบอนุญาตลุ่มน้ำโขงเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
             }
         });
@@ -430,20 +445,25 @@ $(function () {
     }
 
     function fnDeleteLmrPermission(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLmrPermission",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลใบอนุญาตลุ่มน้ำโขงเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function parseJsonDate(jsonDateString) {
