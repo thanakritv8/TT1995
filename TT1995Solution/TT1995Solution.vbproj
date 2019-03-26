@@ -1567,6 +1567,7 @@
     <Content Include="Img\folder.png" />
     <Content Include="Img\pdf.png" />
     <Content Include="Img\pic.png" />
+    <Content Include="Img\tt.png" />
     <Content Include="scripts\Account\account.js" />
     <Content Include="scripts\Account\permission.js" />
     <Content Include="scripts\Account\setting.js" />

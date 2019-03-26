@@ -479,11 +479,12 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                console.log(data[0].Status);
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
             },
             error: function (error) {

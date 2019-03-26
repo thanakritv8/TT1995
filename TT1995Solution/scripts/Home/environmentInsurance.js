@@ -163,7 +163,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdateEI(e.newData, e.key.ei_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -189,7 +189,7 @@ $(function () {
                 filter();
                 setDefaultNumberCar();
             } else {
-                e.data = null;
+                e.cancel = true;
             }
             
         },

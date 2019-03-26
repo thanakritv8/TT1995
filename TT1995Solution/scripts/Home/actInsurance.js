@@ -164,7 +164,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdateAI(e.newData, e.key.ai_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -190,7 +190,7 @@ $(function () {
                 filter();
                 setDefaultNumberCar();
             } else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {

@@ -33,10 +33,12 @@
 <body>
     <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
         
-        <a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
+        @*<a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>*@
+        <a href="~/Home/Index"><img src="~/Img/tt.png" class="rounded-circle" height="50" width="50" /></a>
+        <H4 class="navbar-nav mr-auto text-white">&nbsp;&nbsp;&nbsp;Tabien Management System</H4>
         @*<a class="navbar-brand mr-1 text-muted" href="~/Home/Index">Document Management System</a>*@
         @If Session("StatusLogin") = "1" Then
-            @<ul Class="navbar-nav ml-auto">
+            @<ul Class="navbar-nav ml">
                 <li Class="nav-item">
                     <a Class="nav-link" href="#">
                         @Session("FirstName").ToString()

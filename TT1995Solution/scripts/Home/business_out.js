@@ -113,14 +113,19 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            fnUpdateBusinessOut(e.newData, e.key.business_id);
+            e.cancel = !fnUpdateBusinessOut(e.newData, e.key.business_id);
         },
         onRowInserting: function (e) {
-            e.data.business_id = fnInsertBusinessOut(e.data);
-            e.data.history = "ประวัติ";
+            var statusInsert = fnInsertBusinessOut(e.data);
+            if (statusInsert != '0') {
+                e.data.business_id = statusInsert;
+                e.data.history = "ประวัติ";
+            } else {
+                e.cancel = true;
+            }
         },
         onRowRemoving: function (e) {
-            fnDeleteBusinessOut(e.key.business_id);
+            e.cancel = !fnDeleteBusinessOut(e.key.business_id);
         },
         masterDetail: {
             enabled: false,
@@ -159,29 +164,40 @@ $(function () {
                             }
                         },
                     },
-                    onRowInserting: function (e) {                        
-                        e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
-                        e.data.bop_id = fnInsertBusinessOutPermission(e.data, options.key.business_id);
+                    onRowInserting: function (e) {
 
-                        //ตัด number_car ออก
-                        dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-                        filter();
-                        setDefaultNumberCar();
+                        e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
+                        var statusInsert = fnInsertBusinessOutPermission(e.data, options.key.business_id);
+                        if (statusInsert != '0') {
+                            e.data.business_id = gbE.currentSelectedRowKeys[0].business_id;
+                            e.data.bop_id = statusInsert;
+                            //ตัด number_car ออก
+                            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                            filter();
+                            setDefaultNumberCar();
+                        } else {
+                            e.cancel = true;
+                        }
+                        
                     },
                     onRowRemoving: function (e) {
-                        fnDeleteBusinessOutPermission(e.key.bop_id);
+                        if (fnDeleteBusinessOutPermission(e.key.bop_id)) {
+                            dataGridAll.forEach(function (filterdata) {
+                                dataGridAll = dataGridAll.filter(function (arr) {
+                                    return arr.license_id != e.key.license_id;
+                                });
+                            });
+
+                            //push array
+                            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+
+                            setDefaultNumberCar();
+                        } else {
+                            e.cancel = true;
+                        }
 
                         //กรองอาเรย์
-                        dataGridAll.forEach(function (filterdata) {
-                            dataGridAll = dataGridAll.filter(function (arr) {
-                                return arr.license_id != e.key.license_id;
-                            });
-                        });
-
-                        //push array
-                        dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
-
-                        setDefaultNumberCar();
+                        
                     },
                     onContentReady: function (e) {
                         filter();
@@ -468,7 +484,7 @@ $(function () {
                     DevExpress.ui.notify("เพิ่มข้อมูลประกอบการภายนอกประเทศเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
             },
             error: function (error) {
@@ -480,40 +496,49 @@ $(function () {
 
 
     function fnUpdateBusinessOut(newData, keyItem) {
+        var boolUpdate = false;
         newData.business_id = keyItem;
         newData.IdTable = gbTableId;
-        console.log(keyItem);
         $.ajax({
             type: "POST",
             url: "../Home/UpdateBusinessOut",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลประกอบการภายนอกประเทศเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteBusinessOut(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteBusinessOut",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลประกอบการภายนอกประเทศเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function fnInsertFiles(fileUpload) {
@@ -568,20 +593,25 @@ $(function () {
     }
 
     function fnDeleteBusinessOutPermission(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteBusinessOutPermission",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลประกอบการภายในประเทศเรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function parseJsonDate(jsonDateString) {

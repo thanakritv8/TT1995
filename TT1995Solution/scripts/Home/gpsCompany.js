@@ -128,7 +128,7 @@ $(function () {
         onRowUpdating: function (e) {
             //console.log(e);
             if (!fnUpdateGpsCompany(e.newData, e.key.gc_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -137,7 +137,7 @@ $(function () {
                 e.data.history = "ประวัติ";
                 e.data.gc_id = idInsert;
             } else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {
