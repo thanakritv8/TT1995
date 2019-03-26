@@ -118,8 +118,10 @@ $(function () {
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
                 onHidden: function (e) {
+                    console.log(e)
                     setDefaultNumberCar();
                 }
+                
             },
             useIcons: true,
         },
@@ -150,9 +152,9 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (fnUpdateAccident(e.newData, e.key.acd_id)) {
+            if (!fnUpdateAccident(e.newData, e.key.acd_id)) {
                 e.newData = e.oldData;
-                 
+                e.cancel = true;
             }
             
           
@@ -187,22 +189,24 @@ $(function () {
         
         },
         onRowRemoving: function (e) {
-            filter();
 
-            e.cancel = fnDeleteAccident(e.key.acd_id);
+     
+                
+                filter();
+                e.cancel = fnDeleteAccident(e.key.acd_id);
 
-            ////กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
+                ////กรองอาเรย์
+                dataGridAll.forEach(function (filterdata) {
+                    dataGridAll = dataGridAll.filter(function (arr) {
+                        return arr.license_id != e.key.license_id;
+                    });
                 });
-            });
 
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+                //push array
+                dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
 
-            setDefaultNumberCar();
-
+                setDefaultNumberCar();
+         
         },
         masterDetail: {
             enabled: false,

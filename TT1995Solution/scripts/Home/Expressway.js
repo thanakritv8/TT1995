@@ -42,7 +42,8 @@ $(function () {
                     data[i].start_date = d;
 
                     var d = parseJsonDate(data[i].expire_date);
-                    data[i].expire_date = d;
+                    data[i].expire_date = d; 
+                    
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -155,9 +156,10 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (fnUpdateExpressway(e.newData, e.key.epw_id)) {
+            if (!fnUpdateExpressway(e.newData, e.key.epw_id)) {
                 e.newData = e.oldData;
-            }
+                e.cancel = true;
+            } 
         },
         onRowInserting: function (e) {
             console.log(e);

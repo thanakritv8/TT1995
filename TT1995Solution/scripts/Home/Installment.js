@@ -154,8 +154,9 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (fnUpdateInstallment(e.newData, e.key.itm_id)) {
+            if (!fnUpdateInstallment(e.newData, e.key.itm_id)) {
                 e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
