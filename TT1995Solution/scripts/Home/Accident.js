@@ -105,9 +105,10 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
+
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -121,7 +122,7 @@ $(function () {
                     console.log(e)
                     setDefaultNumberCar();
                 }
-                
+
             },
             useIcons: true,
         },
@@ -156,57 +157,57 @@ $(function () {
                 e.newData = e.oldData;
                 e.cancel = true;
             }
-            
-          
-            
+
+
+
         },
         onRowInserting: function (e) {
             console.log(e);
             var st = fnInsertAccident(e.data);
             if (st != 0) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarPoom",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });   
-            e.data.acd_id = st;
-            ////ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
-              }
-                 else {
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLicenseCarPoom",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{number_car: '" + e.data.number_car + "'}",
+                    async: false,
+                    success: function (data) {
+                        e.data.license_car = data[0].license_car;
+                        e.data.license_id = data[0].license_id;
+                        e.data.history = "ประวัติ";
+                    }
+                });
+                e.data.acd_id = st;
+                ////ตัด number_car ออก
+                dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                filter();
+                setDefaultNumberCar();
+            }
+            else {
                 e.cancel = true;
-            } 
-        
+            }
+
         },
         onRowRemoving: function (e) {
 
-     
-                
-                filter();
-                e.cancel = fnDeleteAccident(e.key.acd_id);
 
-                ////กรองอาเรย์
-                dataGridAll.forEach(function (filterdata) {
-                    dataGridAll = dataGridAll.filter(function (arr) {
-                        return arr.license_id != e.key.license_id;
-                    });
+
+            filter();
+            e.cancel = fnDeleteAccident(e.key.acd_id);
+
+            ////กรองอาเรย์
+            dataGridAll.forEach(function (filterdata) {
+                dataGridAll = dataGridAll.filter(function (arr) {
+                    return arr.license_id != e.key.license_id;
                 });
+            });
 
-                //push array
-                dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+            //push array
+            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
 
-                setDefaultNumberCar();
-         
+            setDefaultNumberCar();
+
         },
         masterDetail: {
             enabled: false,
@@ -711,7 +712,7 @@ $(function () {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
                     boolUpd = false;
                 }
-                
+
             }
         });
         return boolUpd;
@@ -735,7 +736,7 @@ $(function () {
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
 
-                } 
+                }
             }
         });
         return returnId;
@@ -754,12 +755,12 @@ $(function () {
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลเรียบร้อยแล้ว", "success");
-                    boolDel = true; 
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
-                    boolDel = false; 
+                    boolDel = false;
                 }
-            
+
             }
         });
         return boolDel;
@@ -785,6 +786,7 @@ $(function () {
         var filter = dataGridAll;
         //กรองอาเรย์
         filter.forEach(function (filterdata) {
+            console.log(filterdata)
             dataLookupAll = dataLookupAll.filter(function (arr) {
                 return arr.license_id != filterdata.license_id;
             });

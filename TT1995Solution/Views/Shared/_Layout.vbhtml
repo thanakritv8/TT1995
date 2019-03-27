@@ -17,6 +17,7 @@
     <link rel="dx-theme" data-theme="generic.light" href="https://cdn3.devexpress.com/jslib/18.2.4/css/dx.light.css" />
     <link rel="dx-theme" data-theme="android5.light" href="https://cdn3.devexpress.com/jslib/17.2.7/css/dx.android5.light.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.2/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js"></script>
     <script src="https://cdn3.devexpress.com/jslib/18.2.4/js/dx.all.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.2/jszip.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
@@ -25,18 +26,19 @@
     <style>
         .bg-custom {
             background-color: rgb(0,128,0);
+            /*background-color: #1a52c6;*/
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand navbar-dark bg-custom static-top">
-
-        <a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>
-        @*<Button Class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-            <i Class="fas fa-bars" style="color:rgb(16,91,172)"></i>   
-        </Button>*@
+        
+        @*<a Class="navbar-brand mr-1" href="~/Home/Index">Three Trans (1995)</a>*@
+        <a href="~/Home/Index"><img src="~/Img/tt.png" class="rounded-circle" height="50" width="50" /></a>
+        <H4 class="navbar-nav mr-auto text-white">&nbsp;&nbsp;&nbsp;Tabien Management System</H4>
+        @*<a class="navbar-brand mr-1 text-muted" href="~/Home/Index">Document Management System</a>*@
         @If Session("StatusLogin") = "1" Then
-            @<ul Class="navbar-nav ml-auto">
+            @<ul Class="navbar-nav ml">
                 <li Class="nav-item">
                     <a Class="nav-link" href="#">
                         @Session("FirstName").ToString()
@@ -48,128 +50,123 @@
                         <i Class="fas fa-user-circle fa-fw"></i>
                     </a>
                     <div Class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                        <a Class="dropdown-item" href="#">Settings</a>
+                        <a Class="dropdown-item" href="../Account/Settings">Settings</a>
                         <div Class="dropdown-divider"></div>
                         <a Class="dropdown-item" href="../Account/Logout" data-toggle="modal" data-target="#logoutModal">Logout</a>
                     </div>
                 </li>
             </ul>
         End If
-
-
-
     </nav>
     <div id="wrapper">
         @If Session("StatusLogin") = "1" Then
-        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)">
-            @*rgb(34,139,34)*@
+        @<ul Class="sidebar navbar-nav" style="background-color:rgb(34,139,34)"> @*0,79,162*@ @*34,139,34*@
+
             <li class="nav-item">
                 <a class="nav-link" href="../Home/Index">
-                    <span Class="text-light">Home</span>
+                    <i class="fas fa-home"></i>
+                    <span Class="text-light"> หน้าแรก</span>
                 </a>
             </li>
-            <li Class="nav-item dropdown">
-                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            @If Session("1") <> 0 Or Session("3") <> 0 Or Session("4") <> 0 Or Session("6") <> 0 Then
+            @<li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle d1" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light"> ทะเบียน</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/License">เล่มทะเบียน</a>
-                    <a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>
-                    <a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>
-                    <a Class="dropdown-item" href="../Home/Driver">พขร</a>
+                    @If Session("1") <> 0 Then @<a Then Class= "dropdown-item" Href = "../Home/License" >เล่มทะเบียน</a>End If
+                    @If Session("3") <> 0 Then @<a Then Class= "dropdown-item" href="../Home/Tax">ภาษี</a>End If
+                    @If Session("4") <> 0 Then @<a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>End If
+                    @If Session("6") <> 0 Then @<a Class="dropdown-item" href="../Home/Driver">พขร</a>End If
                 </div>
             </li>
-            <li Class="nav-item dropdown">
-                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            End if
+            @If Session("13") <> 0 Or Session("20") <> 0 Then
+            @<li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle d2" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light"> ประกอบการ</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/BusinessIn">ภายในประเทศ</a>
-                    <a Then Class="dropdown-item" href="../Home/BusinessOut">ภายนอกประเทศ</a>
+                    @If Session("13") <> 0 Then @<a Then Class="dropdown-item" href="../Home/BusinessIn">ภายในประเทศ</a>End If
+                    @If Session("20") <> 0 Then @<a Then Class="dropdown-item" href="../Home/BusinessOut">ภายนอกประเทศ</a>End If
                 </div>
             </li>
-            <li Class="nav-item dropdown">
-                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            End IF
+            @If Session("22") <> 0 Or Session("23") <> 0 Or Session("30") <> 0 Or Session("28") <> 0 Then
+            @<li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle d3" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light"> ใบอนุญาต</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a> @*../Home/LicenseCambodia*@
-                    <a Then Class="dropdown-item" href="../Home/LicenseMekongRiver">ลุ่มน้ำโขง</a>
-                    <a Then Class="dropdown-item" href="#">เข้าโรงงาน</a>
-                    <a Then Class="dropdown-item" href="../Home/LicenseV8">วัตถุอันตราย(วอ.8)</a>
+                    @If Session("22") <> 0 Then @<a Then Class="dropdown-item" href="../Home/LicenseCambodia">กัมพูชา</a>End If
+                    @If Session("23") <> 0 Then @<a Then Class="dropdown-item" href="../Home/LicenseMekongRiver">ลุ่มน้ำโขง</a>End If
+                    @If Session("30") <> 0 Then @<a Then Class="dropdown-item" href="../Home/LicenseFactory">เข้าโรงงาน</a>End If
+                    @If Session("28") <> 0 Then @<a Then Class="dropdown-item" href="../Home/LicenseV8">วัตถุอันตราย(วอ.8)</a>End If
                 </div>
             </li>
-            <li Class="nav-item dropdown">
-                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            End IF
+            @If Session("17") <> 0 Or Session("15") <> 0 Or Session("16") <> 0 Or Session("18") <> 0 Or Session("10") <> 0 Then
+            @<li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle d4" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
-                    <span Class="text-light">ประกัน</span>
+                    <span Class="text-light">ประกัน & GPS</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/ActInsurance">พรบ</a>
-                    <a Then Class="dropdown-item" href="../Home/MainInsurance">ภัยรถยนต์</a>
-                    <a Then Class="dropdown-item" href="../Home/DomProIns">สินค้าภายในประเทศ</a>
-                    <a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">สิ่งแวดล้อม</a>
+                    @If Session("17") <> 0 Then @<a Then Class="dropdown-item" href="../Home/ActInsurance">พรบ</a>End If
+                    @If Session("15") <> 0 Then @<a Then Class="dropdown-item" href="../Home/MainInsurance">ภัยรถยนต์</a>End If
+                    @If Session("16") <> 0 Then @<a Then Class="dropdown-item" href="../Home/DomProIns">ภัยสินค้าภายในประเทศ</a>End If
+                    @If Session("18") <> 0 Then @<a Then Class="dropdown-item" href="../Home/EnvironmentInsurance">ภัยสิ่งแวดล้อม</a>End If
+                    @If Session("10") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Gps_car">GPS ติดรถ</a>End if
                 </div>
              </li>
-            <li Class="nav-item dropdown">
-                <a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            End If
+            @If Session("8") <> 0 Or Session("7") <> 0 Or Session("5") <> 0 Or Session("29") <> 0 Or Session("2") <> 0 Then
+            @<li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle d5" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
-                    <span Class="text-light">บริษัทประกัน</span>
+                    <span Class="text-light">บริษัท</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="../Home/ActInsCom">พรบ</a>
-                    <a Then Class="dropdown-item" href="../Home/MainInsCom">ภัยรถยนต์</a>
-                    <a Then Class="dropdown-item" href="../Home/ProInsCom">สินค้า</a>
+                    @If Session("8") <> 0 Then @<a Then Class="dropdown-item" href="../Home/ActInsCom">ประกัน พรบ</a>End If
+                    @If Session("7") <> 0 Then @<a Then Class="dropdown-item" href="../Home/MainInsCom">ประกันภัยรถยนต์</a>End If
+                    @If Session("5") <> 0 Then @<a Then Class="dropdown-item" href="../Home/ProInsCom">ประกันภัยสินค้า</a>End If
+                    @If Session("29") <> 0 Then @<a Then Class="dropdown-item" href="../Home/EnvInsCom">ประกันภัยสิ่งแวดล้อม</a>End If
+                    @If Session("2") <> 0 Then @<a Then Class="dropdown-item" href="../Home/GpsCompany">GPS</a>End if
                 </div>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="../Home/GpsCompany">
-                    <span Class="text-light">บริษัท GPS</span>
-                </a>
-            </li>
-             <li class="nav-item">
-                 <a class="nav-link" href="../Home/Expressway">
-                     <span Class="text-light">ทางด่วน</span>
+            End if
+            
+            @If Session("9") <> 0 Or Session("11") <> 0 Or Session("12") <> 0 Or Session("26") <> 0 Then
+                @<li Class="nav-item dropdown">
+                 <a Class="nav-link dropdown-toggle  d6" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                     <i Class="fas fa-fw fa-folder"></i>
+                     <span Class="text-light"> Other</span>
                  </a>
+                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                                    @If Session("9") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Expressway">ทางด่วน</a> End If
+                                    @If Session("12") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Trackingwork">ติดตามงาน</a> End If
+                                    @If Session("11") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Installment">การผ่อนชำระ</a> End If
+                                    @If Session("26") <> 0 Then @<a Then Class="dropdown-item" href="../Home/Accident">บันทึกอุบัติเหตุ</a> End If
+                 </div>
              </li>
-             <li class="nav-item">
-                 <a class="nav-link" href="../Home/Trackingwork">
-                     <span Class="text-light">ติดตามงาน</span>
-                 </a>
-             </li> 
-             <li class="nav-item">
-                 <a class="nav-link" href="../Home/Installment">
-                     <span Class="text-light">การผ่อนชำระ</span>
-                 </a>
-             </li> 
-             <li class="nav-item">
-                 <a class="nav-link" href="../Home/Gps_car">
-                     <span Class="text-light">GPS ติดรถ</span>
-                 </a>
-             </li>
-             <li class="nav-item">
-                 <a class="nav-link" href="../Home/Accident">
-                     <span Class="text-light">บันทึกอุบัติเหตุ</span>
-                 </a>
-             </li> 
-            <li Class="nav-item dropdown">
-                @if Session("GroupId") = "1" Then
-                @<a Class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                End If
+            @If Session("GroupId") = "1" Or Session("GroupId") = "3" Then
+            @<li Class="nav-item dropdown">
+                <a Class="nav-link dropdown-toggle d10" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i Class="fas fa-fw fa-folder"></i>
                     <span Class="text-light"> Administrator</span>
                 </a>
-                @<div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a Then Class="dropdown-item" href="#">Group</a>
-                    <a Then Class="dropdown-item" href="#">Account</a>
-                    <a Then Class="dropdown-item" href="#">Premission</a>
-                     <a Then Class="dropdown-item" href="#">Setting</a>
+                <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
+                    <a Then Class="dropdown-item" href="../Account/Group">Group</a>
+                    <a Then Class="dropdown-item" href="../Account/Account">Account</a>
+                    <a Then Class="dropdown-item" href="../Account/Permission">Permission</a>
                     <a Then Class="dropdown-item" href="../Manage/Lookup">Manage Lookup</a>
-                </div>
-                End If
+                </div>                
             </li>
+            End If
         </ul>
         End If
         <!-- Sidebar -->

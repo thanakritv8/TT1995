@@ -36,7 +36,7 @@ $(function () {
             async: false,
             success: function (data) {
                 //console.log(data);
-                for (var i = 0; i < data.length; i++) { 
+                for (var i = 0; i < data.length; i++) {
 
                     var d = parseJsonDate(data[i].start_date);
                     data[i].start_date = d;
@@ -44,7 +44,7 @@ $(function () {
                     var d = parseJsonDate(data[i].last_date);
                     data[i].last_date = d;
                     var d = parseJsonDate(data[i].postponement_itm);
-                    data[i].postponement_itm = d; 
+                    data[i].postponement_itm = d;
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -108,9 +108,9 @@ $(function () {
         },
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -163,25 +163,25 @@ $(function () {
             console.log(e);
             var st = fnInsertInstallment(e.data);
             if (st != 0) {
-            $.ajax({
-                type: "POST",
-                url: "../Home/GetLicenseCarPoom",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: "{number_car: '" + e.data.number_car + "'}",
-                async: false,
-                success: function (data) {
-                    e.data.license_car = data[0].license_car;
-                    e.data.license_id = data[0].license_id;
-                    e.data.history = "ประวัติ";
-                }
-            });
-            e.data.itm_id = st;
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/GetLicenseCarPoom",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: "{number_car: '" + e.data.number_car + "'}",
+                    async: false,
+                    success: function (data) {
+                        e.data.license_car = data[0].license_car;
+                        e.data.license_id = data[0].license_id;
+                        e.data.history = "ประวัติ";
+                    }
+                });
+                e.data.itm_id = st;
 
-            ////ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
+                ////ตัด number_car ออก
+                dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                filter();
+                setDefaultNumberCar();
             }
             else {
                 e.cancel = true;
@@ -707,7 +707,7 @@ $(function () {
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
                     boolUpd = false;
-                } 
+                }
             }
         });
         return boolUpd;
@@ -730,7 +730,7 @@ $(function () {
                     returnId = data[0].Status;
                 } else {
                     DevExpress.ui.notify(data[0].Status, "error");
-                } 
+                }
             }
         });
         return returnId;
