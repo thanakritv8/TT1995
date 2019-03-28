@@ -103,6 +103,7 @@ End Code
     </div>
 </div>
 <div id="popup_history"></div>
+<!--Commit--> 
 <script>
     //Control Read Only and Read Write
     var boolStatus = false;
@@ -123,4 +124,5 @@ End Code
         $(".d6").next().toggle();
     });
 </script>
+<!--Commit--> 
 <script src="~/scripts/Home/Installment.js"></script>

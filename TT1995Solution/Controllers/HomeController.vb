@@ -3639,7 +3639,7 @@ Namespace Controllers
 
 
 #End Region 'Installment 
-
+        ' Commit
 #Region "Accident"
         Function Accident() As ActionResult
             If Session("StatusLogin") = "1" Then
@@ -3737,7 +3737,7 @@ Namespace Controllers
         End Function
 
 #End Region 'Accident
-
+        ' Commit
 #Region "Function Poom (coppy tew.)"
         'Get data Filses
         Public Function GetFilesPoom(ByVal Id As Integer, ByVal IdTable As Integer) As String

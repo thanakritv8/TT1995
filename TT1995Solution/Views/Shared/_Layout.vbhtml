@@ -138,7 +138,7 @@
                 </div>
             </li>
             End if
-            
+             <!--Commit--> 
             @If Session("9") <> 0 Or Session("11") <> 0 Or Session("12") <> 0 Or Session("26") <> 0 Then
                 @<li Class="nav-item dropdown">
                  <a Class="nav-link dropdown-toggle  d6" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -153,6 +153,7 @@
                  </div>
              </li>
                 End If
+             <!--Commit--> 
             @If Session("GroupId") = "1" Or Session("GroupId") = "3" Then
             @<li Class="nav-item dropdown">
                 <a Class="nav-link dropdown-toggle d10" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

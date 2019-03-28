@@ -108,6 +108,8 @@ $(function () {
             allowedPageSizes: [5, 10, 20],
             showInfo: true
         },
+
+        //' Commit
         editing: {
             mode: "popup",
             allowUpdating: boolStatus,
@@ -207,6 +209,8 @@ $(function () {
             setDefaultNumberCar();
 
         },
+
+        //' Commit
         masterDetail: {
             enabled: false,
             template: function (container, options) {
