@@ -185,7 +185,7 @@ $(function () {
 
             dataGrid.option('columns[0].allowEditing', true);
         },
-        onRowUpdating: function (e) {            
+        onRowUpdating: function (e) {
             e.cancel = !fnUpdateOR(e.newData, e.key.or_id);
         },
         onRowInserting: function (e) {
@@ -199,23 +199,26 @@ $(function () {
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
                     e.data.history = "ประวัติ";
+                    e.data.or_list_view = "View";
+                    e.data.registrar_view = "View";
                 }
             });
 
             var statusInsert = fnInsertOR(e.data, HE_or_list.option("value"), HE_registrar.option("value"));
             if (statusInsert != '0') {
+                e.data.or_list = HE_or_list.option("value");
+                e.data.registrar = HE_registrar.option("value");
                 e.data.or_id = statusInsert;
                 //ตัด number_car ออก
                 filter();
                 setDefaultNumberCar();
-                e.data.or_list = HE_or_list.option("value");
-                e.data.registrar = HE_registrar.option("value");
+
             } else {
                 e.cancel = true;
             }
             //ตัด number_car ออก
         },
-        onRowRemoving: function (e) {            
+        onRowRemoving: function (e) {
             if (fnDeleteOR(e.key.or_id) == true) {
                 //กรองอาเรย์
                 dataGridAll.forEach(function (filterdata) {
@@ -618,7 +621,7 @@ $(function () {
     });
     //จบการกำหนด Column
 
-    
+
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
@@ -938,7 +941,7 @@ $(function () {
     }).dxPopup("instance");
 
     function filter() {
-        
+
         //เซ็ตอาเรย์เริ่มต้น
         var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
         //เซ็ตอาเรย์ที่จะกรอง
