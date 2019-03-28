@@ -3,6 +3,7 @@
 var gbE;
 var fileDataPdf;
 var fileOpen;
+var gbTableId = '23';
 
 //ตัวแปรควบคุมการคลิก treeview
 var isFirstClick = false;
@@ -16,6 +17,26 @@ $(function () {
             fnInsertFiles(fileDataPdf);
         }
     });
+
+    function fnGetHistory(table, idOfTable) {
+        var dataValue = [];
+        //โชว์ข้อมูลประวัติ
+        return $.ajax({
+            type: "POST",
+            url: "../Home/getHistory",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{table: '" + table + "',idOfTable: '" + idOfTable + "'}",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i]._date);
+                    data[i]._date = d;
+                }
+            }
+        }).responseJSON;
+        //จบการโชว์ข้อมูลประวัติ
+    }
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
@@ -90,6 +111,7 @@ $(function () {
             var statusInsert = fnInsertLmr(e.data);
             if (statusInsert != '0') {
                 e.data.lmr_id = statusInsert;
+                e.data.history = 'View';
             } else {
                 e.cancel = true;
             }
@@ -287,7 +309,7 @@ $(function () {
 
                 }
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "history") {
                     itemEditing.push({
                         colSpan: item.colSpan,
                         dataField: item.dataField,
@@ -297,6 +319,53 @@ $(function () {
                         },
                     });
                 }
+
+                //popup
+                if (item.dataField == "history") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    popup_history._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_history .dx-overlay-content").height() - 150;
+                                        content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_history").dxPopup("show");
+                                    var gridHistory = $("#gridHistory").dxDataGrid({
+                                        dataSource: fnGetHistory(gbTableId, options.row.data.lmr_id),
+                                        showBorders: true,
+                                        height: 'auto',
+                                        scrolling: {
+                                            mode: "virtual"
+                                        },
+                                        searchPanel: {
+                                            visible: true,
+                                            width: "auto",
+                                            placeholder: "Search..."
+                                        }
+                                    }).dxDataGrid('instance');
+
+                                    //กำหนดในส่วนของ Column ทั้งหน้าเพิ่มข้อมูลและหน้าแก้ไขข้อมูล
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "../Home/GetColumnChooser",
+                                        contentType: "application/json; charset=utf-8",
+                                        data: "{gbTableId: '19'}",
+                                        dataType: "json",
+                                        async: false,
+                                        success: function (data) {
+                                            //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
+                                            gridHistory.option('columns', data);
+                                        }
+                                    });
+                                    //จบการกำหนด Column
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
             });
 
@@ -327,6 +396,7 @@ $(function () {
 
     function fnInsertLmr(dataGrid) {
         var returnId = 0;
+        dataGrid.IdTable = gbTableId;
         $.ajax({
             type: "POST",
             url: "../Home/InsertLmr",
@@ -353,6 +423,7 @@ $(function () {
     function fnUpdateLmr(newData, keyItem) {
         var boolUpdate = false;
         newData.lmr_id = keyItem;
+        newData.IdTable = gbTableId;
         $.ajax({
             type: "POST",
             url: "../Home/UpdateLmr",
@@ -469,7 +540,172 @@ $(function () {
     function parseJsonDate(jsonDateString) {
         return new Date(parseInt(jsonDateString.replace('/Date(', '')));
     }
+
+    var popup_history = $("#popup_history").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "ประวัติ",
+        contentTemplate: function (content) {
+            return $("<div id='gridHistory'>test</div>");
+        }
+    }).dxPopup("instance");
 });
 
+//$(function () {
+//    var gc;
 
+//    $("#gridContainer").dxDataGrid({
+//        dataSource: employees,
+//        keyExpr: "ID",
+//        showBorders: true,
+//        searchPanel: {
+//            visible: true,
+//            width: 240,
+//            placeholder: "Search..."
+//        },
+//        selection: {
+//            mode: "single"
+//        },
+//        editing: {
+//            mode: "row",
+//            allowUpdating: true,
+//            allowDeleting: true,
+//            allowAdding: true,
+//            useIcons: true,
+//        },
+//        onSelectionChanged: function (e) {
+//            e.component.collapseAll(-1);
+//            e.component.expandRow(e.currentSelectedRowKeys[0]);
+//        },
+//        onContentReady: function (e) {
+//            if (!e.component.getSelectedRowKeys().length)
+//                e.component.selectRowsByIndexes(0);
+//        },
+//        onCellClick: function(e) {
+//            console.log(e);
+//        },
+//        columns: [{
+//            text: "สถานะ",
+//            type: "buttons",
+//            width: 110,
+//            caption: "PDF",
+//            buttons: [{
+//                hint: "View",
+//                icon: "download",
+//                visible: true,
+//                onClick: function (e) {
+//                    console.log("Open");
+//                }
+//            }, {
+//                hint: "Upload",
+//                icon: "upload",
+//                visible: true,
+//                onClick: function (e) {
+//                    console.log("Upload");
+//                }
+//            }]
+//        }, {
+//            dataField: "Prefix",
+//            caption: "ใบอนุญาตเลขที่",
+//        },
+//        {
+//            dataField: "FirstName",
+//            caption: "รหัสเมือง",
+//        },
+//        {
+//            dataField: "LastName",
+//            caption: "วันที่อนุญาต",
+//        }, {
+//            dataField: "Position",
+//            caption: "วันหมดอายุ",
+//        }, {
+//            dataField: "State",
+//            caption: "เงินพิเศษ",
+//        }, {
+//            dataField: "BirthDate",
+//            caption: "สถานะ",
+//        }, {
+//            type: "buttons",
+//            width: 110,
+//            buttons: ["edit", "delete"]
+//        }, ],
+//        masterDetail: {
+//            enabled: false,
+//            template: function (container, options) {
+//                container.append($('<div class="gc"></div>'));
+//                gc = $(".gc").dxDataGrid({
+//                    dataSource: customers,
+//                    searchPanel: {
+//                        visible: true,
+//                        width: 240,
+//                        placeholder: "Search..."
+//                    },
+//                    editing: {
+//                        mode: "row",
+//                        allowUpdating: true,
+//                        allowDeleting: true,
+//                        allowAdding: true,
+//                        useIcons: true,
+//                    },
+//                    onContentReady: function (e) {
+//                        var $btnView = $('<div id="btnView" class="mr-3">').dxButton({
+//                            icon: 'exportpdf', //or your custom icon
+//                            onClick: function () {
+//                                //On Click
+//                            }
+//                        });
+//                        if (e.element.find('#btnView').length == 0)
+//                            e.element
+//                                .find('.dx-toolbar-after')
+//                                .prepend($btnView);
+
+//                        var $btnUpdate = $('<div id="btnUpdate" class="mr-3">').dxButton({
+//                            icon: 'upload', //or your custom icon
+//                            onClick: function () {
+//                                //On Click
+//                            }
+//                        });
+//                        if (e.element.find('#btnUpdate').length == 0)
+//                            e.element
+//                                .find('.dx-toolbar-after')
+//                                .prepend($btnUpdate);
+
+//                        //var $btnDelete = $('<div id="btnDelete" class="mr-3">').dxButton({
+//                        //    icon: 'trash', //or your custom icon
+//                        //    onClick: function () {
+//                        //        //On Click
+//                        //    }
+//                        //});
+//                        //if (e.element.find('#btnDelete').length == 0)
+//                        //    e.element
+//                        //        .find('.dx-toolbar-after')
+//                        //        .prepend($btnDelete);
+//                    },
+//                    columns: [{
+//                        dataField: "CompanyName",
+//                        caption: "เบอร์รถหัว",
+//                    },
+//                    {
+//                        dataField: "City",
+//                        caption: "ทะเบียนหัว"
+//                    },
+//                    {
+//                        dataField: "State",
+//                        caption: "เบอร์รถท้าย"
+//                    },
+//                    {
+//                        dataField: "Phone",
+//                        caption: "ทะเบียนท้าย"
+//                    }],
+//                    showBorders: true
+//                }).dxDataGrid("instance");
+//            }
+//        },
+        
+//    });
+
+
+//});
 

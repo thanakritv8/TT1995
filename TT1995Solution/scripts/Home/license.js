@@ -453,9 +453,10 @@ $(function () {
                     height: "150px",
                     //คลิกโชว์รูปภาพแบบ Gallery
                     onItemClick: function (e) {
+                        console.log(e);
                         gallery = [];
                         itemData = fnGetFiles(options.key.license_id);
-                        var item = e.itemData;
+                        var item = e.node.itemData;
                         console.log(e);
                         if (item.path_file) {
                             itemData.forEach(function (itemFiles) {

@@ -41,6 +41,7 @@ End Code
         </div>
     </div>
 </div>
+<div id="popup_history"></div>
 <script>
     //Control Read Only and Read Write
     var boolStatus = false;

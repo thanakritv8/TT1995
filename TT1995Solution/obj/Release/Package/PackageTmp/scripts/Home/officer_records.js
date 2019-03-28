@@ -13,6 +13,12 @@ var _dataSource;
 var dataGridAll;
 var dataLookupFilter;
 
+var statusUpdateOrList = 0;
+var statusUpdateRegistrar = 0;
+
+var HE_or_list
+var HE_registrar;
+
 //ตัวแปรควบคุมการคลิก treeview
 var isFirstClick = false;
 var rowIndex = 0;
@@ -123,6 +129,27 @@ $(function () {
                 showTitle: true,
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
+                toolbarItems: [{
+                    toolbar: 'bottom',
+                    location: 'after',
+                    widget: "dxButton",
+                    options: {
+                        text: "Save",
+                        onClick: function (e) {
+                            if (typeof gbE != "undefined") {
+                                if (statusUpdateOrList == 2) {
+                                    updateOrList(gbE.data.or_id, HE_or_list.option("value"));
+                                    gbE.data.or_list = HE_or_list.option("value");
+                                }
+                                if (statusUpdateRegistrar == 2) {
+                                    updateRegistrar(gbE.data.or_id, HE_registrar.option("value"));
+                                    gbE.data.registrar = HE_registrar.option("value");
+                                }
+                            }
+                            dataGrid.saveEditData();
+                        }
+                    }
+                }],
                 onHidden: function (e) {
                     setDefaultNumberCar();
                 }
@@ -142,6 +169,9 @@ $(function () {
         //},
         onEditingStart: function (e) {
             dataGrid.option('columns[0].allowEditing', false);
+            statusUpdateOrList = 0;
+            statusUpdateRegistrar = 0;
+            gbE = e;
         },
         onInitNewRow: function (e) {
 
@@ -155,7 +185,7 @@ $(function () {
 
             dataGrid.option('columns[0].allowEditing', true);
         },
-        onRowUpdating: function (e) {            
+        onRowUpdating: function (e) {
             e.cancel = !fnUpdateOR(e.newData, e.key.or_id);
         },
         onRowInserting: function (e) {
@@ -169,21 +199,26 @@ $(function () {
                 success: function (data) {
                     e.data.license_car = data[0].license_car;
                     e.data.history = "ประวัติ";
+                    e.data.or_list_view = "View";
+                    e.data.registrar_view = "View";
                 }
             });
 
-            var statusInsert = fnInsertOR(e.data);
+            var statusInsert = fnInsertOR(e.data, HE_or_list.option("value"), HE_registrar.option("value"));
             if (statusInsert != '0') {
+                e.data.or_list = HE_or_list.option("value");
+                e.data.registrar = HE_registrar.option("value");
                 e.data.or_id = statusInsert;
                 //ตัด number_car ออก
                 filter();
                 setDefaultNumberCar();
+
             } else {
                 e.cancel = true;
             }
             //ตัด number_car ออก
         },
-        onRowRemoving: function (e) {            
+        onRowRemoving: function (e) {
             if (fnDeleteOR(e.key.or_id) == true) {
                 //กรองอาเรย์
                 dataGridAll.forEach(function (filterdata) {
@@ -366,7 +401,7 @@ $(function () {
             data.forEach(function (item) {
 
                 //รายการหน้าโชว์หน้าเพิ่มและแก้ไข
-                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "history") {
+                if (item.dataField != "create_date" && item.dataField != "create_by_user_id" && item.dataField != "update_date" && item.dataField != "update_by_user_id" && item.dataField != "history" && item.dataField != "or_list_view" && item.dataField != "registrar_view") {
                     if (item.dataField == "number_car") {
                         itemEditing.push({
                             colSpan: item.colSpan,
@@ -375,6 +410,84 @@ $(function () {
                             editorOptions: {
                                 disabled: false
                             },
+                        });
+                    } else if (item.dataField == "or_list") {
+                        itemEditing.push({
+                            colSpan: 3,
+                            dataField: "รายการบันทึก",
+                            template: function (e, itemElement) {
+                                var content = "";
+                                if (typeof e.component._options.validationGroup.key.or_list != "undefined") {
+                                    content = e.component._options.validationGroup.key.or_list
+                                }
+                                itemElement.append($('<div class="HE_or_list">' + content + '</div>'));
+                                HE_or_list = $(".HE_or_list").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateOrList == 0) {
+                                            statusUpdateOrList = 1;
+                                        } else if (statusUpdateOrList = 1) {
+                                            statusUpdateOrList = 2;
+                                        }
+                                    }
+                                }).dxHtmlEditor("instance");
+                            }
+                        });
+                    } else if (item.dataField == "registrar") {
+                        itemEditing.push({
+                            colSpan: 3,
+                            dataField: "พนักงานบันทึก",
+                            template: function (e, itemElement) {
+                                var content = "";
+                                if (typeof e.component._options.validationGroup.key.registrar != "undefined") {
+                                    content = e.component._options.validationGroup.key.registrar
+                                }
+                                itemElement.append($('<div class="HE_registrar">' + content + '</div>'));
+                                HE_registrar = $(".HE_registrar").dxHtmlEditor({
+                                    height: 300,
+                                    toolbar: {
+                                        items: [
+                                            "undo", "redo", "separator",
+                                            {
+                                                formatName: "size",
+                                                formatValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"]
+                                            },
+                                            {
+                                                formatName: "font",
+                                                formatValues: ["Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana"]
+                                            },
+                                            "separator",
+                                            "bold", "italic", "strike", "underline", "separator",
+                                            "alignLeft", "alignCenter", "alignRight", "alignJustify", "separator",
+                                            "color", "background"
+                                        ]
+                                    },
+                                    onValueChanged: function (e) {
+                                        if (statusUpdateRegistrar == 0) {
+                                            statusUpdateRegistrar = 1;
+                                        } else if (statusUpdateRegistrar = 1) {
+                                            statusUpdateRegistrar = 2;
+                                        }
+                                    }
+                                }).dxHtmlEditor("instance");
+                            }
                         });
                     } else if (item.dataField != "license_car") {
                         itemEditing.push({
@@ -431,6 +544,48 @@ $(function () {
                     }
                 }
 
+                //popup
+                if (item.dataField == "or_list_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    popup_or_list._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_or_list .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_or_list' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_or_list").dxPopup("show");
+
+                                    $("#html_or_list").empty();
+                                    $('#html_or_list').append(options.data.or_list);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
+                //popup
+                if (item.dataField == "registrar_view") {
+                    data[ndata].cellTemplate = function (container, options) {
+                        $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')
+                                .text(options.value)
+                                .on('dxclick', function (e) {
+                                    popup_registrar._options.contentTemplate = function (content) {
+                                        var maxHeight = $("#popup_registrar .dx-overlay-content").height() - 150;
+                                        content.append("<div id='html_registrar' style='max-height: " + maxHeight + "px;' ></div>");
+                                    }
+
+                                    $("#popup_registrar").dxPopup("show");
+
+                                    $("#html_registrar").empty();
+                                    $('#html_registrar').append(options.data.registrar);
+
+                                })
+                                .appendTo(container);
+                    }
+                }
+
                 ndata++;
                 //จบรายการหน้าโชว์หน้าเพิ่มและแก้ไข
             });
@@ -448,6 +603,13 @@ $(function () {
                     }
                 }
             });
+            var filter = [{ column_id: '49' }, { column_id: '50' }];
+            //กรองอาเรย์
+            filter.forEach(function (filterdata) {
+                data = data.filter(function (arr) {
+                    return arr.column_id != filterdata.column_id;
+                });
+            });
             _dataSource = data[0].lookup.dataSource;
             //ตัวแปร data โชว์ Column และตั้งค่า Column ไหนที่เอามาโชว์บ้าง
             dataGrid.option('columns', data);
@@ -459,7 +621,7 @@ $(function () {
     });
     //จบการกำหนด Column
 
-    
+
 
     //กำหนดการ Upload files
     var cf = $(".custom-file").dxFileUploader({
@@ -604,8 +766,10 @@ $(function () {
     }
 
     //Function Insert ข้อมูล
-    function fnInsertOR(dataGrid) {
+    function fnInsertOR(dataGrid, orList, registrar) {
         dataGrid.IdTable = gbTableId;
+        dataGrid.or_list = orList;
+        dataGrid.registrar = registrar;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -777,7 +941,7 @@ $(function () {
     }).dxPopup("instance");
 
     function filter() {
-        
+
         //เซ็ตอาเรย์เริ่มต้น
         var dataLookupAll = dataGrid._options.columns[0].lookup.dataSource;
         //เซ็ตอาเรย์ที่จะกรอง
@@ -834,4 +998,62 @@ $(function () {
             }
         });
     });
+
+    var popup_or_list = $("#popup_or_list").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "รายการบันทึก",
+        contentTemplate: function (content) {
+            return $("<div id='html_or_list'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    var popup_registrar = $("#popup_registrar").dxPopup({
+        visible: false,
+        width: "60%",
+        height: "70%",
+        showTitle: true,
+        title: "พนักงานบันทึก",
+        contentTemplate: function (content) {
+            return $("<div id='html_registrar'>test</div>");
+        }
+    }).dxPopup("instance");
+
+    function updateOrList(or_id, data) {
+        $.ajax({
+            type: "POST",
+            url: "../Home/UpdateOrList",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{or_id:'" + or_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
+
+    function updateRegistrar(or_id, data) {
+        $.ajax({
+            type: "POST",
+            url: "../Home/UpdateRegistrar",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "{or_id:'" + or_id + "',data:'" + data + "',IdTable: '" + gbTableId + "'}",
+            success: function (data) {
+                if (data = 1) {
+                    //alert('Update Column Hide OK');
+                } else {
+                    alert('Update Column Hide error!!');
+                }
+            }
+        });
+
+    }
 });

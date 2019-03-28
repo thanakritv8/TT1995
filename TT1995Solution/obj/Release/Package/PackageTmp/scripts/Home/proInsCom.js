@@ -1,5 +1,4 @@
-﻿
-var itemEditing = [[], []];
+﻿var itemEditing = [[], []];
 var itemEditing2 = [];
 var columnHide = [];
 var gbTableId = '5';
@@ -297,12 +296,14 @@ $(function () {
             }
         },
         onRowInserting: function (e) {
-            var idInsert = fnInsertPIC(e.data, html_editor.option("value"));
+            var idInsert = fnInsertPIC(e.data, html_editor.option("value"), html_editor_not_protection.option("value"));
             if (idInsert != 0) {
-                e.data.pic_id = fnInsertPIC(e.data, html_editor.option("value"));
+                e.data.pic_id = idInsert;
                 e.data.history = "ประวัติ";
                 e.data.protection_view = "View";
+                e.data.not_protection_view = "View";
                 e.data.protection = html_editor.option("value");
+                e.data.not_protection = html_editor_not_protection.option("value");
             } else {
                 e.cancel = true;
             }
@@ -650,10 +651,11 @@ $(function () {
     }
 
     //Function Insert ข้อมูล gps_company
-    function fnInsertPIC(dataGrid, dataHtmlEditorProtection) {
+    function fnInsertPIC(dataGrid, dataHtmlEditorProtection, dataHtmlEditorNotProtection) {
         //console.log(dataGrid);
         dataGrid.IdTable = gbTableId;
         dataGrid.DataHtmlEditorProtection = dataHtmlEditorProtection;
+        dataGrid.DataHtmlEditorNotProtection = dataHtmlEditorNotProtection;
         var returnId = 0;
         $.ajax({
             type: "POST",
@@ -1004,7 +1006,7 @@ $(function () {
         width: "60%",
         height: "70%",
         showTitle: true,
-        title: "สินค้าที่คุ้มครอง",
+        title: "ดูรายการบันทึก",
         contentTemplate: function (content) {
             return $("<div id='html_protection'>test</div>");
         }
@@ -1015,7 +1017,7 @@ $(function () {
         width: "60%",
         height: "70%",
         showTitle: true,
-        title: "สินค้าที่ไม่คุ้มครอง",
+        title: "ดูพนักงานบันทึก",
         contentTemplate: function (content) {
             return $("<div id='html_not_protection'>test</div>");
         }
