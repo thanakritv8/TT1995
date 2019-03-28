@@ -582,7 +582,7 @@ $(function () {
             dataType: "json",
             async: false,
             success: function (data) {
-                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง") {
+                if (data[0].Status != "กรุณากรอกข้อมูลให้ถูกต้อง" && data[0].Status > 0) {
                     DevExpress.ui.notify("เพิ่มการรถในประกอบเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {

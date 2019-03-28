@@ -193,7 +193,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdateGps_car(e.newData, e.key.gps_car_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -221,7 +221,7 @@ $(function () {
                 filter();
                 setDefaultNumberCar();
             } else {
-                e.data = null;
+                e.cancel = true;
             }
             
         },

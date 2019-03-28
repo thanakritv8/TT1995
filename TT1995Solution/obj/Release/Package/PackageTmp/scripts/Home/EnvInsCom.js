@@ -159,7 +159,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdateEIC(e.newData, e.key.eic_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
             
         },
@@ -170,7 +170,7 @@ $(function () {
                 e.data.history = "ประวัติ";
             }
             else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {

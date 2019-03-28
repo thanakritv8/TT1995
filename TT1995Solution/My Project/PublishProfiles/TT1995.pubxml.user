@@ -16,25 +16,25 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/15/2019 21:55:56</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.Agent.Intercept.dll">
-      <publishTime>07/12/2015 19:04:38</publishTime>
+      <publishTime>12/07/2015 19:04:38</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.DependencyCollector.dll">
-      <publishTime>10/03/2016 14:26:18</publishTime>
+      <publishTime>03/10/2016 14:26:18</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.PerfCounterCollector.dll">
-      <publishTime>10/03/2016 14:26:26</publishTime>
+      <publishTime>03/10/2016 14:26:26</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.ServerTelemetryChannel.dll">
-      <publishTime>09/03/2016 12:00:14</publishTime>
+      <publishTime>03/09/2016 12:00:14</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.Web.dll">
-      <publishTime>10/03/2016 14:26:26</publishTime>
+      <publishTime>03/10/2016 14:26:26</publishTime>
     </File>
     <File Include="bin/Microsoft.AI.WindowsServer.dll">
-      <publishTime>10/03/2016 14:26:26</publishTime>
+      <publishTime>03/10/2016 14:26:26</publishTime>
     </File>
     <File Include="bin/Microsoft.ApplicationInsights.dll">
-      <publishTime>09/03/2016 11:57:34</publishTime>
+      <publishTime>03/09/2016 11:57:34</publishTime>
     </File>
     <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
       <publishTime>06/15/2015 02:06:24</publishTime>
@@ -97,16 +97,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2015 04:04:30</publishTime>
     </File>
     <File Include="bin/TT1995Solution.dll">
-      <publishTime>03/25/2019 20:30:04</publishTime>
+      <publishTime>03/26/2019 18:33:01</publishTime>
     </File>
     <File Include="bin/TT1995Solution.xml">
-      <publishTime>03/25/2019 20:30:04</publishTime>
+      <publishTime>03/26/2019 18:33:01</publishTime>
     </File>
     <File Include="Content/bootstrap.css">
-      <publishTime>09/01/2019 07:18:08</publishTime>
+      <publishTime>01/09/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/bootstrap.min.css">
-      <publishTime>09/01/2019 07:18:08</publishTime>
+      <publishTime>01/09/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/css/sb-admin.css">
       <publishTime>01/10/2019 16:54:39</publishTime>
@@ -118,7 +118,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/10/2019 21:57:32</publishTime>
     </File>
     <File Include="Content/jquery.fileupload.css">
-      <publishTime>09/01/2019 07:18:08</publishTime>
+      <publishTime>01/09/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/js/demo/chart-area-demo.js">
       <publishTime>01/10/2019 16:54:39</publishTime>
@@ -139,16 +139,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/10/2019 16:54:39</publishTime>
     </File>
     <File Include="Content/sb-admin.css">
-      <publishTime>09/01/2019 07:18:08</publishTime>
+      <publishTime>01/09/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/sb-admin.min.css">
       <publishTime>02/13/2019 13:19:18</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>09/01/2019 07:18:08</publishTime>
+      <publishTime>01/09/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/Toast.css">
-      <publishTime>09/01/2019 07:18:08</publishTime>
+      <publishTime>01/09/2019 07:18:08</publishTime>
     </File>
     <File Include="Content/vendor/bootstrap/css/bootstrap-grid.css">
       <publishTime>01/10/2019 16:54:31</publishTime>
@@ -4560,6 +4560,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Img/pic.png">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
+    <File Include="Img/tt.png">
+      <publishTime>03/26/2019 11:15:39</publishTime>
+    </File>
     <File Include="packages.config">
       <publishTime>01/23/2019 11:38:29</publishTime>
     </File>
@@ -4579,40 +4582,40 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/22/2019 09:52:17</publishTime>
     </File>
     <File Include="scripts/Home/Accident.js">
-      <publishTime>03/25/2019 21:15:17</publishTime>
+      <publishTime>03/26/2019 18:26:10</publishTime>
     </File>
     <File Include="scripts/Home/actInsCom.js">
-      <publishTime>03/25/2019 20:57:12</publishTime>
+      <publishTime>03/26/2019 11:11:10</publishTime>
     </File>
     <File Include="scripts/Home/actInsurance.js">
-      <publishTime>03/25/2019 20:55:17</publishTime>
+      <publishTime>03/26/2019 11:11:38</publishTime>
     </File>
     <File Include="scripts/Home/business_in.js">
-      <publishTime>03/25/2019 21:46:47</publishTime>
+      <publishTime>03/26/2019 14:25:05</publishTime>
     </File>
     <File Include="scripts/Home/business_out.js">
-      <publishTime>03/25/2019 20:19:56</publishTime>
+      <publishTime>03/26/2019 14:24:28</publishTime>
     </File>
     <File Include="scripts/Home/domProIns.js">
-      <publishTime>03/25/2019 20:20:15</publishTime>
+      <publishTime>03/26/2019 11:12:14</publishTime>
     </File>
     <File Include="scripts/Home/driver.js">
       <publishTime>03/25/2019 20:20:38</publishTime>
     </File>
     <File Include="scripts/Home/EnvInsCom.js">
-      <publishTime>03/25/2019 20:54:50</publishTime>
+      <publishTime>03/26/2019 11:10:15</publishTime>
     </File>
     <File Include="scripts/Home/environmentInsurance.js">
-      <publishTime>03/25/2019 20:55:28</publishTime>
+      <publishTime>03/26/2019 11:12:43</publishTime>
     </File>
     <File Include="scripts/Home/Expressway.js">
       <publishTime>03/25/2019 21:15:03</publishTime>
     </File>
     <File Include="scripts/Home/gpsCompany.js">
-      <publishTime>03/25/2019 20:56:53</publishTime>
+      <publishTime>03/26/2019 11:13:09</publishTime>
     </File>
     <File Include="scripts/Home/Gps_car.js">
-      <publishTime>03/25/2019 20:55:03</publishTime>
+      <publishTime>03/26/2019 11:10:48</publishTime>
     </File>
     <File Include="scripts/Home/index.js">
       <publishTime>03/16/2019 13:25:41</publishTime>
@@ -4621,31 +4624,31 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/25/2019 21:15:34</publishTime>
     </File>
     <File Include="scripts/Home/license.js">
-      <publishTime>03/25/2019 20:21:25</publishTime>
+      <publishTime>03/26/2019 18:26:12</publishTime>
     </File>
     <File Include="scripts/Home/licenseV8.js">
-      <publishTime>03/25/2019 20:21:40</publishTime>
+      <publishTime>03/26/2019 14:42:16</publishTime>
     </File>
     <File Include="scripts/Home/license_cambodia.js">
-      <publishTime>03/25/2019 20:21:55</publishTime>
+      <publishTime>03/26/2019 14:23:36</publishTime>
     </File>
     <File Include="scripts/Home/license_factory.js">
-      <publishTime>03/25/2019 20:22:11</publishTime>
+      <publishTime>03/26/2019 14:47:24</publishTime>
     </File>
     <File Include="scripts/Home/license_mekong_river.js">
-      <publishTime>03/25/2019 20:22:30</publishTime>
+      <publishTime>03/26/2019 14:50:59</publishTime>
     </File>
     <File Include="scripts/Home/mainInsCom.js">
-      <publishTime>03/25/2019 20:56:10</publishTime>
+      <publishTime>03/26/2019 18:25:33</publishTime>
     </File>
     <File Include="scripts/Home/mainInsurance.js">
-      <publishTime>03/25/2019 20:55:42</publishTime>
+      <publishTime>03/26/2019 11:13:54</publishTime>
     </File>
     <File Include="scripts/Home/officer_records.js">
       <publishTime>03/25/2019 20:23:30</publishTime>
     </File>
     <File Include="scripts/Home/proInsCom.js">
-      <publishTime>03/25/2019 20:23:49</publishTime>
+      <publishTime>03/26/2019 11:14:22</publishTime>
     </File>
     <File Include="scripts/Home/tax.js">
       <publishTime>03/25/2019 20:24:05</publishTime>
@@ -4657,7 +4660,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/11/2019 22:12:54</publishTime>
     </File>
     <File Include="scripts/sb-admin.min.js">
-      <publishTime>11/09/2018 09:15:32</publishTime>
+      <publishTime>09/11/2018 09:15:32</publishTime>
     </File>
     <File Include="Service References/Application Insights/ConnectedService.json">
       <publishTime>01/15/2019 21:55:57</publishTime>
@@ -4759,7 +4762,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/23/2019 13:31:26</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.vbhtml">
-      <publishTime>03/25/2019 20:14:53</publishTime>
+      <publishTime>03/26/2019 11:09:13</publishTime>
     </File>
     <File Include="Views/web.config">
       <publishTime>01/15/2019 21:54:59</publishTime>

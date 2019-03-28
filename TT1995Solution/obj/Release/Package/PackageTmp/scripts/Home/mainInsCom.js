@@ -157,7 +157,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdateMIC(e.newData, e.key.mic_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -178,7 +178,7 @@ $(function () {
                 });
                 e.data.mic_id = idInsert;
             } else {
-                e.data = null;
+                e.cancel = true;
             }
             
         },

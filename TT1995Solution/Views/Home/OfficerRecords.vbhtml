@@ -96,6 +96,8 @@ End Code
     </div>
 </div>
 <div id="popup_history"></div>
+<div id="popup_or_list"></div>
+<div id="popup_registrar"></div>
 <script>
     //Control Read Only and Read Write
     var boolStatus = false;
@@ -117,5 +119,3 @@ End Code
     });
 </script>
 <script src="~/scripts/Home/officer_records.js"></script>
-
-

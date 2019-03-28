@@ -293,7 +293,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdatePIC(e.newData, e.key.pic_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -304,7 +304,7 @@ $(function () {
                 e.data.protection_view = "View";
                 e.data.protection = html_editor.option("value");
             } else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {

@@ -181,7 +181,7 @@ $(function () {
         },
         onRowUpdating: function (e) {
             if (!fnUpdateAIC(e.newData, e.key.aic_id)) {
-                e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -192,7 +192,7 @@ $(function () {
                 e.data.protection = html_editor.option("value");
                 e.data.history = "ประวัติ";
             } else {
-                e.data = null;
+                e.cancel = true;
             }
         },
         onRowRemoving: function (e) {

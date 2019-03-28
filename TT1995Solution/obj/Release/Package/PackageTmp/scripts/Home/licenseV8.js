@@ -173,8 +173,7 @@ $(function () {
             }
         },
         onRowUpdating: function (e) {
-            console.log(e.newData);
-            fnUpdateLv8(e.newData, e.key.lv8_id);
+            e.cancel = !fnUpdateLv8(e.newData, e.key.lv8_id);
         },
         onRowInserting: function (e) {
             $.ajax({
@@ -188,28 +187,37 @@ $(function () {
                     e.data.license_car = data[0].license_car;
                     e.data.history = "ประวัติ";
                 }
-            });
-            e.data.lv8_id = fnInsertLv8(e.data);
+            });            
 
-            //ตัด number_car ออก
-            dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
-            filter();
-            setDefaultNumberCar();
+            var statusInsert = fnInsertLv8(e.data);
+            if (statusInsert != '0') {
+                e.data.lv8_id = statusInsert;
+                //ตัด number_car ออก
+                dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
+                filter();
+                setDefaultNumberCar();
+            } else {
+                e.cancel = true;
+            }
+
+            
         },
         onRowRemoving: function (e) {
-            fnDeleteLv8(e.key.lv8_id);
-
-            //กรองอาเรย์
-            dataGridAll.forEach(function (filterdata) {
-                dataGridAll = dataGridAll.filter(function (arr) {
-                    return arr.license_id != e.key.license_id;
+            if (fnDeleteLv8(e.key.lv8_id)) {
+                //กรองอาเรย์
+                dataGridAll.forEach(function (filterdata) {
+                    dataGridAll = dataGridAll.filter(function (arr) {
+                        return arr.license_id != e.key.license_id;
+                    });
                 });
-            });
 
-            //push array
-            dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
+                //push array
+                dataLookupFilter.push({ number_car: e.key.number_car, license_id: e.key.license_id });
 
-            setDefaultNumberCar();
+                setDefaultNumberCar();
+            } else {
+                e.cancel = true;
+            }            
         },
         masterDetail: {
             enabled: false,
@@ -477,7 +485,6 @@ $(function () {
 
 
     function fnInsertLv8(dataGrid) {
-        console.log(dataGrid);
         dataGrid.IdTable = gbTableId;
         var returnId = 0;
         $.ajax({
@@ -492,7 +499,7 @@ $(function () {
                     DevExpress.ui.notify("เพิ่มข้อมูลใบอนุญาต(วอ.8)เรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("กรุณากรอกข้อมูลให้ถูกต้อง", "error");
                 }
             },
             error: function (error) {
@@ -502,43 +509,50 @@ $(function () {
         return returnId;
     }
 
-
     function fnUpdateLv8(newData, keyItem) {
-
+        var boolUpdate = false;
         newData.lv8_id = keyItem;
         newData.IdTable = gbTableId;
-        console.log(newData);
         $.ajax({
             type: "POST",
             url: "../Home/UpdateLv8",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลใบอนุญาติเรียบร้อยแล้ว", "success");
+                    boolUpdate = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถแก้ไขข้อมูลได้กรุณาตรวจสอบข้อมูล", "error");
+                    boolUpdate = false;
                 }
             }
         });
+        return boolUpdate;
     }
 
     function fnDeleteLv8(keyItem) {
+        var boolDel = false;
         $.ajax({
             type: "POST",
             url: "../Home/DeleteLv8",
             contentType: "application/json; charset=utf-8",
             data: "{keyId: '" + keyItem + "'}",
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("ลบข้อมูลใบอนุญาต(วอ.8) เรียบร้อยแล้ว", "success");
+                    boolDel = true;
                 } else {
                     DevExpress.ui.notify("ไม่สามารถลบข้อมูลได้", "error");
+                    boolDel = false;
                 }
             }
         });
+        return boolDel;
     }
 
     function fnInsertFiles(fileUpload) {
