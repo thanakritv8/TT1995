@@ -69,15 +69,15 @@ Namespace Controllers
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             'Dim _SQL As String = "Select cc1.column_id, cc1.name_column As dataField, cc1.display As caption, cc1.data_type As dataType, cc1.alignment, cc1.width, ISNULL(cc2.visible, 0) As visible FROM [config_column] As cc1 LEFT JOIN [chooser_column] As cc2 On cc1.column_id = cc2.column_id WHERE cc2.user_id = " & Session("UserId")
             'Dim _SQL As String = "Select column_id, name_column As dataField, display As caption, data_type As dataType, alignment, width, ISNULL(visible, 0) As visible, fixed, Format, colSpan FROM [config_column] WHERE name_column <> 'license_id' ORDER BY sort ASC"
-                                Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE cc.name_column <> 'license_id' AND table_id = " & table_id & " ORDER BY cc.sort ASC"
-                                Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
-                                objDB.DisconnectDB(cn)
-                                Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+            Dim _SQL As String = "SELECT distinct(cc.sort), cc.column_id, cc.name_column AS dataField, cc.display AS caption, cc.data_type AS dataType, cc.alignment, cc.width, ISNULL(cc.visible,0) AS visible, cc.fixed, cc.format, cc.colSpan, isnull(lu.column_id, 0) as status_lookup FROM config_column AS cc LEFT JOIN lookup AS lu ON cc.column_id = lu.column_id WHERE cc.name_column <> 'license_id' AND table_id = " & table_id & " ORDER BY cc.sort ASC"
+            Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
         Public Function GetLicense() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],N'ประวัติ' as history FROM [license] ORDER BY number_car"
+            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],N'ประวัติ' as history FROM [license] ORDER BY LEN(number_car),number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -422,7 +422,7 @@ Namespace Controllers
 
         Public Function GetTax() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT t.tax_id,t.tax_expire,t.tax_startdate,t.tax_rate,t.tax_status,l.number_car, l.license_car, l.license_id, t.special_expenses_1, t.special_expenses_2, t.contract_wages,N'ประวัติ' as history,t.note FROM tax as t join license as l on t.license_id = l.license_id"
+            Dim _SQL As String = "SELECT t.tax_id,t.tax_expire,t.tax_startdate,t.tax_rate,t.tax_status,l.number_car, l.license_car, l.license_id, t.special_expenses_1, t.special_expenses_2, t.contract_wages,N'ประวัติ' as history,t.note FROM tax as t join license as l on t.license_id = l.license_id order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -713,7 +713,7 @@ Namespace Controllers
 
         Public Function GetOR() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT o.or_list, o.or_id,o.registrar,o.record_date,l.number_car, l.license_car, l.license_id,N'ประวัติ' as history,'View' as or_list_view,'View' as registrar_view FROM officer_records as o join license as l on o.license_id = l.license_id"
+            Dim _SQL As String = "SELECT o.or_list, o.or_id,o.registrar,o.record_date,l.number_car, l.license_car, l.license_id,N'ประวัติ' as history,'View' as or_list_view,'View' as registrar_view FROM officer_records as o join license as l on o.license_id = l.license_id order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1065,7 +1065,7 @@ Namespace Controllers
 
         Public Function GetDriver() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT d.driver_id, d.driver_name, d.start_work_date, d.license_id_head, d.license_id_tail, (select license_car from license where license_id = d.license_id_head) as license_car_head, (select license_car from license where license_id = d.license_id_tail) as license_car_tail,N'ประวัติ' as history FROM driver as d"
+            Dim _SQL As String = "SELECT d.driver_id, d.driver_name, d.start_work_date, d.license_id_head, d.license_id_tail, (select license_car from license where license_id = d.license_id_head) as license_car_head, (select license_car from license where license_id = d.license_id_tail) as license_car_tail,N'ประวัติ' as history ,li.number_car FROM driver as d inner join license li on d.license_id_head = li.license_id order by LEN(li.number_car),li.number_car"
             Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1555,7 +1555,7 @@ Namespace Controllers
 
         Public Function GetNumberCarBusiness() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT l.number_car, l.license_id, l.license_car, l.brand_car, l.number_body, l.number_engine, l.style_car, t.tax_expire, [bit].bit_name FROM license as l left join tax as t on l.license_id = t.license_id left join business_in_permission as bip on l.license_id = bip.license_id left join business_in_type as [bit] on bip.bit_id = [bit].bit_id"
+            Dim _SQL As String = "SELECT l.number_car, l.license_id, l.license_car, l.brand_car, l.number_body, l.number_engine, l.style_car, t.tax_expire, [bit].bit_name FROM license as l left join tax as t on l.license_id = t.license_id left join business_in_permission as bip on l.license_id = bip.license_id left join business_in_type as [bit] on bip.bit_id = [bit].bit_id order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1563,7 +1563,7 @@ Namespace Controllers
 
         Public Function GetBusinessInPermission(ByVal BusinessId As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT bip.bip_id, bip.business_id, [bit].bit_id as bit_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car FROM business_in_permission as bip join business_in_type as [bit] on bip.bit_id = [bit].bit_id join license as l on bip.license_id = l.license_id join tax as t on l.license_id = t.license_id where bip.business_id = " & BusinessId
+            Dim _SQL As String = "SELECT bip.bip_id, bip.business_id, [bit].bit_id as bit_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car FROM business_in_permission as bip join business_in_type as [bit] on bip.bit_id = [bit].bit_id join license as l on bip.license_id = l.license_id join tax as t on l.license_id = t.license_id where bip.business_id = " & BusinessId & " order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1811,7 +1811,7 @@ Namespace Controllers
 
         Public Function GetNumberCarBusinessOut() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT l.number_car, l.license_id, l.license_car, l.brand_car, l.number_body, l.number_engine, l.style_car, t.tax_expire, [bot].bot_name FROM license as l left join tax as t on l.license_id = t.license_id left join business_out_permission as bop on l.license_id = bop.license_id left join business_out_type as [bot] on bop.bot_id = [bot].bot_id"
+            Dim _SQL As String = "SELECT l.number_car, l.license_id, l.license_car, l.brand_car, l.number_body, l.number_engine, l.style_car, t.tax_expire, [bot].bot_name FROM license as l left join tax as t on l.license_id = t.license_id left join business_out_permission as bop on l.license_id = bop.license_id left join business_out_type as [bot] on bop.bot_id = [bot].bot_id order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1819,7 +1819,7 @@ Namespace Controllers
 
         Public Function GetBusinessOutPermission(ByVal BusinessId As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT bop.bop_id, bop.business_id, [bot].bot_id as bot_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car, l.license_id FROM business_out_permission as bop join business_out_type as [bot] on bop.bot_id = [bot].bot_id join license as l on bop.license_id = l.license_id join tax as t on l.license_id = t.license_id where bop.business_id = " & BusinessId
+            Dim _SQL As String = "SELECT bop.bop_id, bop.business_id, [bot].bot_id as bot_name, l.license_id, l.number_car, l.license_car, l.brand_car, l.number_body, l.number_engine, t.tax_expire, l.style_car, l.license_id FROM business_out_permission as bop join business_out_type as [bot] on bop.bot_id = [bot].bot_id join license as l on bop.license_id = l.license_id join tax as t on l.license_id = t.license_id where bop.business_id = " & BusinessId & " order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2199,7 +2199,7 @@ Namespace Controllers
 
         Public Function GetLv8() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lv8.*,N'ประวัติ' as history, l.license_car FROM license_v8 as lv8 join license as l on lv8.license_id = l.license_id"
+            Dim _SQL As String = "SELECT lv8.*,N'ประวัติ' as history, l.license_car FROM license_v8 as lv8 join license as l on lv8.license_id = l.license_id order by LEN(l.number_car),l.number_car"
             Dim DtLmr As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLmr.Rows Select DtLmr.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2382,7 +2382,7 @@ Namespace Controllers
 
         Public Function GetNumberCar() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT DISTINCT(number_car) as number_car, license_id, license_car FROM license"
+            Dim _SQL As String = "select l.* from (SELECT distinct number_car, license_id, license_car FROM license) l order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2416,7 +2416,7 @@ Namespace Controllers
 
         'Get data of table act_insurance
         Public Function GetMIData() As String
-            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[main_insurance] mi , [dbo].[license] li where mi.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[main_insurance] mi , [dbo].[license] li where mi.license_id = li.license_id order by LEN(li.number_car),li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -2430,7 +2430,7 @@ Namespace Controllers
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [main_insurance] SET "
-            Dim StrTbAI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie", "status"}
+            Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie", "status"}
             Dim TbAI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie, status}
             For n As Integer = 0 To TbAI.Length - 1
                 If Not TbAI(n) Is Nothing Then
@@ -2516,7 +2516,7 @@ Namespace Controllers
 
         'Get data of table act_insurance
         Public Function GetDPIData() As String
-            Return GbFn.GetData("SELECT *,N'ประวัติ' as history,N'View' as first_damages_view FROM [dbo].[domestic_product_insurance] dpi , [dbo].[license] li where dpi.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history,N'View' as first_damages_view FROM [dbo].[domestic_product_insurance] dpi , [dbo].[license] li where dpi.license_id = li.license_id order by LEN(li.number_car),li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -2633,7 +2633,7 @@ Namespace Controllers
 
         'Get data of table act_insurance
         Public Function GetAIData() As String
-            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[act_insurance] ai , [dbo].[license] li where ai.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[act_insurance] ai , [dbo].[license] li where ai.license_id = li.license_id order by LEN(li.number_car),li.number_car ")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -2732,7 +2732,7 @@ Namespace Controllers
 
         'Get data of table act_insurance
         Public Function GetEIData() As String
-            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[environment_insurance] ei , [dbo].[license] li where ei.license_id = li.license_id order by li.number_car")
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[environment_insurance] ei , [dbo].[license] li where ei.license_id = li.license_id order by LEN(li.number_car),li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3495,7 +3495,7 @@ Namespace Controllers
 
         'Get data of table Expressway
         Public Function GetExpresswayData() As String
-            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[expressway] epw , [dbo].[license] li where epw.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[expressway] epw , [dbo].[license] li where epw.license_id = li.license_id order by LEN(li.number_car),li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3596,7 +3596,7 @@ Namespace Controllers
 
         'Get data of table Gps_car
         Public Function GetGps_carData() As String
-            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history,N'View' as Installation_list_view  FROM [dbo].[gps_car] gps_car , [dbo].[license] li where gps_car.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history,N'View' as Installation_list_view  FROM [dbo].[gps_car] gps_car , [dbo].[license] li where gps_car.license_id = li.license_id order by LEN(li.number_car),li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -3720,7 +3720,7 @@ Namespace Controllers
         End Function
         'Get data of table Installment
         Public Function GetInstallmentData() As String
-            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[installment] itm , [dbo].[license] li where itm.license_id = li.license_id order by li.number_car")
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[installment] itm , [dbo].[license] li where itm.license_id = li.license_id order by LEN(li.number_car),li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
