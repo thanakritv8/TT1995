@@ -202,7 +202,7 @@ $(function () {
             if (idInsert != 0) {
                 $.ajax({
                     type: "POST",
-                    url: "../Home/GetLicenseCarPoom",
+                    url: "../Home/GetLicenseCarTew",
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     data: "{number_car: '" + e.data.number_car + "'}",
@@ -223,7 +223,7 @@ $(function () {
             } else {
                 e.cancel = true;
             }
-            
+
         },
         onRowRemoving: function (e) {
             filter();
@@ -800,6 +800,7 @@ $(function () {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newData),
             dataType: "json",
+            async: false,
             success: function (data) {
                 if (data[0].Status == 1) {
                     DevExpress.ui.notify("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
@@ -828,7 +829,7 @@ $(function () {
             success: function (data) {
                 returnId = data[0].Status;
                 if (data[0].Status != "0") {
-                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");                    
+                    DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
                 } else {
                     DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }

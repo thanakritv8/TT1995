@@ -114,12 +114,16 @@ Namespace Controllers
             For n As Integer = 0 To TbLicense.Length - 1
                 If Not TbLicense(n) Is Nothing Then
                     _SQL &= StrTbLicense(n) & "=N'" & TbLicense(n) & "',"
-                    GbFn.KeepLog(StrTbLicense(n), TbLicense(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE license_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbLicense.Length - 1
+                    If Not TbLicense(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLicense(n), TbLicense(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -184,14 +188,16 @@ Namespace Controllers
                 'Else
                 '    DtJson.Rows.Add("0")
                 'End If
+                If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                    Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "address", "license_expiration", "possessory_right", "license_no", "license_status"}
+                    Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status}
+                    For n As Integer = 0 To TbLicense.Length - 1
+                        If Not TbLicense(n) Is Nothing Then
+                            GbFn.KeepLog(StrTbLicense(n), TbLicense(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                        End If
+                    Next
+                End If
 
-                Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "address", "license_expiration", "possessory_right", "license_no", "license_status"}
-                Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status}
-                For n As Integer = 0 To TbLicense.Length - 1
-                    If Not TbLicense(n) Is Nothing Then
-                        GbFn.KeepLog(StrTbLicense(n), TbLicense(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                    End If
-                Next
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -439,7 +445,6 @@ Namespace Controllers
             For n As Integer = 0 To TbTax.Length - 1
                 If Not TbTax(n) Is Nothing Then
                     _SQL &= StrTbTax(n) & "=N'" & TbTax(n) & "',"
-                    GbFn.KeepLog(StrTbTax(n), TbTax(n), "Editing", IdTable, tax_id)
                 End If
                 If StrTbTax(n) = "tax_status" Then
                     If Not TbTax(n) Is Nothing Then
@@ -450,6 +455,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE tax_id = " & tax_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbTax.Length - 1
+                    If Not TbTax(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbTax(n), TbTax(n), "Editing", IdTable, tax_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -467,13 +477,15 @@ Namespace Controllers
             If Not license_id Is Nothing And Not tax_expire Is Nothing And Not tax_startdate Is Nothing Then
                 Try
                     DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-                    Dim StrTbTax() As String = {"tax_expire", "tax_rate", "tax_startdate", "tax_status", "special_expenses_1", "special_expenses_2", "contract_wages"}
-                    Dim TbTax() As Object = {tax_expire, tax_rate, tax_startdate, tax_status, special_expenses_1, special_expenses_2, contract_wages}
-                    For n As Integer = 0 To TbTax.Length - 1
-                        If Not TbTax(n) Is Nothing Then
-                            GbFn.KeepLog(StrTbTax(n), TbTax(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                        End If
-                    Next
+                    If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                        Dim StrTbTax() As String = {"tax_expire", "tax_rate", "tax_startdate", "tax_status", "special_expenses_1", "special_expenses_2", "contract_wages"}
+                        Dim TbTax() As Object = {tax_expire, tax_rate, tax_startdate, tax_status, special_expenses_1, special_expenses_2, contract_wages}
+                        For n As Integer = 0 To TbTax.Length - 1
+                            If Not TbTax(n) Is Nothing Then
+                                GbFn.KeepLog(StrTbTax(n), TbTax(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                            End If
+                        Next
+                    End If
                 Catch ex As Exception
                     DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
                 End Try
@@ -730,12 +742,16 @@ Namespace Controllers
             For n As Integer = 0 To TbTax.Length - 1
                 If Not TbTax(n) Is Nothing Then
                     _SQL &= StrTbTax(n) & "=N'" & TbTax(n) & "',"
-                    GbFn.KeepLog(StrTbTax(n), TbTax(n), "Editing", IdTable, or_id)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE or_id = " & or_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbTax.Length - 1
+                    If Not TbTax(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbTax(n), TbTax(n), "Editing", IdTable, or_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -760,15 +776,15 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-
-            Dim StrTbTax() As String = {"registrar", "record_date", "or_list"}
-            Dim TbTax() As Object = {registrar, record_date, or_list}
-            For n As Integer = 0 To TbTax.Length - 1
-                If Not TbTax(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbTax(n), TbTax(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
-
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbTax() As String = {"registrar", "record_date", "or_list"}
+                Dim TbTax() As Object = {registrar, record_date, or_list}
+                For n As Integer = 0 To TbTax.Length - 1
+                    If Not TbTax(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbTax(n), TbTax(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -1139,7 +1155,7 @@ Namespace Controllers
 
         Public Function GetLmr() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lmr_path, lmr_id, lmr_number, lmr_expire, lmr_start, country_code, benefit, lmr_status, note, N'View' as history FROM license_mekong_river"
+            Dim _SQL As String = "SELECT lmr_path, lmr_id, lmr_number, lmr_expire, lmr_start, country_code, benefit, lmr_status, note, N'ประวัติ' as history FROM license_mekong_river"
             Dim DtLmr As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLmr.Rows Select DtLmr.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1163,7 +1179,6 @@ Namespace Controllers
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lmr_id)
                 End If
                 If StrTbLc(n) = "lmr_status" Then
                     If Not TbLc(n) Is Nothing Then
@@ -1174,6 +1189,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lmr_id = " & lmr_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbLc.Length - 1
+                    If Not TbLc(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lmr_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1190,13 +1210,15 @@ Namespace Controllers
             _SQL &= "(N'" & lmr_number & "', '" & lmr_expire & "', '" & lmr_start & "', N'" & country_code & "', N'" & benefit & "', N'" & lmr_status & "', N'" & note & "', '" & Session("UserId") & "')"
             If Not lmr_number Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-                Dim StrTbLc() As String = {"lmr_number", "lmr_expire", "lmr_start", "country_code", "benefit", "lmr_status", "note"}
-                Dim TbLc() As Object = {lmr_number, lmr_expire, lmr_start, country_code, benefit, lmr_status, note}
-                For n As Integer = 0 To TbLc.Length - 1
-                    If Not TbLc(n) Is Nothing Then
-                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                    End If
-                Next
+                If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                    Dim StrTbLc() As String = {"lmr_number", "lmr_expire", "lmr_start", "country_code", "benefit", "lmr_status", "note"}
+                    Dim TbLc() As Object = {lmr_number, lmr_expire, lmr_start, country_code, benefit, lmr_status, note}
+                    For n As Integer = 0 To TbLc.Length - 1
+                        If Not TbLc(n) Is Nothing Then
+                            GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                        End If
+                    Next
+                End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -1339,7 +1361,7 @@ Namespace Controllers
 
         Public Function GetLc() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lc_path, lc_id, lc_number, lc_expire, lc_start, country_code, benefit, lc_status, note ,N'View' as history FROM license_cambodia"
+            Dim _SQL As String = "SELECT lc_path, lc_id, lc_number, lc_expire, lc_start, country_code, benefit, lc_status, note ,N'ประวัติ' as history FROM license_cambodia"
             Dim DtLc As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLc.Rows Select DtLc.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1363,7 +1385,6 @@ Namespace Controllers
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lc_id)
                 End If
                 If StrTbLc(n) = "lc_status" Then
                     If Not TbLc(n) Is Nothing Then
@@ -1374,6 +1395,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lc_id = " & lc_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbLc.Length - 1
+                    If Not TbLc(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lc_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1390,13 +1416,15 @@ Namespace Controllers
             _SQL &= "(N'" & lc_number & "', '" & lc_expire & "', '" & lc_start & "', N'" & country_code & "', N'" & benefit & "', N'" & lc_status & "',N'" & note & "', '" & Session("UserId") & "')"
             If Not lc_number Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-                Dim StrTbLc() As String = {"lc_number", "lc_expire", "lc_start", "country_code", "benefit", "lc_status", "note"}
-                Dim TbLc() As Object = {lc_number, lc_expire, lc_start, country_code, benefit, lc_status, note}
-                For n As Integer = 0 To TbLc.Length - 1
-                    If Not TbLc(n) Is Nothing Then
-                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                    End If
-                Next
+                If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                    Dim StrTbLc() As String = {"lc_number", "lc_expire", "lc_start", "country_code", "benefit", "lc_status", "note"}
+                    Dim TbLc() As Object = {lc_number, lc_expire, lc_start, country_code, benefit, lc_status, note}
+                    For n As Integer = 0 To TbLc.Length - 1
+                        If Not TbLc(n) Is Nothing Then
+                            GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                        End If
+                    Next
+                End If
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
@@ -1579,7 +1607,6 @@ Namespace Controllers
             For n As Integer = 0 To TbBusiness.Length - 1
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
-                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
                 End If
                 If StrTbBusiness(n) = "business_status" Then
                     If Not TbBusiness(n) Is Nothing Then
@@ -1590,6 +1617,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbBusiness.Length - 1
+                    If Not TbBusiness(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1631,13 +1663,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "note"}
-            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, note}
-            For n As Integer = 0 To TbBusiness.Length - 1
-                If Not TbBusiness(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "note"}
+                Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, note}
+                For n As Integer = 0 To TbBusiness.Length - 1
+                    If Not TbBusiness(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -1661,13 +1696,15 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbBusiness() As String = {"number_car"}
-            Dim TbBusiness() As Object = {number_car}
-            For n As Integer = 0 To TbBusiness.Length - 1
-                If Not TbBusiness(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, BiId)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbBusiness() As String = {"number_car"}
+                Dim TbBusiness() As Object = {number_car}
+                For n As Integer = 0 To TbBusiness.Length - 1
+                    If Not TbBusiness(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, BiId)
+                    End If
+                Next
+            End If
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1742,13 +1779,12 @@ Namespace Controllers
         Public Function DeleteBusinessInPermission(ByVal keyId As String, ByVal BiId As String, ByVal IdTable As String, ByVal NumberCar As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
-            GbFn.KeepLog("number_car", NumberCar, "Delete", IdTable, BiId)
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = String.Empty
             _SQL = "DELETE business_in_permission WHERE bip_id = " & keyId
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
-
+                GbFn.KeepLog("number_car", NumberCar, "Delete", IdTable, BiId)
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1835,7 +1871,6 @@ Namespace Controllers
             For n As Integer = 0 To TbBusiness.Length - 1
                 If Not TbBusiness(n) Is Nothing Then
                     _SQL &= StrTbBusiness(n) & "=N'" & TbBusiness(n) & "',"
-                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
                 End If
                 If StrTbBusiness(n) = "business_status" Then
                     If Not TbBusiness(n) Is Nothing Then
@@ -1846,6 +1881,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE business_id = " & business_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbBusiness.Length - 1
+                    If Not TbBusiness(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Editing", IdTable, business_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1867,13 +1907,15 @@ Namespace Controllers
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
 
-            Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "note"}
-            Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, note}
-            For n As Integer = 0 To TbBusiness.Length - 1
-                If Not TbBusiness(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbBusiness() As String = {"business_number", "business_expire", "business_start", "business_name", "business_address", "business_type", "note"}
+                Dim TbBusiness() As Object = {business_number, business_expire, business_start, business_name, business_address, business_type, note}
+                For n As Integer = 0 To TbBusiness.Length - 1
+                    If Not TbBusiness(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1899,13 +1941,16 @@ Namespace Controllers
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
 
-            Dim StrTbBusiness() As String = {"number_car"}
-            Dim TbBusiness() As Object = {number_car}
-            For n As Integer = 0 To TbBusiness.Length - 1
-                If Not TbBusiness(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, BiId)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbBusiness() As String = {"number_car"}
+                Dim TbBusiness() As Object = {number_car}
+                For n As Integer = 0 To TbBusiness.Length - 1
+                    If Not TbBusiness(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbBusiness(n), TbBusiness(n), "Add", IdTable, BiId)
+                    End If
+                Next
+            End If
+
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2055,7 +2100,6 @@ Namespace Controllers
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, license_factory_id)
                 End If
                 If StrTbLc(n) = "license_factory_status" Then
                     If Not TbLc(n) Is Nothing Then
@@ -2066,6 +2110,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE license_factory_id = " & license_factory_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbLc.Length - 1
+                    If Not TbLc(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, license_factory_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2085,13 +2134,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbLc() As String = {"IdNo", "driver_id", "start_date", "expire_date", "name_factory", "license_factory_status"}
-            Dim TbLc() As Object = {IdNo, driver_name, start_date, expire_date, name_factory, license_factory_status}
-            For n As Integer = 0 To TbLc.Length - 1
-                If Not TbLc(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbLc() As String = {"IdNo", "driver_id", "start_date", "expire_date", "name_factory", "license_factory_status"}
+                Dim TbLc() As Object = {IdNo, driver_name, start_date, expire_date, name_factory, license_factory_status}
+                For n As Integer = 0 To TbLc.Length - 1
+                    If Not TbLc(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2215,7 +2267,6 @@ Namespace Controllers
             For n As Integer = 0 To TbLc.Length - 1
                 If Not TbLc(n) Is Nothing Then
                     _SQL &= StrTbLc(n) & "=N'" & TbLc(n) & "',"
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lv8_id)
                 End If
                 If StrTbLc(n) = "lv8_status" Then
                     If Not TbLc(n) Is Nothing Then
@@ -2226,6 +2277,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lv8_id = " & lv8_id
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbLc.Length - 1
+                    If Not TbLc(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Editing", IdTable, lv8_id)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2245,13 +2301,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbLc() As String = {"lv8_number", "license_id", "ownership", "tax_Id", "lv8_start", "lv8_expire", "lv8_mpa", "lv8_rd", "lv8_status", "note"}
-            Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status, note}
-            For n As Integer = 0 To TbLc.Length - 1
-                If Not TbLc(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbLc() As String = {"lv8_number", "license_id", "ownership", "tax_Id", "lv8_start", "lv8_expire", "lv8_mpa", "lv8_rd", "lv8_status", "note"}
+                Dim TbLc() As Object = {lv8_number, license_id, ownership, tax_Id, lv8_start, lv8_expire, lv8_mpa, lv8_rd, lv8_status, note}
+                For n As Integer = 0 To TbLc.Length - 1
+                    If Not TbLc(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbLc(n), TbLc(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2435,7 +2494,6 @@ Namespace Controllers
             For n As Integer = 0 To TbAI.Length - 1
                 If Not TbAI(n) Is Nothing Then
                     _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
-                    GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
                 End If
                 If StrTbAI(n) = "status" Then
                     If Not TbAI(n) Is Nothing Then
@@ -2446,6 +2504,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE mi_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbAI.Length - 1
+                    If Not TbAI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2478,14 +2541,17 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbMI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie", "status"}
-            Dim TbMI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie, status}
-            For n As Integer = 0 To TbMI.Length - 1
-                If Not TbMI(n) Is Nothing Then
-                    _SQL &= StrTbMI(n) & "=N'" & TbMI(n) & "',"
-                    GbFn.KeepLog(StrTbMI(n), TbMI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbMI() As String = {"insurance_company", "insurance_date", "expire_date", "note", "policy_number", "assured", "current_cowrie", "previous_cowrie", "status"}
+                Dim TbMI() As Object = {insurance_company, start_date, end_date, note, policy_number, assured, current_cowrie, previous_cowrie, status}
+                For n As Integer = 0 To TbMI.Length - 1
+                    If Not TbMI(n) Is Nothing Then
+                        _SQL &= StrTbMI(n) & "=N'" & TbMI(n) & "',"
+                        GbFn.KeepLog(StrTbMI(n), TbMI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2535,7 +2601,6 @@ Namespace Controllers
             For n As Integer = 0 To TbDPI.Length - 1
                 If Not TbDPI(n) Is Nothing Then
                     _SQL &= StrTbDPI(n) & "=N'" & TbDPI(n) & "',"
-                    GbFn.KeepLog(StrTbDPI(n), TbDPI(n), "Editing", IdTable, key)
                 End If
                 If StrTbDPI(n) = "status" Then
                     If Not TbDPI(n) Is Nothing Then
@@ -2546,6 +2611,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE dpi_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbDPI.Length - 1
+                    If Not TbDPI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbDPI(n), TbDPI(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2578,13 +2648,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbDPI() As String = {"insurance_company", "policy_number", "start_date", "end_date", "current_cowrie", "previous_cowrie", "note", "status", "first_damages"}
-            Dim TbDPI() As Object = {insurance_company, policy_number, start_date, end_date, current_cowrie, previous_cowrie, note, status, first_damages}
-            For n As Integer = 0 To TbDPI.Length - 1
-                If Not TbDPI(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbDPI(n), TbDPI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbDPI() As String = {"insurance_company", "policy_number", "start_date", "end_date", "current_cowrie", "previous_cowrie", "note", "status", "first_damages"}
+                Dim TbDPI() As Object = {insurance_company, policy_number, start_date, end_date, current_cowrie, previous_cowrie, note, status, first_damages}
+                For n As Integer = 0 To TbDPI.Length - 1
+                    If Not TbDPI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbDPI(n), TbDPI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2652,7 +2725,6 @@ Namespace Controllers
             For n As Integer = 0 To TbAI.Length - 1
                 If Not TbAI(n) Is Nothing Then
                     _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
-                    GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
                 End If
                 If StrTbAI(n) = "status" Then
                     If Not TbAI(n) Is Nothing Then
@@ -2663,6 +2735,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE ai_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbAI.Length - 1
+                    If Not TbAI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2695,14 +2772,17 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "status", "price", "policy_number", "first_damages", "add_damages"}
-            Dim TbAI() As Object = {insurance_company, start_date, end_date, note, price, policy_number, first_damages, add_damages}
-            For n As Integer = 0 To TbAI.Length - 1
-                If Not TbAI(n) Is Nothing Then
-                    _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
-                    GbFn.KeepLog(StrTbAI(n), TbAI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbAI() As String = {"insurance_company", "start_date", "end_date", "note", "status", "price", "policy_number", "first_damages", "add_damages"}
+                Dim TbAI() As Object = {insurance_company, start_date, end_date, note, price, policy_number, first_damages, add_damages}
+                For n As Integer = 0 To TbAI.Length - 1
+                    If Not TbAI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAI(n), TbAI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2751,7 +2831,6 @@ Namespace Controllers
             For n As Integer = 0 To TbEI.Length - 1
                 If Not TbEI(n) Is Nothing Then
                     _SQL &= StrTbEI(n) & "=N'" & TbEI(n) & "',"
-                    GbFn.KeepLog(StrTbEI(n), TbEI(n), "Editing", IdTable, key)
                 End If
                 If StrTbEI(n) = "status" Then
                     If Not TbEI(n) Is Nothing Then
@@ -2762,6 +2841,11 @@ Namespace Controllers
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE ei_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbEI.Length - 1
+                    If Not TbEI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbEI(n), TbEI(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2794,14 +2878,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbEI() As String = {"insurance_company", "start_date", "end_date", "note", "current_cowrie", "previous_cowrie", "first_damages", "policy_number", "status"}
-            Dim TbEI() As Object = {insurance_company, start_date, end_date, note, current_cowrie, previous_cowrie, first_damages, policy_number, status}
-            For n As Integer = 0 To TbEI.Length - 1
-                If Not TbEI(n) Is Nothing Then
-                    _SQL &= StrTbEI(n) & "=N'" & TbEI(n) & "',"
-                    GbFn.KeepLog(StrTbEI(n), TbEI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbEI() As String = {"insurance_company", "start_date", "end_date", "note", "current_cowrie", "previous_cowrie", "first_damages", "policy_number", "status"}
+                Dim TbEI() As Object = {insurance_company, start_date, end_date, note, current_cowrie, previous_cowrie, first_damages, policy_number, status}
+                For n As Integer = 0 To TbEI.Length - 1
+                    If Not TbEI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbEI(n), TbEI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2849,12 +2935,16 @@ Namespace Controllers
             For n As Integer = 0 To TbAIC.Length - 1
                 If Not TbAIC(n) Is Nothing Then
                     _SQL &= StrTbAIC(n) & "=N'" & TbAIC(n) & "',"
-                    GbFn.KeepLog(StrTbAIC(n), TbAIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE aic_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbAIC.Length - 1
+                    If Not TbAIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAIC(n), TbAIC(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -2880,14 +2970,16 @@ Namespace Controllers
             'Else
             '    DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             'End If
-            Dim StrTbAIC() As String = {"name", "protection", "protection_limit", "note"}
-            Dim TbAIC() As Object = {name, protection, protection_limit, note}
-            For n As Integer = 0 To TbAIC.Length - 1
-                If Not TbAIC(n) Is Nothing Then
-                    _SQL &= StrTbAIC(n) & "=N'" & TbAIC(n) & "',"
-                    GbFn.KeepLog(StrTbAIC(n), TbAIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbAIC() As String = {"name", "protection", "protection_limit", "note"}
+                Dim TbAIC() As Object = {name, protection, protection_limit, note}
+                For n As Integer = 0 To TbAIC.Length - 1
+                    If Not TbAIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAIC(n), TbAIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -2984,12 +3076,16 @@ Namespace Controllers
             For n As Integer = 0 To TbMIC.Length - 1
                 If Not TbMIC(n) Is Nothing Then
                     _SQL &= StrTbMIC(n) & " = N'" & TbMIC(n) & "',"
-                    GbFn.KeepLog(StrTbMIC(n), TbMIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE mic_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbMIC.Length - 1
+                    If Not TbMIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbMIC(n), TbMIC(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3035,14 +3131,16 @@ Namespace Controllers
             'Else
             '    DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             'End If
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbMIC() As String = {"insurance_company", "type", "extension_insurance", "note", "t1_1_1", "t1_1_2", "t1_2_1", "t1_2_2", "t2_1_1", "t2_1_2", "t2_2_1", "t3_1_1_a", "t3_1_1_b", "t3_1_2_a", "t3_1_2_b", "t3_2_1", "t3_3_1"}
+                Dim TbMIC() As Object = {insurance_company, type, extension_insurance, note, t1_1_1, t1_1_2, t1_2_1, t1_2_2, t2_1_1, t2_1_2, t2_2_1, t3_1_1_a, t3_1_1_b, t3_1_2_a, t3_1_2_b, t3_2_1, t3_3_1}
+                For n As Integer = 0 To TbMIC.Length - 1
+                    If Not TbMIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbMIC(n), TbMIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
 
-            Dim StrTbMIC() As String = {"insurance_company", "type", "extension_insurance", "note", "t1_1_1", "t1_1_2", "t1_2_1", "t1_2_2", "t2_1_1", "t2_1_2", "t2_2_1", "t3_1_1_a", "t3_1_1_b", "t3_1_2_a", "t3_1_2_b", "t3_2_1", "t3_3_1"}
-            Dim TbMIC() As Object = {insurance_company, type, extension_insurance, note, t1_1_1, t1_1_2, t1_2_1, t1_2_2, t2_1_1, t2_1_2, t2_2_1, t3_1_1_a, t3_1_1_b, t3_1_2_a, t3_1_2_b, t3_2_1, t3_3_1}
-            For n As Integer = 0 To TbMIC.Length - 1
-                If Not TbMIC(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbMIC(n), TbMIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -3094,12 +3192,16 @@ Namespace Controllers
             For n As Integer = 0 To TbPIC.Length - 1
                 If Not TbPIC(n) Is Nothing Then
                     _SQL &= StrTbPIC(n) & "=N'" & TbPIC(n) & "',"
-                    GbFn.KeepLog(StrTbPIC(n), TbPIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE pic_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbPIC.Length - 1
+                    If Not TbPIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbPIC(n), TbPIC(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3129,14 +3231,15 @@ Namespace Controllers
             _SQL &= Session("UserId") & ")"
 
             DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-
-            Dim StrTbPIC() As String = {"insurance_company", "assured", "protection_scope", "note", "t1", "t2", "t3", "t4", "protection", "not_protection"}
-            Dim TbPIC() As Object = {insurance_company, assured, protection_scope, note, t1, t2, t3, t4, DataHtmlEditorProtection, dataHtmlEditorNotProtection}
-            For n As Integer = 0 To TbPIC.Length - 1
-                If Not TbPIC(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbPIC(n), TbPIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbPIC() As String = {"insurance_company", "assured", "protection_scope", "note", "t1", "t2", "t3", "t4", "protection", "not_protection"}
+                Dim TbPIC() As Object = {insurance_company, assured, protection_scope, note, t1, t2, t3, t4, DataHtmlEditorProtection, dataHtmlEditorNotProtection}
+                For n As Integer = 0 To TbPIC.Length - 1
+                    If Not TbPIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbPIC(n), TbPIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -3225,12 +3328,16 @@ Namespace Controllers
             For n As Integer = 0 To TbEIC.Length - 1
                 If Not TbEIC(n) Is Nothing Then
                     _SQL &= StrTbEIC(n) & "=N'" & TbEIC(n) & "',"
-                    GbFn.KeepLog(StrTbEIC(n), TbEIC(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE eic_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbEIC.Length - 1
+                    If Not TbEIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbEIC(n), TbEIC(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3260,13 +3367,16 @@ Namespace Controllers
 
             DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
 
-            Dim StrTbEIC() As String = {"insurance_company", "assured", "protection_scope", "note", "t2_1_1", "t2_1_2", "t2_2", "t2_3", "t_conclude"}
-            Dim TbEIC() As Object = {insurance_company, assured, protection_scope, note, t2_1_1, t2_1_2, t2_2, t2_3, t_conclude}
-            For n As Integer = 0 To TbEIC.Length - 1
-                If Not TbEIC(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbEIC(n), TbEIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbEIC() As String = {"insurance_company", "assured", "protection_scope", "note", "t2_1_1", "t2_1_2", "t2_2", "t2_3", "t_conclude"}
+                Dim TbEIC() As Object = {insurance_company, assured, protection_scope, note, t2_1_1, t2_1_2, t2_2, t2_3, t_conclude}
+                For n As Integer = 0 To TbEIC.Length - 1
+                    If Not TbEIC(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbEIC(n), TbEIC(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -3318,12 +3428,16 @@ Namespace Controllers
             For n As Integer = 0 To TbGpsCompany.Length - 1
                 If Not TbGpsCompany(n) Is Nothing Then
                     _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
-                    GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE gc_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3351,13 +3465,16 @@ Namespace Controllers
             _SQL &= "getdate(),"
             _SQL &= Session("UserId") & ")"
             DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
-            Dim StrTbGpsCompany() As String = {"company", "address", "email", "contact_number", "coordinator", "delivery_conditions", "term_of_payment", "note"}
-            Dim TbGpsCompany() As Object = {company, address, email, contact_number, coordinator, delivery_conditions, term_of_payment, note}
-            For n As Integer = 0 To TbGpsCompany.Length - 1
-                If Not TbGpsCompany(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbGpsCompany() As String = {"company", "address", "email", "contact_number", "coordinator", "delivery_conditions", "term_of_payment", "note"}
+                Dim TbGpsCompany() As Object = {company, address, email, contact_number, coordinator, delivery_conditions, term_of_payment, note}
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -3515,12 +3632,16 @@ Namespace Controllers
             For n As Integer = 0 To TbExpressway.Length - 1
                 If Not TbExpressway(n) Is Nothing Then
                     _SQL &= StrTbExpressway(n) & "=N'" & TbExpressway(n) & "',"
-                    GbFn.KeepLog(StrTbExpressway(n), TbExpressway(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE epw_id = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbExpressway.Length - 1
+                    If Not TbExpressway(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbExpressway(n), TbExpressway(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3556,14 +3677,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbExpressway() As String = {"number_car", "start_date", "expire_date", "processing_fee", "special_money", "epw_license", "note"}
-            Dim TbExpressway() As Object = {number_car, start_date, expire_date, processing_fee, special_money, epw_license, note}
-            For n As Integer = 0 To TbExpressway.Length - 1
-                If Not TbExpressway(n) Is Nothing Then
-                    _SQL &= StrTbExpressway(n) & "=N'" & TbExpressway(n) & "',"
-                    GbFn.KeepLog(StrTbExpressway(n), TbExpressway(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbExpressway() As String = {"number_car", "start_date", "expire_date", "processing_fee", "special_money", "epw_license", "note"}
+                Dim TbExpressway() As Object = {number_car, start_date, expire_date, processing_fee, special_money, epw_license, note}
+                For n As Integer = 0 To TbExpressway.Length - 1
+                    If Not TbExpressway(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbExpressway(n), TbExpressway(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -3607,6 +3730,14 @@ Namespace Controllers
         Public Function UpdateGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal end_date As String, ByVal reading_data As String _
                                       , ByVal usage As String, ByVal price As String, ByVal number_book As String, ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal Installation_list As String _
                                       , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
+            If Not start_date Is Nothing Then
+                start_date = Convert.ToDateTime(start_date).ToString("MM/dd/yyyy")
+            End If
+
+            If Not end_date Is Nothing Then
+                end_date = Convert.ToDateTime(end_date).ToString("MM/dd/yyyy")
+            End If
+
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3616,12 +3747,16 @@ Namespace Controllers
             For n As Integer = 0 To TbGps_car.Length - 1
                 If Not TbGps_car(n) Is Nothing Then
                     _SQL &= StrTbGps_car(n) & "=N'" & TbGps_car(n) & "',"
-                    GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [gps_car_id] = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbGps_car.Length - 1
+                    If Not TbGps_car(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3631,6 +3766,13 @@ Namespace Controllers
         Public Function InsertGps_car(ByVal number_car As String, ByVal company As String, ByVal sim_no As String, ByVal start_date As String, ByVal end_date As String, ByVal reading_data As String _
                                       , ByVal usage As String, ByVal price As String, ByVal number_book As String, ByVal type As String, ByVal model As String, ByVal number_serial As String, ByVal Installation_list As String _
                                       , ByVal note As String, ByVal key As String, ByVal IdTable As String) As String
+            If Not start_date Is Nothing Then
+                start_date = Convert.ToDateTime(start_date).ToString("MM/dd/yyyy")
+            End If
+
+            If Not end_date Is Nothing Then
+                end_date = Convert.ToDateTime(end_date).ToString("MM/dd/yyyy")
+            End If
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
@@ -3663,13 +3805,15 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "end_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
-            Dim TbGps_car() As Object = {company, sim_no, start_date, end_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
-            For n As Integer = 0 To TbGps_car.Length - 1
-                If Not TbGps_car(n) Is Nothing Then
-                    GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbGps_car() As String = {"company", "sim_no", "start_date", "end_date", "reading_data", "usage", "price", "number_book", "type", "model", "number_serial", "Installation_list", "note"}
+                Dim TbGps_car() As Object = {company, sim_no, start_date, end_date, reading_data, usage, price, number_book, type, model, number_serial, Installation_list, note}
+                For n As Integer = 0 To TbGps_car.Length - 1
+                    If Not TbGps_car(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGps_car(n), TbGps_car(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
@@ -3741,12 +3885,16 @@ Namespace Controllers
             For n As Integer = 0 To TbInstallment.Length - 1
                 If Not TbInstallment(n) Is Nothing Then
                     _SQL &= StrTbInstallment(n) & "=N'" & TbInstallment(n) & "',"
-                    GbFn.KeepLog(StrTbInstallment(n), TbInstallment(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [itm_id] = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbInstallment.Length - 1
+                    If Not TbInstallment(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbInstallment(n), TbInstallment(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -3786,14 +3934,16 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbinstallment() As String = {"number_car", "itm_name", "start_date", "no_of_itm", "payment_of_itm", "last_date", "payed_of_itm", "last_payment", "postponement_itm", "note"}
-            Dim Tbinstallment() As Object = {number_car, itm_name, start_date, no_of_itm, payment_of_itm, last_date, payed_of_itm, last_payment, postponement_itm, note}
-            For n As Integer = 0 To Tbinstallment.Length - 1
-                If Not Tbinstallment(n) Is Nothing Then
-                    _SQL &= StrTbinstallment(n) & "=N'" & Tbinstallment(n) & "',"
-                    GbFn.KeepLog(StrTbinstallment(n), Tbinstallment(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbinstallment() As String = {"number_car", "itm_name", "start_date", "no_of_itm", "payment_of_itm", "last_date", "payed_of_itm", "last_payment", "postponement_itm", "note"}
+                Dim Tbinstallment() As Object = {number_car, itm_name, start_date, no_of_itm, payment_of_itm, last_date, payed_of_itm, last_payment, postponement_itm, note}
+                For n As Integer = 0 To Tbinstallment.Length - 1
+                    If Not Tbinstallment(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbinstallment(n), Tbinstallment(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
 
@@ -4070,12 +4220,16 @@ Namespace Controllers
             For n As Integer = 0 To TbInsAccident.Length - 1
                 If Not TbInsAccident(n) Is Nothing Then
                     _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
-                    GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [acd_id] = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbInsAccident.Length - 1
+                    If Not TbInsAccident(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Editing", IdTable, key)
+                    End If
+                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -4109,14 +4263,15 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            Dim StrTbAccident() As String = {"number_car", "acd_date", "damages", "detail", "who_pay", "note"}
-            Dim TbInsAccident() As Object = {number_car, acd_date, damages, detail, who_pay, note}
-            For n As Integer = 0 To TbInsAccident.Length - 1
-                If Not TbInsAccident(n) Is Nothing Then
-                    _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
-                    GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                End If
-            Next
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbAccident() As String = {"number_car", "acd_date", "damages", "detail", "who_pay", "note"}
+                Dim TbInsAccident() As Object = {number_car, acd_date, damages, detail, who_pay, note}
+                For n As Integer = 0 To TbInsAccident.Length - 1
+                    If Not TbInsAccident(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
