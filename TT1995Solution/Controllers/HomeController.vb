@@ -1163,7 +1163,7 @@ Namespace Controllers
 
         Public Function GetLmrPermission() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lmrp.lmrp_id, lmrp.lmr_id, lmrp.license_id_head, lmrp.license_id_tail, (select license_car from license where license_id = lmrp.license_id_head) as license_car_head, (select license_car from license where license_id = lmrp.license_id_tail) as license_car_tail FROM license_mekong_river_permission as lmrp"
+            Dim _SQL As String = "  SELECT lmrp.lmrp_id, lmrp.lmr_id, lmrp.license_id_head, lmrp.license_id_tail, (select license_car from license where license_id = lmrp.license_id_head) as license_car_head, (select license_car from license where license_id = lmrp.license_id_tail) as license_car_tail, (select style_car from license where license_id = lmrp.license_id_tail) as style_car, (select shaft from license where license_id = lmrp.license_id_tail) as shaft FROM license_mekong_river_permission as lmrp"
             Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -1369,7 +1369,7 @@ Namespace Controllers
 
         Public Function GetLcPermission() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT lcp.lcp_id, lcp.lc_id, lcp.license_id_head, lcp.license_id_tail, (select license_car from license where license_id = lcp.license_id_head) as license_car_head, (select license_car from license where license_id = lcp.license_id_tail) as license_car_tail FROM license_cambodia_permission as lcp"
+            Dim _SQL As String = "  SELECT lcp.lcp_id, lcp.lc_id, lcp.license_id_head, lcp.license_id_tail, (select license_car from license where license_id = lcp.license_id_head) as license_car_head, (select license_car from license where license_id = lcp.license_id_tail) as license_car_tail, (select style_car from license where license_id = lcp.license_id_tail) as style_car,(select shaft from license where license_id = lcp.license_id_tail) as shaft  FROM license_cambodia_permission as lcp"
             Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -2441,7 +2441,7 @@ Namespace Controllers
 
         Public Function GetNumberCar() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "select l.* from (SELECT distinct number_car, license_id, license_car FROM license) l order by LEN(l.number_car),l.number_car"
+            Dim _SQL As String = "select l.* from (SELECT distinct(number_car), license_id, license_car,style_car,shaft FROM license) l order by LEN(l.number_car),l.number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
