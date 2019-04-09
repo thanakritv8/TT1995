@@ -108,7 +108,7 @@ $(function () {
         onRowUpdating: function (e) {
             e.cancel = !fnUpdateLc(e.newData, e.key.lc_id);
         },
-        onRowInserting: function (e) {            
+        onRowInserting: function (e) {
             var statusInsert = fnInsertLc(e.data);
             if (statusInsert != '0') {
                 e.data.lc_id = statusInsert;
@@ -153,7 +153,7 @@ $(function () {
                     },
                     onRowInserting: function (e) {
                         e.data.lc_id = gbE.currentSelectedRowKeys[0].lc_id;
-                        
+
                         var statusInsert = fnInsertLcPermission(e.data);
                         if (statusInsert != '0') {
                             e.data.lcp_id = statusInsert;
@@ -235,8 +235,12 @@ $(function () {
                                             dataNew.push(this);
                                         }
                                     });
+                                    console.log(dataNew);
                                     rowData.license_id_tail = value;
                                     rowData.license_car_tail = dataNew[0].license_car;
+                                    rowData.style_car = dataNew[0].style_car;
+                                    rowData.shaft = dataNew[0].shaft;
+
                                 }
 
                                 data[2].lookup = {
@@ -254,7 +258,7 @@ $(function () {
                             }
                         });
                         console.log(data);
-                        gc.option('columns', data);                        
+                        gc.option('columns', data);
                     },
                 });
                 $.ajax({
@@ -711,9 +715,8 @@ $(function () {
 //                }).dxDataGrid("instance");
 //            }
 //        },
-        
+
 //    });
 
 
 //});
-

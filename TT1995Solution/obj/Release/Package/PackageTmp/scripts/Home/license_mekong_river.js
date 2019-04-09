@@ -157,7 +157,7 @@ $(function () {
                             e.data.lmrp_id = statusInsert;
                         } else {
                             e.cancel = true;
-                        }                       
+                        }
                     },
                     onRowRemoving: function (e) {
                         e.cancel = !fnDeleteLmrPermission(e.key.lmrp_id);
@@ -235,6 +235,8 @@ $(function () {
                                     });
                                     rowData.license_id_tail = value;
                                     rowData.license_car_tail = dataNew[0].license_car;
+                                    rowData.style_car = dataNew[0].style_car;
+                                    rowData.shaft = dataNew[0].shaft;
                                 }
 
                                 data[2].lookup = {
@@ -252,7 +254,7 @@ $(function () {
                             }
                         });
                         console.log(data);
-                        gc.option('columns', data);                        
+                        gc.option('columns', data);
                     },
                 });
                 $.ajax({
@@ -703,9 +705,8 @@ $(function () {
 //                }).dxDataGrid("instance");
 //            }
 //        },
-        
+
 //    });
 
 
 //});
-
