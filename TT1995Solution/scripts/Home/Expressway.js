@@ -91,9 +91,7 @@ $(function () {
         },
         scrolling: {
             mode: "standard"
-        },
-        allowColumnResizing: true,
-        columnResizingMode: "widget",
+        }, 
         showBorders: true,
         columnChooser: {
             enabled: true,
