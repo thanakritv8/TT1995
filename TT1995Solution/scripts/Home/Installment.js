@@ -110,9 +110,9 @@ $(function () {
         //' Commit
         editing: {
             mode: "popup",
-            allowUpdating: boolStatus,
-            allowDeleting: boolStatus,
-            allowAdding: boolStatus,
+            allowUpdating: true,
+            allowDeleting: true,
+            allowAdding: true,
             form: {
                 items: itemEditing,
                 colCount: 6,
