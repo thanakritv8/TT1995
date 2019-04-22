@@ -180,8 +180,8 @@
                     <span Class="text-light">บันทึกอุบัติเหตุ</span>
                 </a>
                 <div Class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    @*<a Then Class="dropdown-item" href="../Home/AccidentView">ข้อมูลบันทึกอุบัติเหตุ</a>*@
-                    <a Then Class="dropdown-item" href="#">จัดการบันทึกอุบัติเหตุ</a>
+                    <a Then Class="dropdown-item" href="../Home/AccidentView">ข้อมูลบันทึกอุบัติเหตุ</a>
+                    @*<a Then Class="dropdown-item" href="#">จัดการบันทึกอุบัติเหตุ</a>*@
                 </div>
             </li>
             End if
