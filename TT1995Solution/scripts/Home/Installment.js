@@ -85,6 +85,8 @@ $(function () {
         onContentReady: function (e) {
             //filter();
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         searchPanel: {
             visible: true,
             width: 240,
@@ -108,9 +110,9 @@ $(function () {
         //' Commit
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -731,7 +733,7 @@ $(function () {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });
