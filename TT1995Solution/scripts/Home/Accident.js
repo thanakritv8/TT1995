@@ -82,13 +82,13 @@ $(function () {
         onContentReady: function (e) {
             //filter();
         },
-        allowColumnResizing: true,
-        columnResizingMode: "widget",
         searchPanel: {
             visible: true,
             width: 240,
             placeholder: "Search..."
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         showBorders: true,
         columnChooser: {
             enabled: true,
@@ -103,11 +103,13 @@ $(function () {
             allowedPageSizes: [5, 10, 20],
             showInfo: true
         },
+        //' Commit
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
+
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -118,8 +120,10 @@ $(function () {
                 width: "70%",
                 position: { my: "center", at: "center", of: window },
                 onHidden: function (e) {
+                    console.log(e)
                     setDefaultNumberCar();
                 }
+
             },
             useIcons: true,
         },
@@ -150,9 +154,11 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (fnUpdateAccident(e.newData, e.key.acd_id)) {
+            if (!fnUpdateAccident(e.newData, e.key.acd_id)) {
                 e.newData = e.oldData;
+                e.cancel = true;
             }
+
 
 
         },
@@ -173,7 +179,7 @@ $(function () {
                         e.data.history = "ประวัติ";
                     }
                 });
-                e.data.acd_id = st;//fnInsertAccident(e.data);
+                e.data.acd_id = st;
                 ////ตัด number_car ออก
                 dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
                 filter();
@@ -185,8 +191,10 @@ $(function () {
 
         },
         onRowRemoving: function (e) {
-            filter();
 
+
+
+            filter();
             e.cancel = fnDeleteAccident(e.key.acd_id);
 
             ////กรองอาเรย์
@@ -202,6 +210,8 @@ $(function () {
             setDefaultNumberCar();
 
         },
+
+        //' Commit
         masterDetail: {
             enabled: false,
             template: function (container, options) {
@@ -779,6 +789,7 @@ $(function () {
         var filter = dataGridAll;
         //กรองอาเรย์
         filter.forEach(function (filterdata) {
+            console.log(filterdata)
             dataLookupAll = dataLookupAll.filter(function (arr) {
                 return arr.license_id != filterdata.license_id;
             });

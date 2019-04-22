@@ -2,18 +2,12 @@
     ViewData("Title") = "Accident"
 End Code
 <style>
-    #gridContainer {
-        width: 100%;
-    }
-
     .custom-file {
         overflow-y: auto;
         height: 100%;
     }
 </style>
 <div> <h4>Accident - บันทึกอุบัติเหตุ </h4> </div>
-
-
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
     <div id="context-menu"></div>
@@ -33,7 +27,6 @@ End Code
         </div>
     </div>*@
 <!--New File-->
-
 <div class="modal" id="mdNewFile">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -108,4 +101,26 @@ End Code
     </div>
 </div>
 <div id="popup_history"></div>
+<!--Commit-->
+<script>
+    //Control Read Only and Read Write
+    var boolStatus = false;
+    var permission_status = '@Session("26")'; //1 = Read Only, 2 = Read and Write
+    if (permission_status == 1) {
+        boolStatus = false;
+        $("#context-menu").hide();
+    } else {
+        boolStatus = true;
+        $("#context-menu").show();
+    }
+    console.log( boolStatus);
+    //End Control
+
+    $(".d6").next().toggle();
+    $(".d6").click(function (e) {
+        e.stopPropagation();
+        $(".d6").next().toggle();
+    });
+</script>
+<!--Commit-->
 <script src="~/scripts/Home/Accident.js"></script>

@@ -4201,8 +4201,8 @@ Namespace Controllers
             End If
         End Function
         'Get data of table Accident
-        Public Function GetAccidentedData() As String
-            Return GbFnPoom.GetData("SELECT acded.acded_id,acded.license_id AS number_car,acded.license_id AS number_car,mi.insurance_company as insurance_company ,mi.start_date start_date ,mi.end_date AS end_date ,li.license_car,li.number_car  FROM  accidented acded inner join  license  li  on acded.license_id = li.license_id inner join main_insurance mi  on  acded.license_id = mi.license_id ")
+        Public Function GetAccidentData() As String
+            Return GbFnPoom.GetData("SELECT *,N'ประวัติ' as history   FROM [dbo].[accident] acd , [dbo].[license] li where acd.license_id = li.license_id order by li.number_car")
         End Function
 
         'Rename Folder or Files(pic,pdf)
@@ -4221,16 +4221,12 @@ Namespace Controllers
             For n As Integer = 0 To TbInsAccident.Length - 1
                 If Not TbInsAccident(n) Is Nothing Then
                     _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
+                    GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Editing", IdTable, key)
                 End If
             Next
             _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE [acd_id] = " & key
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
-                For n As Integer = 0 To TbInsAccident.Length - 1
-                    If Not TbInsAccident(n) Is Nothing Then
-                        GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Editing", IdTable, key)
-                    End If
-                Next
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -4264,15 +4260,14 @@ Namespace Controllers
             Else
                 DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
             End If
-            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
-                Dim StrTbAccident() As String = {"number_car", "acd_date", "damages", "detail", "who_pay", "note"}
-                Dim TbInsAccident() As Object = {number_car, acd_date, damages, detail, who_pay, note}
-                For n As Integer = 0 To TbInsAccident.Length - 1
-                    If Not TbInsAccident(n) Is Nothing Then
-                        GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
-                    End If
-                Next
-            End If
+            Dim StrTbAccident() As String = {"number_car", "acd_date", "damages", "detail", "who_pay", "note"}
+            Dim TbInsAccident() As Object = {number_car, acd_date, damages, detail, who_pay, note}
+            For n As Integer = 0 To TbInsAccident.Length - 1
+                If Not TbInsAccident(n) Is Nothing Then
+                    _SQL &= StrTbAccident(n) & "=N'" & TbInsAccident(n) & "',"
+                    GbFn.KeepLog(StrTbAccident(n), TbInsAccident(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                End If
+            Next
 
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
