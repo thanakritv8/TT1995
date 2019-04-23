@@ -85,6 +85,8 @@ $(function () {
         onContentReady: function (e) {
             //filter();
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         searchPanel: {
             visible: true,
             width: 240,
@@ -104,11 +106,13 @@ $(function () {
             allowedPageSizes: [5, 10, 20],
             showInfo: true
         },
+
+        //' Commit
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -152,8 +156,9 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (fnUpdateInstallment(e.newData, e.key.itm_id)) {
+            if (!fnUpdateInstallment(e.newData, e.key.itm_id)) {
                 e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -173,7 +178,7 @@ $(function () {
                         e.data.history = "ประวัติ";
                     }
                 });
-                e.data.itm_id = st;//fnInsertInstallment(e.data);
+                e.data.itm_id = st;
 
                 ////ตัด number_car ออก
                 dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
@@ -202,6 +207,8 @@ $(function () {
             setDefaultNumberCar();
 
         },
+
+        //' Commit
         masterDetail: {
             enabled: false,
             template: function (container, options) {
@@ -726,7 +733,7 @@ $(function () {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });

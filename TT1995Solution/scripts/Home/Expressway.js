@@ -26,7 +26,6 @@ var contextMenuItemsFile = [
 var OptionsMenu = contextMenuItemsFolder;
 
 $(function () {
-    $("a:contains('จัดการข้อมูลทางด่วน')").addClass("active");
     function GetExpresswayData() {
         //โชว์ข้อมูลทะเบียนทั้งหมดใน datagrid
         return $.ajax({
@@ -44,6 +43,7 @@ $(function () {
 
                     var d = parseJsonDate(data[i].expire_date);
                     data[i].expire_date = d;
+
                 }
                 //dataGrid.option('dataSource', data);
             }
@@ -84,6 +84,8 @@ $(function () {
         onContentReady: function (e) {
             //filter();
         },
+        allowColumnResizing: true,
+        columnResizingMode: "widget",
         searchPanel: {
             visible: true,
             width: 240,
@@ -106,11 +108,13 @@ $(function () {
             allowedPageSizes: [5, 10, 20],
             showInfo: true
         },
+
+        //' Commit
         editing: {
             mode: "popup",
-            allowUpdating: true,
-            allowDeleting: true,
-            allowAdding: true,
+            allowUpdating: boolStatus,
+            allowDeleting: boolStatus,
+            allowAdding: boolStatus,
             form: {
                 items: itemEditing,
                 colCount: 6,
@@ -154,8 +158,9 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (fnUpdateExpressway(e.newData, e.key.epw_id)) {
+            if (!fnUpdateExpressway(e.newData, e.key.epw_id)) {
                 e.newData = e.oldData;
+                e.cancel = true;
             }
         },
         onRowInserting: function (e) {
@@ -175,7 +180,7 @@ $(function () {
                         e.data.history = "ประวัติ";
                     }
                 });
-                e.data.epw_id = st;//fnInsertExpressway(e.data);
+                e.data.epw_id = st;
 
                 ////ตัด number_car ออก
                 dataGridAll.push({ license_id: e.data.license_id, number_car: e.data.number_car });
@@ -204,6 +209,8 @@ $(function () {
             setDefaultNumberCar();
 
         },
+
+        //' Commit
         masterDetail: {
             enabled: false,
             template: function (container, options) {
@@ -728,7 +735,8 @@ $(function () {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
                 }
             }
         });

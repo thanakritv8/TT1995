@@ -154,12 +154,9 @@ $(function () {
             dataGrid.option('columns[0].allowEditing', true);
         },
         onRowUpdating: function (e) {
-            if (!fnUpdateAccident(e.newData, e.key.acd_id)) {
+            if (fnUpdateAccident(e.newData, e.key.acd_id)) {
                 e.newData = e.oldData;
-                e.cancel = true;
             }
-
-
 
         },
         onRowInserting: function (e) {
@@ -737,7 +734,7 @@ $(function () {
                     DevExpress.ui.notify("เพิ่มข้อมูลเรียบร้อยแล้ว", "success");
                     returnId = data[0].Status;
                 } else {
-                    DevExpress.ui.notify(data[0].Status, "error");
+                    DevExpress.ui.notify("ไม่สามารถเพิ่มข้อมูลได้", "error");
 
                 }
             }
