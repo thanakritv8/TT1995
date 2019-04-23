@@ -27,7 +27,7 @@
         },
         "export": {
             enabled: true,
-            fileName: "License",
+            fileName: "driver",
         },
         filterRow: {
             visible: true,

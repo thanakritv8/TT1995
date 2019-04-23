@@ -135,7 +135,7 @@ $(function () {
         },
         "export": {
             enabled: true,
-            fileName: "product_insurance_company",
+            fileName: "env_insurance_company",
         },
         filterRow: {
             visible: true,

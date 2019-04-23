@@ -170,7 +170,7 @@ $(function () {
         },
         "export": {
             enabled: true,
-            fileName: "product_insurance_company",
+            fileName: "product_insurance",
         },
         filterRow: {
             visible: true,

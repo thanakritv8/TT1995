@@ -1300,7 +1300,13 @@ Namespace Controllers
                 If System.IO.File.Exists(pathServer) = True Then
                     System.IO.File.Delete(pathServer)
                 End If
-                DtJson.Rows.Add("1")
+                'DtJson.Rows.Add("1")
+                _SQL = "DELETE log_monitor WHERE send_status is null and table_id = 23 and fk_id = " & keyId
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
             Else
                 DtJson.Rows.Add("0")
             End If
@@ -1506,7 +1512,13 @@ Namespace Controllers
                 If System.IO.File.Exists(pathServer) = True Then
                     System.IO.File.Delete(pathServer)
                 End If
-                DtJson.Rows.Add("1")
+                'DtJson.Rows.Add("1")
+                _SQL = "DELETE log_monitor WHERE send_status is null and table_id = 22 and fk_id = " & keyId
+                If objDB.ExecuteSQL(_SQL, cn) Then
+                    DtJson.Rows.Add("1")
+                Else
+                    DtJson.Rows.Add("0")
+                End If
             Else
                 DtJson.Rows.Add("0")
             End If
