@@ -146,6 +146,9 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\css\sb-admin.css" />
     <Content Include="Content\css\sb-admin.min.css" />
+    <Content Include="Content\dx\dx.android5.light.css" />
+    <Content Include="Content\dx\dx.common.css" />
+    <Content Include="Content\dx\dx.light.css" />
     <Content Include="Content\full-slider.css" />
     <Content Include="Content\jquery.fileupload.css" />
     <Content Include="Content\js\demo\chart-area-demo.js" />
@@ -1573,6 +1576,7 @@
     <Content Include="scripts\Account\setting.js" />
     <Content Include="scripts\Account\group.js" />
     <Content Include="scripts\Account\login.js" />
+    <Content Include="scripts\dx\dx.all.js" />
     <Content Include="scripts\Home\Accident.js" />
     <Content Include="scripts\Home\actInsCom.js" />
     <Content Include="scripts\Home\actInsurance.js" />

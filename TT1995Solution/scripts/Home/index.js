@@ -83,6 +83,9 @@ $(function () {
         }, {
             dataField: "license_status",
             caption: "สถานะ"
+        }, {
+            dataField: "fleet",
+            caption: "ฟลีท"
         }],
         masterDetail: {
             enabled: false,
