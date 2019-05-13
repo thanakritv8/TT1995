@@ -27,6 +27,8 @@ End Code
             <% }else{ %>
             <h1 style="color:#f73b3b"><%= tablename%></h1>
             <% } %>
+        <% }else if(tablename == 'เอกสาร'){ %>
+            <h1 style="color:#15c83f"><%= tablename%></h1>
         <% }else{ %>
         <% if(data_status == 'เสร็จสมบูรณ์'){ %>
         <h1 style="color:#15c83f"><%= tablename%></h1>
@@ -61,6 +63,16 @@ End Code
                     <a href="<%= p4%>" target="_blank"><%= n4%></a></p>
                     <% } %>
                 
+                <% }else if(tablename == 'เอกสาร'){ %>
+                    <% console.log(adata.length); %>
+                    <% for(let key in adata) { %>
+                        <p><b><%= adata[key].kind %> : </b>
+                        <a href="<%= adata[key].path_file%>" target="_blank"><%= adata[key].name_file%></a></p>
+                        <% console.log(adata[key].kind, '=>', adata[key].name_file) %>
+                    <% } %>
+                    <% for(i = adata.length; i < 4; i++){ %>
+                        <p>&nbsp;</p>
+                    <% } %>
                 <% }else{ %>
                 <p>
                     <% if(data_number != ''){ %>

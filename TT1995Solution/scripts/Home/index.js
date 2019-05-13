@@ -63,29 +63,40 @@ $(function () {
         }, {
             dataField: "province",
             caption: "จังหวัด",
+            fixed: true,
         }, {
             dataField: "brand_car",
-            caption: "ยี่ห้อรถ"
+            caption: "ยี่ห้อรถ",
+            fixed: true,
         }, {
             dataField: "number_body",
-            caption: "เลขตัวรถ"
+            caption: "เลขตัวรถ",
+            fixed: true,
         }, {
             dataField: "number_engine",
-            caption: "เลขเครื่องยนต์"
+            caption: "เลขเครื่องยนต์",
+            fixed: true,
         }, {
             dataField: "license_date",
             caption: "วันจดทะเบียน",
             dataType: "datetime",
             format: "MM/dd/yyyy",
+            fixed: true,
         }, {
             dataField: "ownership",
             caption: "ผู้ถือกรรมสิทธิ์"
         }, {
             dataField: "license_status",
-            caption: "สถานะ"
+            caption: "สถานะ",
+            fixed: true,
         }, {
             dataField: "fleet",
-            caption: "ฟลีท"
+            caption: "ฟลีท",
+            fixed: true,
+        }, {
+            dataField: "license_location",
+            caption: "สถานที่จัดเก็บ",
+            fixed: true,
         }],
         masterDetail: {
             enabled: false,
@@ -122,10 +133,25 @@ $(function () {
                                 if (dataPic[0] === undefined || dataPic[0] === null) {
                                 } else {
                                     data.push(dataPic[0]);
-                                }
-                                
+                                }                                
                             }
                         });
+                        $.ajax({
+                            type: "POST",
+                            url: "../Home/GetDocAll",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            data: "{license_id: " + currentIndex.license_id + "}",
+                            async: false,
+                            success: function (dataDoc) {
+                                var docJson = { 'tablename': 'เอกสาร' }
+                                docJson.adata = dataDoc;
+                                console.log(docJson);
+                                data.push(docJson);
+                            }
+                        });
+                        //var adata = { 'tablename': 'เอกสาร', 'adata': { 'ใบอนุญาต(วอ.8)': 'file1.pdf', 'ประกัน พรบ': 'file2.pdf', 'ประกันภัยรถยนต์': 'file3.pdf', 'ประกันสินค้าภายในประเทศ': 'file4.pdf', 'ภาษี': 'file5.pdf', 'Download All': 'Click' } }
+                        //data.push(adata);
                         console.log(data);
                         var accordion = $("#accordion-container").dxAccordion({
                             dataSource: data,

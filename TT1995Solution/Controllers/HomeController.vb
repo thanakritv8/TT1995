@@ -51,6 +51,25 @@ Namespace Controllers
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
+
+        Public Function GetDocAll(ByVal license_id As Integer)
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT N'ทั่วไป' as kind, name_file, path_file from files_all where table_id = 1 and type_file = 'pdf' and fk_id = " & license_id & " union all
+SELECT N'ภาษี' as kind, name_file, path_file FROM files_all as f join tax as l on f.fk_id = l.tax_id where f.table_id = 3 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'ทางด่วน' as kind, name_file, path_file FROM files_all as f join expressway as l on f.fk_id = l.epw_id where f.table_id = 9 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'ประกันภัยรถยนต์' as kind, name_file, path_file FROM files_all as f join main_insurance as l on f.fk_id = l.mi_id where f.table_id = 15 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'ประกันภัยสิ่งแวดล้อม' as kind, name_file, path_file FROM files_all as f join environment_insurance as l on f.fk_id = l.ei_id where f.table_id = 18 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'GPS ติดรถ' as kind, name_file, path_file FROM files_all as f join gps_car as l on f.fk_id = l.gps_car_id where f.table_id = 10 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'บันทึกเจ้าหน้าที่' as kind, name_file, path_file FROM files_all as f join officer_records as l on f.fk_id = l.or_id where f.table_id = 4 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'ประกันพรบ.' as kind, name_file, path_file FROM files_all as f join act_insurance as l on f.fk_id = l.ai_id where f.table_id = 17 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'ประกอบการภายใน' as kind, business_number as name_file, business_path as path_file FROM business_in_permission as bip join business_in as bi on bip.business_id = bi.business_id where bi.business_path is not null and bip.license_id = " & license_id & " union all
+SELECT N'ประกอบการภายนอก' as kind, business_number as name_file, business_path as path_file FROM business_out_permission as bop join business_out as bo on bop.business_id = bo.business_id where bo.business_path is not null and bop.license_id = " & license_id & " union all
+SELECT N'ใบอนุญาตกัมพูชา' as kind, lc_number as name_file, lc_path as path_file FROM license_cambodia_permission as lcp join license_cambodia as lc on lcp.lc_id	= lc.lc_id where lc.lc_path is not null and lcp.license_id_head = " & license_id & " union all
+SELECT N'ใบอนุญาตลุ่มแม่น้ำโขง' as kind, lmr_number as name_file, lmr_path as path_file FROM license_mekong_river_permission as lmrp join license_mekong_river as lmr on lmrp.lmr_id	= lmr.lmr_id where lmr.lmr_path is not null and lmrp.license_id_head = " & license_id & " union all
+SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [path] as path_file from license_v8 where [path] is not null and license_id = 54"
+            Dim DtDocAll As DataTable = objDB.SelectSQL(_SQL, cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDocAll.Rows Select DtDocAll.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
 #End Region
 
 #Region "License"
@@ -77,7 +96,7 @@ Namespace Controllers
 
         Public Function GetLicense() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],N'ประวัติ' as history,[fleet] FROM [license] ORDER BY LEN(number_car),number_car"
+            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type],FORMAT([create_date], 'yyyy-MM-dd'),[create_by_user_id],[update_date],[update_by_user_id], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],N'ประวัติ' as history,[fleet], license_location FROM [license] ORDER BY LEN(number_car),number_car"
             Dim DtLicense As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtLicense.Rows Select DtLicense.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
@@ -103,14 +122,14 @@ Namespace Controllers
                                       , ByVal license_date As String, ByVal weight_car As String, ByVal weight_lade As String _
                                       , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String, ByVal key As String _
                                       , ByVal seq As String, ByVal nationality As String, ByVal id_card As String, ByVal address As String _
-                                      , ByVal license_expiration As String, ByVal possessory_right As String, ByVal license_no As String, ByVal license_status As String, ByVal IdTable As String, ByVal fleet As String) As String
+                                      , ByVal license_expiration As String, ByVal possessory_right As String, ByVal license_no As String, ByVal license_status As String, ByVal IdTable As String, ByVal fleet As String, ByVal license_location As String) As String
 
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [license] SET "
-            Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "address", "license_expiration", "possessory_right", "license_no", "license_status", "fleet"}
-            Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status, fleet}
+            Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "address", "license_expiration", "possessory_right", "license_no", "license_status", "fleet", "license_location"}
+            Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status, fleet, license_location}
             For n As Integer = 0 To TbLicense.Length - 1
                 If Not TbLicense(n) Is Nothing Then
                     _SQL &= StrTbLicense(n) & "=N'" & TbLicense(n) & "',"
@@ -140,12 +159,12 @@ Namespace Controllers
                                       , ByVal license_date As String, ByVal weight_car As String, ByVal weight_lade As String _
                                       , ByVal weight_total As String, ByVal ownership As String, ByVal transport_operator As String, ByVal transport_type As String _
                                       , ByVal seq As String, ByVal nationality As String, ByVal id_card As String, ByVal address As String _
-                                      , ByVal license_expiration As String, ByVal possessory_right As String, ByVal license_no As String, ByVal license_status As String, ByVal IdTable As String, ByVal fleet As String) As String
+                                      , ByVal license_expiration As String, ByVal possessory_right As String, ByVal license_no As String, ByVal license_status As String, ByVal IdTable As String, ByVal fleet As String, ByVal license_location As String) As String
 
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],[fleet],[create_by_user_id]) OUTPUT Inserted.license_id"
+            Dim _SQL As String = "INSERT INTO [license] ([number_car],[license_car],[province],[type_fuel],[type_car],[style_car],[brand_car],[model_car],[color_car],[number_body],[number_engine],[number_engine_point_1],[number_engine_point_2],[brand_engine],[pump],[horse_power],[shaft],[wheel],[tire],[license_date],[weight_car],[weight_lade],[weight_total],[ownership],[transport_operator],[transport_type], [seq], [nationality], [id_card], [address], [license_expiration], [possessory_right], [license_no], [license_status],[fleet],[license_location],[create_by_user_id]) OUTPUT Inserted.license_id"
             _SQL &= " VALUES ('" & IIf(number_car Is Nothing, 0, number_car) & "',"
             _SQL &= "N'" & IIf(license_car Is Nothing, String.Empty, license_car) & "',"
             _SQL &= "N'" & IIf(province Is Nothing, String.Empty, province) & "',"
@@ -181,6 +200,7 @@ Namespace Controllers
             _SQL &= "N'" & IIf(license_no Is Nothing, String.Empty, license_no) & "',"
             _SQL &= "N'" & IIf(license_status Is Nothing, String.Empty, license_status) & "',"
             _SQL &= "N'" & IIf(fleet Is Nothing, String.Empty, fleet) & "',"
+            _SQL &= "N'" & IIf(license_location Is Nothing, String.Empty, license_location) & "',"
             _SQL &= Session("UserId") & ")"
             If Not number_car Is Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
@@ -190,8 +210,8 @@ Namespace Controllers
                 '    DtJson.Rows.Add("0")
                 'End If
                 If DtJson.Rows(0).Item("Status").ToString <> "0" Then
-                    Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "address", "license_expiration", "possessory_right", "license_no", "license_status", "fleet"}
-                    Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status, fleet}
+                    Dim StrTbLicense() As String = {"number_car", "license_car", "province", "type_fuel", "type_car", "style_car", "brand_car", "model_car", "color_car", "number_body", "number_engine", "number_engine_point_1", "number_engine_point_2", "brand_engine", "pump", "horse_power", "shaft", "wheel", "tire", "license_date", "weight_car", "weight_lade", "weight_total", "ownership", "transport_operator", "transport_type", "seq", "nationality", "id_card", "address", "license_expiration", "possessory_right", "license_no", "license_status", "fleet", "license_location"}
+                    Dim TbLicense() As Object = {number_car, license_car, province, type_fuel, type_car, style_car, brand_car, model_car, color_car, number_body, number_engine, number_engine_point_1, number_engine_point_2, brand_engine, pump, horse_power, shaft, wheel, tire, license_date, weight_car, weight_lade, weight_total, ownership, transport_operator, transport_type, seq, nationality, id_card, address, license_expiration, possessory_right, license_no, license_status, fleet, license_location}
                     For n As Integer = 0 To TbLicense.Length - 1
                         If Not TbLicense(n) Is Nothing Then
                             GbFn.KeepLog(StrTbLicense(n), TbLicense(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
