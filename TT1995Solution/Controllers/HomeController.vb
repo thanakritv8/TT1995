@@ -66,7 +66,7 @@ SELECT N'ประกอบการภายใน' as kind, business_number as
 SELECT N'ประกอบการภายนอก' as kind, business_number as name_file, business_path as path_file FROM business_out_permission as bop join business_out as bo on bop.business_id = bo.business_id where bo.business_path is not null and bop.license_id = " & license_id & " union all
 SELECT N'ใบอนุญาตกัมพูชา' as kind, lc_number as name_file, lc_path as path_file FROM license_cambodia_permission as lcp join license_cambodia as lc on lcp.lc_id	= lc.lc_id where lc.lc_path is not null and lcp.license_id_head = " & license_id & " union all
 SELECT N'ใบอนุญาตลุ่มแม่น้ำโขง' as kind, lmr_number as name_file, lmr_path as path_file FROM license_mekong_river_permission as lmrp join license_mekong_river as lmr on lmrp.lmr_id	= lmr.lmr_id where lmr.lmr_path is not null and lmrp.license_id_head = " & license_id & " union all
-SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [path] as path_file from license_v8 where [path] is not null and license_id = 54"
+SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [path] as path_file from license_v8 where [path] is not null and license_id = " & license_id
             Dim DtDocAll As DataTable = objDB.SelectSQL(_SQL, cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDocAll.Rows Select DtDocAll.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
