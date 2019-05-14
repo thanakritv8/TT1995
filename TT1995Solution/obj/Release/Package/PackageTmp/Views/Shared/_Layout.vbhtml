@@ -13,12 +13,12 @@
     @*<link rel="stylesheet" type="text/css" href="~/Content/sb-admin.min.css" />*@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script>window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))</script>
-    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/18.2.4/css/dx.common.css" />
-    <link rel="dx-theme" data-theme="generic.light" href="https://cdn3.devexpress.com/jslib/18.2.4/css/dx.light.css" />
-    <link rel="dx-theme" data-theme="android5.light" href="https://cdn3.devexpress.com/jslib/17.2.7/css/dx.android5.light.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/dx/dx.common.css" />
+    <link rel="dx-theme" data-theme="generic.light" href="~/Content/dx/dx.light.css" />
+    <link rel="dx-theme" data-theme="android5.light" href="~/Content/dx/dx.android5.light.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.2/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js"></script>
-    <script src="https://cdn3.devexpress.com/jslib/18.2.4/js/dx.all.js"></script>
+    <script src="~/scripts/dx/dx.all.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.2/jszip.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>

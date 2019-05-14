@@ -17,6 +17,10 @@ End Code
     .dx-theme-material #accordion .dx-accordion-item-opened h1 {
         margin-top: 7px;
     }
+    #accordion {
+        height:300px;
+        overflow:auto;
+    }
 </style>
 <div>
     <div class="mt-3 mb-3" id="gridContainer"></div>
