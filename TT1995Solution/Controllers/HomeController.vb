@@ -1102,7 +1102,7 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 
         Public Function GetDriver() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT d.driver_id, d.driver_name, d.start_work_date, d.license_id_head, d.license_id_tail, (select license_car from license where license_id = d.license_id_head) as license_car_head, (select license_car from license where license_id = d.license_id_tail) as license_car_tail,N'ประวัติ' as history ,li.number_car FROM driver as d inner join license li on d.license_id_head = li.license_id order by LEN(li.number_car),li.number_car"
+            Dim _SQL As String = "SELECT d.driver_id, d.driver_name, d.start_work_date, li.license_id as license_id_head, d.license_id_tail, (select license_car from license where license_id = li.license_id) as license_car_head, (select license_car from license where license_id = d.license_id_tail) as license_car_tail,N'ประวัติ' as history ,li.number_car FROM driver as d right join license li on d.license_id_head = li.license_id where li.number_car Not like 'T%' order by LEN(li.number_car),li.number_car"
             Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))

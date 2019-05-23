@@ -71,7 +71,19 @@
             //fnInsertDriver(e.data);
         },
         onRowUpdating: function (e) {
-            e.cancel = !fnUpdateDriver(e.newData, e.key.driver_id);
+            console.log(e);
+            //e.cancel = !fnUpdateDriver(e.newData, e.key.driver_id);
+            if (e.key.driver_id != null) {
+                e.cancel = !fnUpdateDriver(e.newData, e.key.driver_id);
+            }else{
+                e.newData.license_id_head = e.oldData.license_id_head;
+                var statusInsert = fnInsertDriver(e.newData);
+                if (statusInsert != '0') {
+                    e.key.driver_id = statusInsert;
+                } else {
+                    e.cancel = true;
+                }
+            }
         },
         onRowRemoving: function (e) {
             e.cancel = !fnDeleteDriver(e.key.driver_id);
@@ -203,8 +215,12 @@
             dataType: "json",
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    var d1 = parseJsonDate(data[i].start_work_date);
-                    data[i].start_work_date = d1
+                    
+                    if (data[i].start_work_date != null) {
+                        var d1 = parseJsonDate(data[i].start_work_date);
+                        data[i].start_work_date = d1
+                    }
+                    
                 }
                 dataGrid.option('dataSource', data);
                 console.log(data);
