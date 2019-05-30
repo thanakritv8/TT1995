@@ -55,7 +55,7 @@ Namespace Controllers
         Public Function GetDocAll(ByVal license_id As Integer)
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim _SQL As String = "SELECT N'ทั่วไป' as kind, name_file, path_file from files_all where table_id = 1 and type_file = 'pdf' and fk_id = " & license_id & " union all
-SELECT N'ภาษี' as kind, name_file, path_file FROM files_all as f join tax as l on f.fk_id = l.tax_id where f.table_id = 3 and type_file <> 'folder' and l.license_id = " & license_id & " union all
+SELECT N'ภาษี' as kind, name_file, path_file FROM files_all as f join tax as l on f.fk_id = l.license_id where f.table_id = 3 and type_file <> 'folder' and l.license_id = " & license_id & " union all
 SELECT N'ทางด่วน' as kind, name_file, path_file FROM files_all as f join expressway as l on f.fk_id = l.epw_id where f.table_id = 9 and type_file <> 'folder' and l.license_id = " & license_id & " union all
 SELECT N'ประกันภัยรถยนต์' as kind, name_file, path_file FROM files_all as f join main_insurance as l on f.fk_id = l.mi_id where f.table_id = 15 and type_file <> 'folder' and l.license_id = " & license_id & " union all
 SELECT N'ประกันภัยสิ่งแวดล้อม' as kind, name_file, path_file FROM files_all as f join environment_insurance as l on f.fk_id = l.ei_id where f.table_id = 18 and type_file <> 'folder' and l.license_id = " & license_id & " union all

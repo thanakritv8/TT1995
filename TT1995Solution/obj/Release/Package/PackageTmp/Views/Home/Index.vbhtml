@@ -66,6 +66,22 @@ End Code
                     <p><b>รูปด้านข้างขวา : </b>
                     <a href="<%= p4%>" target="_blank"><%= n4%></a></p>
                     <% } %>
+                    <% if(p5 != ''){ %>
+                    <p><b>รูปด้านหน้าข้างขวา : </b>
+                    <a href="<%= p5%>" target="_blank"><%= n5%></a></p>
+                    <% } %>
+                    <% if(p6 != ''){ %>
+                    <p><b>รูปด้านหน้าข้างซ้าย : </b>
+                    <a href="<%= p6%>" target="_blank"><%= n6%></a></p>
+                    <% } %>
+                    <% if(p7 != ''){ %>
+                    <p><b>รูปด้านหลังข้างขวา : </b>
+                    <a href="<%= p7%>" target="_blank"><%= n7%></a></p>
+                    <% } %>
+                    <% if(p8 != ''){ %>
+                    <p><b>รูปด้านหลังข้างซ้าย : </b>
+                    <a href="<%= p8%>" target="_blank"><%= n8%></a></p>
+                    <% } %>
                 
                 <% }else if(tablename == 'เอกสาร'){ %>
                     <% console.log(adata.length); %>

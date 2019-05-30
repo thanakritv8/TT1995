@@ -45,6 +45,10 @@ End Code
                                 <option value="2">ด้านหลัง</option>
                                 <option value="3">ด้านข้างซ้าย</option>
                                 <option value="4">ด้านข้างขวา</option>
+                                <option value="5">ด้านหน้าข้างขวา</option>
+                                <option value="6">ด้านหน้าข้างซ้าย</option>
+                                <option value="7">ด้านท้ายข้างขวา</option>
+                                <option value="8">ด้านท้ายข้างซ้าย</option>
                             </select>
                         </div>
                     </div>

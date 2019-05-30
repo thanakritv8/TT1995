@@ -605,6 +605,14 @@ $(function () {
                         dp = 'ด้านซ้าย';
                     } else if (data_filter[0].position == 4) {
                         dp = 'ด้านขวา';
+                    } else if (data_filter[0].position == 5) {
+                        dp = 'ด้านหน้าข้างขวา';
+                    } else if (data_filter[0].position == 6) {
+                        dp = 'ด้านหน้าข้างซ้าย';
+                    } else if (data_filter[0].position == 7) {
+                        dp = 'ด้านหลังข้างขวา';
+                    } else if (data_filter[0].position == 8) {
+                        dp = 'ด้านหลังข้างซ้าย';
                     }
                     $(".dx-treeview-node-is-leaf")[i].innerHTML = str.replace(subStr, subStr + '<span class="badge badge-success ml-1 mr-2 mt-1" data-toggle="tooltip" title="ตำแหน่ง" style="float:right;">' + dp + '</span>');
                 }
