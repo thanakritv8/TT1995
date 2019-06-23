@@ -489,6 +489,8 @@ $(function () {
                 }
             }
         });
+        dataGrid.option('dataSource', getDataAi());
+        dataGrid.refresh();
         return returnStatus;
     }
 

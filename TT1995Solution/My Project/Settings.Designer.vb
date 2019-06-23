@@ -74,7 +74,7 @@ Namespace My
         
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("ITLAP043\MSSQLSERVER1")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("DESKTOP-7DTG0EB")>  _
         Public ReadOnly Property NameServer() As String
             Get
                 Return CType(Me("NameServer"),String)

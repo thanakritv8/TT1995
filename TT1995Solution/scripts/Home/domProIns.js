@@ -594,6 +594,8 @@ $(function () {
                 }
             }
         });
+        dataGrid.option('dataSource', getDataDpi());
+        dataGrid.refresh();
         return returnStatus;
     }
 

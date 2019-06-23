@@ -9,7 +9,7 @@
       <Value Profile="(Default)">P@ssw0rd</Value>
     </Setting>
     <Setting Name="NameServer" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">ITLAP043\MSSQLSERVER1</Value>
+      <Value Profile="(Default)">DESKTOP-7DTG0EB</Value>
     </Setting>
     <Setting Name="DataBase" Type="System.String" Scope="Application">
       <Value Profile="(Default)">TT1995</Value>

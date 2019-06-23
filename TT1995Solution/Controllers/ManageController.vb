@@ -42,7 +42,7 @@ Namespace Controllers
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO lookup (column_id, data_list, create_by_user_id) VALUES(" & column_id & ", N'" & data_list & "', " & Session("UserId") & ")"
+            Dim _SQL As String = "INSERT INTO lookup (column_id, data_list, create_by_user_id) VALUES(" & column_id & ", N'" & data_list.Insert(data_list.IndexOf("'") + 1, "'") & "', " & Session("UserId") & ")"
             If objDB.ExecuteSQL(_SQL, cn) Then
                 DtJson.Rows.Add("1")
             Else

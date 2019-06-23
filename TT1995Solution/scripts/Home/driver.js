@@ -72,6 +72,7 @@
         },
         onRowUpdating: function (e) {
             console.log(e);
+            
             //e.cancel = !fnUpdateDriver(e.newData, e.key.driver_id);
             if (e.key.driver_id != null) {
                 e.cancel = !fnUpdateDriver(e.newData, e.key.driver_id);
