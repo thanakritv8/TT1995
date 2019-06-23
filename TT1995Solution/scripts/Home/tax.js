@@ -659,9 +659,11 @@ $(function () {
 
     //Function Update ข้อมูลภาษี
     function fnUpdateTax(newData, keyItem) {
+        
         var boolUpdate = false;
         newData.tax_id = keyItem;
         newData.IdTable = gbTableId;
+        
         //console.log(keyItem);
         $.ajax({
             type: "POST",
@@ -680,6 +682,9 @@ $(function () {
                 }
             }
         });
+        //dataGrid._options.dataSource = getDataTax();
+        dataGrid.option('dataSource', getDataTax());
+        dataGrid.refresh();
         return boolUpdate;
     }
 

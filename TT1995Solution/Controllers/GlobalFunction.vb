@@ -244,7 +244,7 @@ Public Class GlobalFunction
             Data = Convert.ToDateTime(Data).ToString("MM/dd/yyyy")
         End If
         Dim _SQL As String = "INSERT INTO [dbo].[log_all] ([column_id],[_data],[_format],[_event],[_table],[id_of_table],[by_user],[_date])
-							  select column_id,N'" & Data & "',format,'" & _event & "'," & IdTable & "," & IdOfTable & "," & HttpContext.Current.Session("UserId") & ",getdate() from config_column where name_column = '" & ColumnName & "' and table_id = " & IdTable & ""
+							  select column_id,N'" & IIf(Data.IndexOf("'") >= 0, Data.Insert(Data.IndexOf("'") + 1, "'"), Data) & "',format,'" & _event & "'," & IdTable & "," & IdOfTable & "," & HttpContext.Current.Session("UserId") & ",getdate() from config_column where name_column = '" & ColumnName & "' and table_id = " & IdTable & ""
         Return objDB.ExecuteSQL(_SQL, cn)
     End Function
 End Class

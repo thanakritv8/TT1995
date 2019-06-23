@@ -26,6 +26,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <ApplicationInsightsResourceId>/subscriptions/b3d47481-4c32-49cf-9ecb-a894bc078d51/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/TT1995Solution</ApplicationInsightsResourceId>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1584,6 +1585,10 @@
     <Content Include="scripts\Home\business_in.js" />
     <Content Include="scripts\Home\domProIns.js" />
     <Content Include="scripts\Home\driver.js" />
+    <Content Include="scripts\Home\driving_license.js" />
+    <Content Include="scripts\Home\driving_license_dangerous_objects_transportation.js" />
+    <Content Include="scripts\Home\driving_license_natural_gas_transportation.js" />
+    <Content Include="scripts\Home\driving_license_oil_transportation.js" />
     <Content Include="scripts\Home\EnvInsCom.js" />
     <Content Include="scripts\Home\environmentInsurance.js" />
     <Content Include="scripts\Home\Expressway.js" />
@@ -1593,12 +1598,14 @@
     <Content Include="scripts\Home\Installment.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\licenseV8.js" />
+    <Content Include="scripts\Home\license_car_factory.js" />
     <Content Include="scripts\Home\license_factory.js" />
     <Content Include="scripts\Home\license_mekong_river.js" />
     <Content Include="scripts\Home\license_cambodia.js" />
     <Content Include="scripts\Home\mainInsCom.js" />
     <Content Include="scripts\Home\mainInsurance.js" />
     <Content Include="scripts\Home\officer_records.js" />
+    <Content Include="scripts\Home\passport.js" />
     <Content Include="scripts\Home\proInsCom.js" />
     <Content Include="scripts\Home\tax.js" />
     <Content Include="scripts\Home\Trackingwork.js" />
@@ -1763,6 +1770,12 @@
     <Content Include="Views\Home\LicenseFactory.vbhtml" />
     <Content Include="Views\Account\Permission.vbhtml" />
     <Content Include="Views\Home\Accident.vbhtml" />
+    <Content Include="Views\Home\driving_license.vbhtml" />
+    <Content Include="Views\Home\passport.vbhtml" />
+    <Content Include="Views\Home\driving_license_oil_transportation.vbhtml" />
+    <Content Include="Views\Home\driving_license_natural_gas_transportation.vbhtml" />
+    <Content Include="Views\Home\driving_license_dangerous_objects_transportation.vbhtml" />
+    <Content Include="Views\Home\license_car_factory.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
