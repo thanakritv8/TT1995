@@ -253,6 +253,7 @@ $(function () {
                     },
                     //โชว์รายการคลิกขวา
                     onItemContextMenu: function (e) {
+                        console.log(e.itemData);
                         var item = e.itemData;
                         if (item.file_id) {
                             name = item.name_file

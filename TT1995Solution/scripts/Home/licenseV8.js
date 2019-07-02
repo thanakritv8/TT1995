@@ -121,6 +121,10 @@ $(function () {
             allowedPageSizes: [5, 10, 20],
             showInfo: true
         },
+        "export": {
+            enabled: true,
+            fileName: "LicenseV8",
+        },
         editing: {
             mode: "popup",
             allowUpdating: boolStatus,
