@@ -396,6 +396,24 @@ $(function () {
         }
     });
 
+    function getDataLmr() {
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetLmr",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d1 = parseJsonDate(data[i].lmr_expire);
+                    data[i].lmr_expire = d1
+                    var d2 = parseJsonDate(data[i].lmr_start);
+                    data[i].lmr_start = d2;
+                }
+            }
+        }).responseJSON;
+    }
+
     function fnInsertLmr(dataGrid) {
         var returnId = 0;
         dataGrid.IdTable = gbTableId;
@@ -443,6 +461,8 @@ $(function () {
                 }
             }
         });
+        dataGrid.option('dataSource', getDataLmr());
+        dataGrid.refresh();
         return boolUpdate;
     }
 

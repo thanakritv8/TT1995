@@ -400,6 +400,24 @@ $(function () {
         }
     });
 
+    function getDataLc() {
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetLc",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d1 = parseJsonDate(data[i].lc_expire);
+                    data[i].lc_expire = d1
+                    var d2 = parseJsonDate(data[i].lc_start);
+                    data[i].lc_start = d2;
+                }
+            }
+        }).responseJSON;
+    }
+
     function fnInsertLc(dataGrid) {
         var returnId = 0;
         dataGrid.IdTable = gbTableId;
@@ -448,6 +466,8 @@ $(function () {
                 }
             }
         });
+        dataGrid.option('dataSource', getDataLc());
+        dataGrid.refresh();
         return boolUpdate;
     }
 

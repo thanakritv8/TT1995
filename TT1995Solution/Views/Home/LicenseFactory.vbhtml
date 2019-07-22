@@ -56,10 +56,10 @@ End Code
     console.log(!boolStatus);
     //End Control
 
-    $(".d3").next().toggle();
-    $(".d3").click(function (e) {
+    $(".toggle-driver").next().toggle();
+    $(".toggle-driver").click(function (e) {
         e.stopPropagation();
-        $(".d3").next().toggle();
+        $(".toggle-driver").next().toggle();
     });
 </script>
 <script src="~/scripts/Home/license_factory.js"></script>

@@ -494,7 +494,27 @@ $(function () {
                 }
             }
         });
+        dataGrid.option('dataSource', getDataMi2());
+        dataGrid.refresh();
         return returnStatus;
+    }
+
+    function getDataMi2() {
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetMIData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].start_date);
+                    data[i].start_date = d;
+                    var d = parseJsonDate(data[i].end_date);
+                    data[i].end_date = d;
+                }
+            }
+        }).responseJSON;
     }
 
     //Function Insert ข้อมูล gps_company
@@ -859,5 +879,208 @@ $(function () {
             }
         });
     });
+
+    var internal_call = [
+
+        {
+            "internal_call": "NULL",
+            "qty": 122
+        },
+        {
+            "internal_call": "สิบล้อโลออฟ",
+            "qty": 12
+        },
+        {
+            "internal_call": "สิบล้อดั๊ม",
+            "qty": 5
+        },
+        {
+            "internal_call": "หัวลาก",
+            "qty": 37
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง ก้าง 20' โลเบท",
+            "qty": 1
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง ก้าง 20' ดั๊ม",
+            "qty": 6
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง ก้าง 40' โลเบท",
+            "qty": 7
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง ก้าง 40' ดั๊ม",
+            "qty": 3
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง พื้น 20' โลเบท",
+            "qty": 11
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง พื้น 20' ดั๊ม",
+            "qty": 7
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง พื้น 40' โลเบท",
+            "qty": 7
+        },
+        {
+            "internal_call": "หางกึ่งพ่วง พื้น 40' ดั๊ม",
+            "qty": 5
+        },
+        {
+            "internal_call": "หางพ่วง",
+            "qty": 1
+        }
+    ];
+
+    var data_license = [
+        {
+            "number_car": 14,
+            "license_car": "70-2175"
+        },
+        {
+            "number_car": 9,
+            "license_car": "70-2018"
+        },
+        {
+            "number_car": 1,
+            "license_car": "70-2174"
+        },
+        {
+            "number_car": 17,
+            "license_car": "70-2397"
+        },
+        {
+            "number_car": 3,
+            "license_car": "70-2477"
+        },
+        {
+            "number_car": 5,
+            "license_car": "70-2287"
+        },
+        {
+            "number_car": 6,
+            "license_car": "70-1660"
+        },
+        {
+            "number_car": 60,
+            "license_car": "70-7569"
+        },
+        {
+            "number_car": 12,
+            "license_car": "70-2039"
+        },
+        {
+            "number_car": 10,
+            "license_car": "70-2531"
+        },
+        {
+            "number_car": 14,
+            "license_car": "70-2175"
+        },
+        {
+            "number_car": 9,
+            "license_car": "70-2018"
+        },
+        {
+            "number_car": 1,
+            "license_car": "70-2174"
+        },
+        {
+            "number_car": 17,
+            "license_car": "70-2397"
+        },
+        {
+            "number_car": 3,
+            "license_car": "70-2477"
+        },
+        {
+            "number_car": 5,
+            "license_car": "70-2287"
+        },
+        {
+            "number_car": 6,
+            "license_car": "70-1660"
+        },
+        {
+            "number_car": 60,
+            "license_car": "70-7569"
+        },
+        {
+            "number_car": 12,
+            "license_car": "70-2039"
+        },
+        {
+            "number_car": 10,
+            "license_car": "70-2531"
+        }
+    ];
+
+    var chart_bar_fleet_category = $("#chart-bar-fleet-category").dxChart({
+        rotated: true,
+        title: "Car Category",
+        dataSource: internal_call,
+        size: {
+            height: '100%',
+            width: '100%'
+        },
+        series: {
+            color: "#f3c40b",
+            argumentField: "internal_call",
+            valueField: "qty",
+            type: "bar",
+            label: {
+                visible: true,
+                font: {
+                    size: '10',
+                }
+            }
+        },
+        legend: {
+            visible: false
+        },
+        onPointClick: function (info) {
+            console.log(info);
+            popup_history.option('title', info.target.data.internal_call);
+            popup_history._options.contentTemplate = function (content) {
+                var maxHeight = $("#popup_history .dx-overlay-content").height() - 100;
+                content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
+            }
+            $("#popup_history").dxPopup("show");
+            var gridHistory = $("#gridHistory").dxDataGrid({
+                dataSource: data_license,
+                columns: [
+                    {
+                        dataField: "number_car",
+                        caption: "เบอร์รถ",
+                    },
+                    {
+                        dataField: "license_car",
+                        caption: "ทะเบียน",
+                    }
+                ]
+                ,
+                showBorders: true,
+                height: 'auto',
+                scrolling: {
+                    showScrollbar: 'always'
+                },
+                export: {
+                    enabled: true,
+                    fileName: "data",
+                },
+            }).dxDataGrid('instance');
+            //show_popup(info.target.data.internal_call);
+        },
+    }).dxChart("instance");
+
+    function show_popup(title) {
+        popup_history.option('title', title);
+        
+    }
+    
 
 });

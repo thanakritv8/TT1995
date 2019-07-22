@@ -92,6 +92,7 @@ End Code
 <div class="widget-container">
     <div id="popup"></div>
 </div>
+<div id="chart-bar-fleet-category"></div>
 <div id="popup_history"></div>
 <script>
     //Control Read Only and Read Write

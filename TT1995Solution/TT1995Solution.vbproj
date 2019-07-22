@@ -26,6 +26,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <ApplicationInsightsResourceId>/subscriptions/b3d47481-4c32-49cf-9ecb-a894bc078d51/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/TT1995Solution</ApplicationInsightsResourceId>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -144,6 +145,7 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\css\jquery.steps.css" />
     <Content Include="Content\css\sb-admin.css" />
     <Content Include="Content\css\sb-admin.min.css" />
     <Content Include="Content\dx\dx.android5.light.css" />
@@ -155,6 +157,9 @@
     <Content Include="Content\js\demo\chart-bar-demo.js" />
     <Content Include="Content\js\demo\chart-pie-demo.js" />
     <Content Include="Content\js\demo\datatables-demo.js" />
+    <Content Include="Content\js\jquery_steps\build\jquery.steps.js" />
+    <Content Include="Content\js\jquery_steps\lib\jquery.cookie-1.3.1.js" />
+    <Content Include="Content\js\jquery_steps\lib\modernizr-2.6.2.min.js" />
     <Content Include="Content\js\sb-admin.js" />
     <Content Include="Content\js\sb-admin.min.js" />
     <Content Include="Content\sb-admin.css" />
@@ -1582,8 +1587,10 @@
     <Content Include="scripts\Home\actInsurance.js" />
     <Content Include="scripts\Home\business_out.js" />
     <Content Include="scripts\Home\business_in.js" />
+    <Content Include="scripts\Home\dashboard.js" />
     <Content Include="scripts\Home\domProIns.js" />
     <Content Include="scripts\Home\driver.js" />
+    <Content Include="scripts\Home\driving_license.js" />
     <Content Include="scripts\Home\EnvInsCom.js" />
     <Content Include="scripts\Home\environmentInsurance.js" />
     <Content Include="scripts\Home\Expressway.js" />
@@ -1599,6 +1606,7 @@
     <Content Include="scripts\Home\mainInsCom.js" />
     <Content Include="scripts\Home\mainInsurance.js" />
     <Content Include="scripts\Home\officer_records.js" />
+    <Content Include="scripts\Home\passport.js" />
     <Content Include="scripts\Home\proInsCom.js" />
     <Content Include="scripts\Home\tax.js" />
     <Content Include="scripts\Home\Trackingwork.js" />
@@ -1763,6 +1771,9 @@
     <Content Include="Views\Home\LicenseFactory.vbhtml" />
     <Content Include="Views\Account\Permission.vbhtml" />
     <Content Include="Views\Home\Accident.vbhtml" />
+    <Content Include="Views\Home\driving_license.vbhtml" />
+    <Content Include="Views\Home\passport.vbhtml" />
+    <Content Include="Views\Home\dashboard.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

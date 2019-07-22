@@ -112,6 +112,10 @@ $(function () {
         }, onContentReady: function (e) {
             filter();
         },
+        "export": {
+            enabled: true,
+            fileName: "LicenseV8",
+        },
         paging: {
             enabled: true,
             pageSize: 10
@@ -530,6 +534,8 @@ $(function () {
                 }
             }
         });
+        dataGrid.option('dataSource', getLv8());
+        dataGrid.refresh();
         return boolUpdate;
     }
 
