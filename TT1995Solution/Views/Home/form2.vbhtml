@@ -36,62 +36,62 @@ End Code
             </tr>
             <tr>
                 <td align="right" style="padding-top: 5px;">
-                    เขียนที่ <input type="text" id="write_location">
+                    เขียนที่ <input type="text" id="txt1">
                 </td>
             </tr>
             <tr>
                 <td align="right" style="padding-top: 5px;">
-                    วันที่ <input type="number" min="1" max="31" id="day"> เดือน <input type="text" id="month"> ปี <input type="number" id="year">
+                    วันที่ <input type="number" min="1" max="31" id="txt2"> เดือน <input type="text" id="txt3"> ปี <input type="number" id="txt4">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 15px; padding-left: 50px;">
-                    โดยหนังสือฉบับนี้ ข้าพเจ้า <input type="text" id="name" style="width: 372px"> อายุ <input type="number" id="old" style="width: 50px"> ปี
+                    โดยหนังสือฉบับนี้ ข้าพเจ้า <input type="text" id="txt5" style="width: 372px"> อายุ <input type="number" id="txt6" style="width: 50px"> ปี
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    เชื้อชาติ <input type="text" id="origin" style="width: 60px"> สัญชาติ <input type="text" id="nationality" style="width: 60px"> อยู่บ้านเลขที่ <input type="text" id="house_no" style="width: 84px"> หมู่ที่ <input type="text" id="moo" style="width: 60px"> ซอย <input type="text" id="soi" style="width: 140px">
+                    เชื้อชาติ <input type="text" id="txt7" style="width: 60px"> สัญชาติ <input type="text" id="txt8" style="width: 60px"> อยู่บ้านเลขที่ <input type="text" id="txt9" style="width: 84px"> หมู่ที่ <input type="text" id="txt10" style="width: 60px"> ซอย <input type="text" id="txt11" style="width: 140px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    ถนน <input type="text" id="road" style="width: 162px"> ตำบล/แขวง <input type="text" id="sub_district" style="width: 162px"> อำเภอ/เขต <input type="text" id="district" style="width: 164px">
+                    ถนน <input type="text" id="txt12" style="width: 162px"> ตำบล/แขวง <input type="text" id="txt13" style="width: 162px"> อำเภอ/เขต <input type="text" id="txt14" style="width: 164px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    จังหวัด <input type="text" id="province" style="width: 160px"> ซึ่งเป็นผู้มีอำนาจลงนามผูกพัน <input type="text" id="authorized_person" style="width: 284px">
+                    จังหวัด <input type="text" id="txt15" style="width: 160px"> ซึ่งเป็นผู้มีอำนาจลงนามผูกพัน <input type="text" id="txt16" style="width: 284px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    สำนักงานตั้งอยู่ที่ <input type="text" id="company_no" style="width: 93px"> ถนน <input type="text" id="company_road" style="width: 180px"> ตำบล/แขวง <input type="text" id="company_sub_district" style="width: 180px">
+                    สำนักงานตั้งอยู่ที่ <input type="text" id="txt17" style="width: 93px"> ถนน <input type="text" id="txt18" style="width: 180px"> ตำบล/แขวง <input type="text" id="txt19" style="width: 180px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    อำเภอ/เขต <input type="text" id="company_district" style="width: 136px"> จังหวัด <input type="text" id="company_province" style="width: 180px"> โทรศัพท์ <input type="text" id="company_tel" style="width: 180px">
+                    อำเภอ/เขต <input type="text" id="txt20" style="width: 136px"> จังหวัด <input type="text" id="txt21" style="width: 180px"> โทรศัพท์ <input type="text" id="txt22" style="width: 180px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 15px; padding-left: 50px;">
-                    ขอมอบอำนาจให้ <input type="text" id="authorize_name" style="width: 247px"> อายุ <input type="text" id="authorize_old" style="width: 50px"> ปี เชื้อชาติ <input type="text" id="authorize_origin" style="width: 120px">
+                    ขอมอบอำนาจให้ <input type="text" id="txt23" style="width: 247px"> อายุ <input type="text" id="txt24" style="width: 50px"> ปี เชื้อชาติ <input type="text" id="txt25" style="width: 120px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    สัญชาติ <input type="text" id="authorize_nationality" style="width: 106px"> อยู่บ้านเลขที่ <input type="text" id="authorize_house_no" style="width: 130px"> หมู่ที่ <input type="text" id="authorize_moo" style="width: 100px"> ซอย <input type="text" id="authorize_soi" style="width: 130px">
+                    สัญชาติ <input type="text" id="txt26" style="width: 106px"> อยู่บ้านเลขที่ <input type="text" id="txt27" style="width: 130px"> หมู่ที่ <input type="text" id="txt28" style="width: 100px"> ซอย <input type="text" id="txt29" style="width: 130px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    ถนน <input type="text" id="authorize_road" style="width: 165px"> ตำบล/แขวง <input type="text" id="authorize_sub_district" style="width: 163px"> อำเภอ/เขต <input type="text" id="authorize_district" style="width: 160px">
+                    ถนน <input type="text" id="txt30" style="width: 165px"> ตำบล/แขวง <input type="text" id="txt31" style="width: 163px"> อำเภอ/เขต <input type="text" id="txt32" style="width: 160px">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px;">
-                    จังหวัด <input type="text" id="authorize_province" style="width: 180px">
+                    จังหวัด <input type="text" id="txt33" style="width: 180px">
                 </td>
             </tr>
             <tr>
@@ -101,22 +101,22 @@ End Code
             </tr>
             <tr>
                 <td style="padding-top: 5px; padding-left: 50px;">
-                    1. <input type="text" id="description_1" style="width: 627px;">
+                    1. <input type="text" id="txt34" style="width: 627px;">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px; padding-left: 50px;">
-                    2. <input type="text" id="description_2" style="width: 627px;">
+                    2. <input type="text" id="txt35" style="width: 627px;">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px; padding-left: 50px;">
-                    3. <input type="text" id="description_3" style="width: 627px;">
+                    3. <input type="text" id="txt36" style="width: 627px;">
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 5px; padding-left: 50px;">
-                    4. <input type="text" id="description_4" style="width: 627px;">
+                    4. <input type="text" id="txt37" style="width: 627px;">
                 </td>
             </tr>
             <tr>
@@ -126,12 +126,12 @@ End Code
             </tr>
             <tr>
                 <td style="padding-top: 25px; padding-left: 320px">
-                    (ลงชื่อ) <input type="text" id="sign_1" style="width: 180px;"> ผู้มอบอำนาจ
+                    (ลงชื่อ) <input type="text" id="txt38" style="width: 180px;"> ผู้มอบอำนาจ
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 20px; padding-left: 320px">
-                    (ลงชื่อ) <input type="text" id="sign_2" style="width: 180px;"> ผู้รับมอบอำนาจ
+                    (ลงชื่อ) <input type="text" id="txt39" style="width: 180px;"> ผู้รับมอบอำนาจ
                 </td>
             </tr>
             <tr>
@@ -141,12 +141,12 @@ End Code
             </tr>
             <tr>
                 <td style="padding-top: 20px; padding-left: 320px">
-                    (ลงชื่อ) <input type="text" id="sign_3" style="width: 180px;"> พยาน
+                    (ลงชื่อ) <input type="text" id="txt40" style="width: 180px;"> พยาน
                 </td>
             </tr>
             <tr>
                 <td style="padding-top: 20px; padding-left: 320px">
-                    (ลงชื่อ) <input type="text" id="sign_4" style="width: 180px;"> พยาน
+                    (ลงชื่อ) <input type="text" id="txt41" style="width: 180px;"> พยาน
                 </td>
             </tr>
             <tr>
@@ -160,17 +160,17 @@ End Code
                         </tr>
                         <tr>
                             <td style="border-right: 1px solid; border-left: 1px solid; padding: 5px;">
-                                เลขที่ <input type="number" id="card_no" style="width: 120px; margin-left: 40px;">
+                                เลขที่ <input type="number" id="txt42" style="width: 120px; margin-left: 40px;">
                             </td>
                         </tr>
                         <tr>
                             <td style="border-right: 1px solid; border-left: 1px solid; padding: 5px;">
-                                วันออกบัตร <input type="date" id="date_of_issue" style="width: 119px;">
+                                วันออกบัตร <input type="date" id="txt43" style="width: 119px;">
                             </td>
                         </tr>
                         <tr>
                             <td style="border-bottom: 1px solid; border-right: 1px solid; border-left: 1px solid; padding: 5px;">
-                                วันหมดอายุ <input type="date" id="expired_date" style="width: 119px;">
+                                วันหมดอายุ <input type="date" id="txt44" style="width: 119px;">
                             </td>
                         </tr>
                     </table>

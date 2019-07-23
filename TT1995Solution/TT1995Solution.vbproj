@@ -1601,6 +1601,7 @@
     <Content Include="scripts\Home\officer_records.js" />
     <Content Include="scripts\Home\proInsCom.js" />
     <Content Include="scripts\Home\report1.js" />
+    <Content Include="scripts\Home\report2.js" />
     <Content Include="scripts\Home\tax.js" />
     <Content Include="scripts\Home\Trackingwork.js" />
     <Content Include="scripts\Manage\lookup.js" />
@@ -1767,6 +1768,7 @@
     <Content Include="Views\Home\form1.vbhtml" />
     <Content Include="Views\Home\form2.vbhtml" />
     <Content Include="Views\Home\Report1.vbhtml" />
+    <Content Include="Views\Home\Report2.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
