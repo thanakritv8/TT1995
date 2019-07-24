@@ -108,7 +108,7 @@ $(function () {
         $.ajax({
             type: "POST",
             url: "http://43.254.133.49:8015/TTApi/Tabien/Report/InsertReport1",
-            contentType: "application/json; charset=utf-8",
+            //contentType: "application/json; charset=utf-8",
             data: {
                 id: "",
                 txt1: $('#create_form1 #txt1').val(),
@@ -154,6 +154,7 @@ $(function () {
                 getreport1();
             },
             error: function (error) {
+                console.log(error);
             DevExpress.ui.notify("กรุณาตรวจสอบข้อมูล", "error");
         }
         });
@@ -327,6 +328,7 @@ var show_column = [
         {
             dataField: "id",
             caption: "",
+            fixed: true,
             allowEditing: false,
             cellTemplate: function (container, options) {
                 $('<a style="color:green;font-weight:bold;" />').addClass('dx-link')

@@ -6,10 +6,10 @@
       <Value Profile="(Default)">sa</Value>
     </Setting>
     <Setting Name="Password" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">123456</Value>
+      <Value Profile="(Default)">ditgrkmosQ123</Value>
     </Setting>
     <Setting Name="NameServer" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">LAPTOP-H54UVUPS\SQLEXPRESS</Value>
+      <Value Profile="(Default)">PL-18-082\SQLEXPRESS</Value>
     </Setting>
     <Setting Name="DataBase" Type="System.String" Scope="Application">
       <Value Profile="(Default)">TT1995</Value>

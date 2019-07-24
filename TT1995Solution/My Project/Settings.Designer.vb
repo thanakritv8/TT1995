@@ -65,7 +65,7 @@ Namespace My
         
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("123456")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("ditgrkmosQ123")>  _
         Public ReadOnly Property Password() As String
             Get
                 Return CType(Me("Password"),String)
@@ -74,7 +74,7 @@ Namespace My
         
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("LAPTOP-H54UVUPS\SQLEXPRESS")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("PL-18-082\SQLEXPRESS")>  _
         Public ReadOnly Property NameServer() As String
             Get
                 Return CType(Me("NameServer"),String)
