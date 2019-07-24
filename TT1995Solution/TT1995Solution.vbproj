@@ -145,6 +145,7 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\css\bootstrap-datepicker.min.css" />
     <Content Include="Content\css\jquery.steps.css" />
     <Content Include="Content\css\sb-admin.css" />
     <Content Include="Content\css\sb-admin.min.css" />
@@ -153,6 +154,7 @@
     <Content Include="Content\dx\dx.light.css" />
     <Content Include="Content\full-slider.css" />
     <Content Include="Content\jquery.fileupload.css" />
+    <Content Include="Content\js\bootstrap-datepicker.min.js" />
     <Content Include="Content\js\demo\chart-area-demo.js" />
     <Content Include="Content\js\demo\chart-bar-demo.js" />
     <Content Include="Content\js\demo\chart-pie-demo.js" />
@@ -1591,6 +1593,9 @@
     <Content Include="scripts\Home\domProIns.js" />
     <Content Include="scripts\Home\driver.js" />
     <Content Include="scripts\Home\driving_license.js" />
+    <Content Include="scripts\Home\driving_license_dangerous_objects_transportation.js" />
+    <Content Include="scripts\Home\driving_license_natural_gas_transportation.js" />
+    <Content Include="scripts\Home\driving_license_oil_transportation.js" />
     <Content Include="scripts\Home\EnvInsCom.js" />
     <Content Include="scripts\Home\environmentInsurance.js" />
     <Content Include="scripts\Home\Expressway.js" />
@@ -1600,6 +1605,7 @@
     <Content Include="scripts\Home\Installment.js" />
     <Content Include="scripts\Home\license.js" />
     <Content Include="scripts\Home\licenseV8.js" />
+    <Content Include="scripts\Home\license_car_factory.js" />
     <Content Include="scripts\Home\license_factory.js" />
     <Content Include="scripts\Home\license_mekong_river.js" />
     <Content Include="scripts\Home\license_cambodia.js" />
@@ -1774,6 +1780,10 @@
     <Content Include="Views\Home\driving_license.vbhtml" />
     <Content Include="Views\Home\passport.vbhtml" />
     <Content Include="Views\Home\dashboard.vbhtml" />
+    <Content Include="Views\Home\driving_license_dangerous_objects_transportation.vbhtml" />
+    <Content Include="Views\Home\driving_license_natural_gas_transportation.vbhtml" />
+    <Content Include="Views\Home\driving_license_oil_transportation.vbhtml" />
+    <Content Include="Views\Home\license_car_factory.vbhtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

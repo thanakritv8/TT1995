@@ -1108,17 +1108,17 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 
         Public Function GetDriver() As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "SELECT d.driver_id, d.driver_name, d.start_work_date, li.license_id as license_id_head, d.license_id_tail, (select license_car from license where license_id = li.license_id) as license_car_head, (select license_car from license where license_id = d.license_id_tail) as license_car_tail,N'ประวัติ' as history ,li.number_car FROM driver as d right join license li on d.license_id_head = li.license_id where li.number_car Not like 'T%' order by LEN(li.number_car),li.number_car"
+            Dim _SQL As String = "SELECT d.driver_id, d.driver_name,d.driver_name2, d.start_work_date, li.license_id as license_id_head, d.license_id_tail, (select license_car from license where license_id = li.license_id) as license_car_head, (select license_car from license where license_id = d.license_id_tail) as license_car_tail,N'ประวัติ' as history ,li.number_car,d.fleet FROM driver as d right join license li on d.license_id_head = li.license_id where li.number_car Not like 'T%' order by LEN(li.number_car),li.number_car"
             Dim DtDriver As DataTable = objDB.SelectSQL(_SQL, cn)
             objDB.DisconnectDB(cn)
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtDriver.Rows Select DtDriver.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function InsertDriver(ByVal driver_name As String, ByVal start_work_date As String, ByVal license_id_head As String, ByVal license_id_tail As String, ByVal IdTable As String) As String
+        Public Function InsertDriver(ByVal driver_name As String, ByVal start_work_date As String, ByVal license_id_head As String, ByVal license_id_tail As String, ByVal IdTable As String, ByVal driver_name2 As String, ByVal fleet As String) As String
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
-            Dim _SQL As String = "INSERT INTO driver (driver_name, start_work_date, license_id_head, license_id_tail, create_by_user_id) OUTPUT Inserted.driver_id VALUES (N'" & driver_name & "', '" & start_work_date & "', '" & license_id_head & "', '" & license_id_tail & "', '" & Session("UserId") & "')"
+            Dim _SQL As String = "INSERT INTO driver (driver_name, start_work_date, license_id_head, license_id_tail, create_by_user_id,driver_name2, fleet) OUTPUT Inserted.driver_id VALUES (N'" & driver_name & "', '" & start_work_date & "', '" & license_id_head & "', '" & license_id_tail & "', '" & Session("UserId") & "','" & driver_name2 & "','" & fleet & "')"
             If license_id_head <> Nothing Then
                 DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
             Else
@@ -1136,13 +1136,13 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
-        Public Function UpdateDriver(ByVal driver_id As String, ByVal driver_name As String, ByVal start_work_date As String, ByVal license_id_head As String, ByVal license_id_tail As String, ByVal IdTable As String) As String
+        Public Function UpdateDriver(ByVal driver_id As String, ByVal driver_name As String, ByVal start_work_date As String, ByVal license_id_head As String, ByVal license_id_tail As String, ByVal IdTable As String, ByVal driver_name2 As String, ByVal fleet As String) As String
             Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
             Dim DtJson As DataTable = New DataTable
             DtJson.Columns.Add("Status")
             Dim _SQL As String = "UPDATE [driver] SET "
-            Dim StrTbDriver() As String = {"driver_name", "start_work_date", "license_id_head", "license_id_tail"}
-            Dim TbDriver() As Object = {driver_name, start_work_date, license_id_head, license_id_tail}
+            Dim StrTbDriver() As String = {"driver_name", "start_work_date", "license_id_head", "license_id_tail", "driver_name2", "fleet"}
+            Dim TbDriver() As Object = {driver_name, start_work_date, license_id_head, license_id_tail, driver_name2, fleet}
             For n As Integer = 0 To TbDriver.Length - 1
                 If Not TbDriver(n) Is Nothing Then
                     _SQL &= StrTbDriver(n) & "=N'" & TbDriver(n) & "',"
@@ -3841,6 +3841,565 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 
 #End Region
 
+#Region "Driving Llicense Oil Ttransportation"
+        Function driving_license_oil_transportation() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table driving_license
+        Public Function GetDLOTData() As String
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[driving_license_oil_transportation]")
+        End Function
+
+        Public Function InsertDLOT(ByVal driver_id As String, ByVal id_no As String _
+                                         , ByVal start_date As String, ByVal expire_date As String, ByVal status As String, ByVal IdTable As String) As String
+
+            If Not start_date Is Nothing Then
+                start_date = Convert.ToDateTime(start_date).ToString("MM/dd/yyyy")
+            End If
+
+            If Not expire_date Is Nothing Then
+                expire_date = Convert.ToDateTime(expire_date).ToString("MM/dd/yyyy")
+            End If
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO [driving_license_oil_transportation] ([driver_id],[id_no],[start_date],[expire_date],[status]) OUTPUT Inserted.dlot_id"
+            _SQL &= " VALUES (N'" & IIf(driver_id Is Nothing, String.Empty, driver_id) & "',"
+            _SQL &= "N'" & IIf(id_no Is Nothing, String.Empty, id_no) & "',"
+            _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
+            _SQL &= "N'" & IIf(expire_date Is Nothing, String.Empty, expire_date) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "')"
+            DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbGpsCompany() As String = {"driver_id", "id_no", "start_date", "expire_date", "status"}
+                Dim TbGpsCompany() As Object = {driver_id, id_no, start_date, expire_date, status}
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateDLOT(ByVal driver_id As String, ByVal id_no As String _
+                                , ByVal start_date As String, ByVal expire_date As String, ByVal status As String, ByVal IdTable As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [driving_license_oil_transportation] SET "
+            Dim StrTbGpsCompany() As String = {"driver_id", "id_no", "start_date", "expire_date", "status"}
+            Dim TbGpsCompany() As Object = {driver_id, id_no, start_date, expire_date, status}
+            For n As Integer = 0 To TbGpsCompany.Length - 1
+                If Not TbGpsCompany(n) Is Nothing Then
+                    _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE dlot_id = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Editing", IdTable, key)
+                    End If
+                Next
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function DeleteDLOT(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [driving_license_oil_transportation] WHERE dlot_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileDLOT() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/driving_license_oil_transportation/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE driving_license_oil_transportation SET path = N'../Files/driving_license_oil_transportation/" & fk_id & "/" & file.FileName & "' WHERE dlot_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/driving_license_oil_transportation/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+#End Region
+
+#Region "Driving License Natural Gas Transportation"
+        Function driving_license_natural_gas_transportation() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table driving_license
+        Public Function GetDLNGTData() As String
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[driving_license_natural_gas_transportation]")
+        End Function
+
+        Public Function InsertDLNGT(ByVal driver_id As String, ByVal id_no As String _
+                                         , ByVal start_date As String, ByVal expire_date As String, ByVal status As String, ByVal IdTable As String) As String
+
+            If Not start_date Is Nothing Then
+                start_date = Convert.ToDateTime(start_date).ToString("MM/dd/yyyy")
+            End If
+
+            If Not expire_date Is Nothing Then
+                expire_date = Convert.ToDateTime(expire_date).ToString("MM/dd/yyyy")
+            End If
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO [driving_license_natural_gas_transportation] ([driver_id],[id_no],[start_date],[expire_date],[status]) OUTPUT Inserted.dlngt_id"
+            _SQL &= " VALUES (N'" & IIf(driver_id Is Nothing, String.Empty, driver_id) & "',"
+            _SQL &= "N'" & IIf(id_no Is Nothing, String.Empty, id_no) & "',"
+            _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
+            _SQL &= "N'" & IIf(expire_date Is Nothing, String.Empty, expire_date) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "')"
+            DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbGpsCompany() As String = {"driver_id", "id_no", "start_date", "expire_date", "status"}
+                Dim TbGpsCompany() As Object = {driver_id, id_no, start_date, expire_date, status}
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateDLNGT(ByVal driver_id As String, ByVal id_no As String _
+                                , ByVal start_date As String, ByVal expire_date As String, ByVal status As String, ByVal IdTable As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [driving_license_natural_gas_transportation] SET "
+            Dim StrTbGpsCompany() As String = {"driver_id", "id_no", "start_date", "expire_date", "status"}
+            Dim TbGpsCompany() As Object = {driver_id, id_no, start_date, expire_date, status}
+            For n As Integer = 0 To TbGpsCompany.Length - 1
+                If Not TbGpsCompany(n) Is Nothing Then
+                    _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE dlngt_id = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Editing", IdTable, key)
+                    End If
+                Next
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function DeleteDLNGT(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [driving_license_natural_gas_transportation] WHERE dlngt_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileDLNGT() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/driving_license_natural_gas_transportation/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE driving_license_natural_gas_transportation SET path = N'../Files/driving_license_natural_gas_transportation/" & fk_id & "/" & file.FileName & "' WHERE dlngt_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/driving_license_natural_gas_transportation/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+#End Region
+
+#Region "Driving License Dangerous Objects Transportation"
+        Function driving_license_dangerous_objects_transportation() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table driving_license
+        Public Function GetDLDOTData() As String
+            Return GbFn.GetData("SELECT *,N'ประวัติ' as history FROM [dbo].[driving_license_dangerous_objects_transportation]")
+        End Function
+
+        Public Function InsertDLDOT(ByVal driver_id As String, ByVal id_no As String _
+                                         , ByVal start_date As String, ByVal expire_date As String, ByVal status As String, ByVal IdTable As String) As String
+
+            If Not start_date Is Nothing Then
+                start_date = Convert.ToDateTime(start_date).ToString("MM/dd/yyyy")
+            End If
+
+            If Not expire_date Is Nothing Then
+                expire_date = Convert.ToDateTime(expire_date).ToString("MM/dd/yyyy")
+            End If
+
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "INSERT INTO [driving_license_dangerous_objects_transportation] ([driver_id],[id_no],[start_date],[expire_date],[status]) OUTPUT Inserted.dldot_id"
+            _SQL &= " VALUES (N'" & IIf(driver_id Is Nothing, String.Empty, driver_id) & "',"
+            _SQL &= "N'" & IIf(id_no Is Nothing, String.Empty, id_no) & "',"
+            _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
+            _SQL &= "N'" & IIf(expire_date Is Nothing, String.Empty, expire_date) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "')"
+            DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbGpsCompany() As String = {"driver_id", "id_no", "start_date", "expire_date", "status"}
+                Dim TbGpsCompany() As Object = {driver_id, id_no, start_date, expire_date, status}
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateDLDOT(ByVal driver_id As String, ByVal id_no As String _
+                                , ByVal start_date As String, ByVal expire_date As String, ByVal status As String, ByVal IdTable As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [driving_license_dangerous_objects_transportation] SET "
+            Dim StrTbGpsCompany() As String = {"driver_id", "id_no", "start_date", "expire_date", "status"}
+            Dim TbGpsCompany() As Object = {driver_id, id_no, start_date, expire_date, status}
+            For n As Integer = 0 To TbGpsCompany.Length - 1
+                If Not TbGpsCompany(n) Is Nothing Then
+                    _SQL &= StrTbGpsCompany(n) & "=N'" & TbGpsCompany(n) & "',"
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE dldot_id = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbGpsCompany.Length - 1
+                    If Not TbGpsCompany(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbGpsCompany(n), TbGpsCompany(n), "Editing", IdTable, key)
+                    End If
+                Next
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+        Public Function DeleteDLDOT(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [driving_license_dangerous_objects_transportation] WHERE dldot_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileDLDOT() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/driving_license_dangerous_objects_transportation/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE driving_license_dangerous_objects_transportation SET path = N'../Files/driving_license_dangerous_objects_transportation/" & fk_id & "/" & file.FileName & "' WHERE dldot_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/driving_license_dangerous_objects_transportation/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+#End Region
+
+#Region "License Car Factory"
+        Function license_car_factory() As ActionResult
+            If Session("StatusLogin") = "1" Then
+                Return View()
+            Else
+                Return View("../Account/Login")
+            End If
+        End Function
+
+        'Get data of table act_insurance
+        Public Function GetLCFData() As String
+            Return GbFn.GetData("SELECT lcf.*, li.license_id as number_car, li.license_id as license_car,N'ประวัติ' as history FROM [dbo].[license_car_factory] lcf , [dbo].[license] li where lcf.license_id = li.license_id order by LEN(li.number_car),li.number_car ")
+        End Function
+
+        Public Function InsertLCF(ByVal number_car As String, ByVal id_no As String, ByVal name_factory As String, ByVal determine_by As String, ByVal start_date As String _
+                                  , ByVal expire_date As String, ByVal status As String, ByVal IdTable As String) As String
+
+            Dim DtJson As DataTable = New DataTable
+
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+
+            Dim _SQL As String = "INSERT INTO [license_car_factory] ([license_id],[id_no],[name_factory],[determine_by],[start_date],[expire_date],[status],[create_date],[create_by_user_id]) OUTPUT Inserted.lcf_id"
+            _SQL &= " VALUES (" & IIf(number_car.ToString Is Nothing, 0, number_car.ToString) & ","
+            _SQL &= "N'" & IIf(id_no Is Nothing, String.Empty, id_no) & "',"
+            _SQL &= "N'" & IIf(name_factory Is Nothing, String.Empty, name_factory) & "',"
+            _SQL &= "N'" & IIf(determine_by Is Nothing, String.Empty, determine_by) & "',"
+            _SQL &= "N'" & IIf(start_date Is Nothing, String.Empty, start_date) & "',"
+            _SQL &= "N'" & IIf(expire_date Is Nothing, String.Empty, expire_date) & "',"
+            _SQL &= "N'" & IIf(status Is Nothing, String.Empty, status) & "',"
+            _SQL &= "getdate(),"
+            _SQL &= Session("UserId") & ")"
+            If Not number_car Is Nothing Then
+                DtJson.Rows.Add(objDB.ExecuteSQLReturnId(_SQL, cn))
+            Else
+                DtJson.Rows.Add("กรุณากรอกข้อมูลให้ถูกต้อง")
+            End If
+
+            If DtJson.Rows(0).Item("Status").ToString <> "0" Then
+                Dim StrTbAI() As String = {"id_no", "name_factory", "determine_by", "start_date", "expire_date", "status"}
+                Dim TbAI() As Object = {id_no, name_factory, determine_by, start_date, expire_date, status}
+                For n As Integer = 0 To TbAI.Length - 1
+                    If Not TbAI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAI(n), TbAI(n), "Add", IdTable, DtJson.Rows(0).Item("Status").ToString)
+                    End If
+                Next
+            End If
+
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function UpdateLCF(ByVal number_car As String, ByVal id_no As String, ByVal name_factory As String, ByVal determine_by As String, ByVal start_date As String _
+                                  , ByVal expire_date As String, ByVal status As String, ByVal IdTable As String, ByVal key As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim _SQL As String = "UPDATE [license_car_factory] SET "
+            Dim StrTbAI() As String = {"license_id", "id_no", "name_factory", "determine_by", "start_date", "expire_date", "status"}
+            Dim TbAI() As Object = {number_car, id_no, name_factory, determine_by, start_date, expire_date, status}
+            For n As Integer = 0 To TbAI.Length - 1
+                If Not TbAI(n) Is Nothing Then
+                    _SQL &= StrTbAI(n) & "=N'" & TbAI(n) & "',"
+                End If
+                If StrTbAI(n) = "status" Then
+                    If Not TbAI(n) Is Nothing Then
+                        _SQL &= "flag_status = 0, update_status = GETDATE(),"
+                    End If
+                End If
+            Next
+            _SQL &= "update_date = GETDATE(), update_by_user_id = " & Session("UserId") & " WHERE lcf_id = " & key
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+                For n As Integer = 0 To TbAI.Length - 1
+                    If Not TbAI(n) Is Nothing Then
+                        GbFn.KeepLog(StrTbAI(n), TbAI(n), "Editing", IdTable, key)
+                    End If
+                Next
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function DeleteLCF(ByVal keyId As String) As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "DELETE [license_car_factory] WHERE lcf_id = " & keyId
+            If objDB.ExecuteSQL(_SQL, cn) Then
+                DtJson.Rows.Add("1")
+            Else
+                DtJson.Rows.Add("0")
+            End If
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function InsertFileLCF() As String
+            Dim DtJson As DataTable = New DataTable
+            DtJson.Columns.Add("Status")
+            Try
+                Dim fk_id As String = String.Empty
+                Dim newFile As String = String.Empty
+
+                If Request.Form.AllKeys.Length <> 0 Then
+                    For i As Integer = 0 To Request.Form.AllKeys.Length - 1
+                        If Request.Form.AllKeys(i) = "fk_id" Then
+                            fk_id = Request.Form(i)
+                        End If
+                    Next
+                    Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+                    If Request.Files.Count <> 0 Then
+
+                        Dim pathServer As String = Server.MapPath("~/Files/license_car_factory/" & fk_id)
+                        If (Not System.IO.Directory.Exists(pathServer)) Then
+                            System.IO.Directory.CreateDirectory(pathServer)
+                        End If
+                        Dim fileName As String = String.Empty
+                        For i As Integer = 0 To Request.Files.Count - 1
+                            Dim file = Request.Files(i)
+                            fileName = file.FileName
+                            file.SaveAs(pathServer & "/" & fileName)
+                            Dim _SQL As String = "UPDATE license_car_factory SET path = N'../Files/license_car_factory/" & fk_id & "/" & file.FileName & "' WHERE lcf_id = " & fk_id
+                            objDB.ExecuteSQL(_SQL, cn)
+                        Next
+
+                        DtJson.Rows.Add("../Files/license_car_factory/" & fk_id & "/" & fileName)
+                    Else
+                        DtJson.Rows.Add("0")
+                    End If
+
+                    objDB.DisconnectDB(cn)
+
+                Else
+                    DtJson.Rows.Add("0")
+                End If
+            Catch ex As Exception
+                DtJson.Rows.Add("0")
+            End Try
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In DtJson.Rows Select DtJson.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+#End Region
+
 #Region "Function Tew"
 
         Public Function getHistory(ByVal table As String, ByVal idOfTable As String) As String
@@ -3944,6 +4503,14 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
             Dim _Sql As String = "select group_update from " & TableName & " where " & NameColumnId & " = '" & id & "'"
             Dim Dt As DataTable = objDB.SelectSQL(_Sql, cn)
 
+            If IsDBNull(Dt.Rows(0).Item("group_update")) Then
+                Return 0
+            End If
+
+            If (Status = "เสร็จสมบูรณ์" And (TableName = "domestic_product_insurance" Or TableName = "main_insurance")) Then
+                Return cowrie_update(TableName, Dt.Rows(0).Item("group_update"), NameColumnId)
+            End If
+
             If (Not IsDBNull(Dt.Rows(0).Item("group_update"))) Then
                 _Sql = "UPDATE " & TableName & " SET flag_status = 0, update_status = GETDATE()," & NameColumnStatus & " = N'" & Status & "' where group_update = '" & Dt.Rows(0).Item("group_update") & "'"
                 If objDB.ExecuteSQL(_Sql, cn) Then
@@ -3955,6 +4522,21 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
                 Return 1
             End If
 
+        End Function
+
+        Public Function cowrie_update(ByVal TableName As String, ByVal group_update As String, ByVal NameColumnId As String)
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _Sql As String = "select * from " & TableName & " where group_update =N'" & group_update & "'"
+            Dim Dt As DataTable = objDB.SelectSQL(_Sql, cn)
+            For i As Integer = 0 To Dt.Rows.Count - 1
+                _Sql = "UPDATE " & TableName & " SET current_cowrie = 0,previous_cowrie = " & Dt.Rows(i).Item("current_cowrie") & "  where " & NameColumnId & " = '" & Dt.Rows(i).Item(NameColumnId) & "'"
+                If objDB.ExecuteSQL(_Sql, cn) Then
+
+                Else
+                    Return 0
+                End If
+            Next
+            Return 1
         End Function
 
         Public Function GetDriverNameJoinTable(ByVal TableName As String) As String
@@ -3973,10 +4555,96 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
             Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
         End Function
 
+        Public Function GetTabianNameJoinTable(ByVal TableName As String) As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "select distinct li.license_id, li.number_car, li.license_car from license as li join " & TableName & " on li.license_id = " & TableName & ".license_id"
+            Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GetTabianFull() As String
+            Dim cn As SqlConnection = objDB.ConnectDB(My.Settings.NameServer, My.Settings.Username, My.Settings.Password, My.Settings.DataBase)
+            Dim _SQL As String = "SELECT [license_id],[number_car],[license_car] FROM [TT1995].[dbo].[license]"
+            Dim Dt As DataTable = objDB.SelectSQL(_SQL, cn)
+            objDB.DisconnectDB(cn)
+            Return New JavaScriptSerializer().Serialize(From dr As DataRow In Dt.Rows Select Dt.Columns.Cast(Of DataColumn)().ToDictionary(Function(col) col.ColumnName, Function(col) dr(col)))
+        End Function
+
+        Public Function GenSqlForFleet(filter)
+            Dim StrSplit As String() = filter.Split(",")
+            Dim StrIn As String = ""
+            Dim IsNull As String = ""
+            For i As Integer = 0 To StrSplit.Length - 1
+                If (StrSplit(i) = "NULL") Then
+                    IsNull = "li.fleet is null"
+                Else
+                    If (StrIn = "") Then
+                        StrIn = "li.fleet in (N'" & StrSplit(i) & "'"
+                    Else
+                        StrIn = StrIn & ",N'" & StrSplit(i) & "'"
+                    End If
+                End If
+            Next
+            If (StrIn <> "") Then
+                StrIn = StrIn & ") "
+            End If
+
+            If (StrIn <> "") And (IsNull <> "") Then
+                IsNull = " or " & IsNull
+            End If
+
+            Return "(" & StrIn & " " & IsNull & ")"
+        End Function
+
+        Public Function GenSqlForStatus(filter, TableSelectIn)
+            Dim StrSplit As String() = filter.Split(",")
+            Dim StrIn As String = ""
+            Dim IsNull As String = ""
+            For i As Integer = 0 To StrSplit.Length - 1
+                If (StrSplit(i) = "NULL") Then
+                    IsNull = TableSelectIn & " is null"
+                Else
+                    If (StrIn = "") Then
+                        StrIn = TableSelectIn & " in (N'" & StrSplit(i) & "'"
+                    Else
+                        StrIn = StrIn & ",N'" & StrSplit(i) & "'"
+                    End If
+                End If
+            Next
+            If (StrIn <> "") Then
+                StrIn = StrIn & ") "
+            End If
+
+            If (StrIn <> "") And (IsNull <> "") Then
+                IsNull = " or " & IsNull
+            End If
+
+            Return "(" & StrIn & " " & IsNull & ")"
+        End Function
+
+        Public Function FindTable(ByVal SubTable As String) As String
+            If (SubTable = "tax_qty") Then
+                Return "tax"
+            ElseIf (SubTable = "ai_qty") Then
+                Return "act_insurance"
+            Else
+                Return "main_insurance"
+            End If
+        End Function
+
+        Public Function FindColumnName(ByVal SubTable As String) As String
+            If (SubTable = "tax_qty") Then
+                Return "tax_status"
+            ElseIf (SubTable = "ai_qty") Then
+                Return "status"
+            Else
+                Return "status"
+            End If
+        End Function
 #End Region
 
 #Region "Dashboard"
-
         Function dashboard() As ActionResult
             If Session("StatusLogin") = "1" Then
                 Return View()
@@ -3985,6 +4653,7 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
             End If
         End Function
 
+#Region "First Step"
         Public Function GetFleetCategoryTabien()
             Return GbFn.GetData("select data_fleet.fleet,COUNT(data_fleet.fleet) as qty from (
                                     select case 
@@ -4019,32 +4688,6 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
                                        group by _data.internal_call")
         End Function
 
-        Public Function GenSqlForFleet(filter)
-            Dim StrSplit As String() = filter.Split(",")
-            Dim StrIn As String = ""
-            Dim IsNull As String = ""
-            For i As Integer = 0 To StrSplit.Length - 1
-                If (StrSplit(i) = "NULL") Then
-                    IsNull = "li.fleet is null"
-                Else
-                    If (StrIn = "") Then
-                        StrIn = "li.fleet in (N'" & StrSplit(i) & "'"
-                    Else
-                        StrIn = StrIn & ",N'" & StrSplit(i) & "'"
-                    End If
-                End If
-            Next
-            If (StrIn <> "") Then
-                StrIn = StrIn & ") "
-            End If
-
-            If (StrIn <> "") And (IsNull <> "") Then
-                IsNull = " or " & IsNull
-            End If
-
-            Return "(" & StrIn & " " & IsNull & ")"
-        End Function
-
         Public Function getDetailCarCategory(filterFleet, filterCar)
             Dim StrAnd As String = ""
             If (filterCar = "NULL") Then
@@ -4059,11 +4702,15 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
                                     select li.number_car,li.license_car,li.internal_call
                                        from license li
                                        where " & GenSqlForFleet(filterFleet) & " " & StrAnd & "
-                                       order by LEN(li.number_car),li.number_car")
+                                       order by LEN(li.number_car),li.number_car
+                                       ")
         End Function
+#End Region
 
-        Public Function GetStatusTabien()
+#Region "Second Step"
+        Public Function GetStatusTabien(ByVal year As String)
             Return GbFn.GetData("
+                                    
                                 select _data2.status2 as status,count(_data2.status2) as qty from (
                                 select _data.*, case 
                                     when _data.status is null then 'NULL'
@@ -4075,89 +4722,70 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 	                                FROM [TT1995].[dbo].[license] li
 	                                inner join tax on li.license_id = tax.license_id
 	                                where  (tax.tax_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or tax.tax_status IS NULL)
-                                union
+									and year(tax.tax_expire) = " & year & "
+								union
                                 SELECT  li.license_id, li.number_car, li.license_car
 	                                , mi.mi_id as id_of_table, 'main_insurance' as _table, mi.status as status
 	                                FROM [TT1995].[dbo].[license] li
 	                                inner join main_insurance mi on li.license_id = mi.license_id
 	                                where  (mi.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or mi.status IS NULL)
-                                union
+									and year(mi.end_date) = " & year & "
+								union
                                 SELECT  li.license_id, li.number_car, li.license_car
-	                                , ai.ai_id as id_of_table, 'main_insurance' as _table, ai.status as status
+	                                , ai.ai_id as id_of_table, 'act_insurance' as _table, ai.status as status
 	                                FROM [TT1995].[dbo].[license] li
 	                                inner join act_insurance ai on li.license_id = ai.license_id
 	                                where  (ai.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or ai.status IS NULL)
-                                union
-                                SELECT  li.license_id, li.number_car, li.license_car
-	                                , ai.ai_id as id_of_table, 'main_insurance' as _table, ai.status as status
-	                                FROM [TT1995].[dbo].[license] li
-	                                inner join act_insurance ai on li.license_id = ai.license_id
-	                                where  (ai.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or ai.status IS NULL)
-                                union
+									and year(ai.end_date) = " & year & "
+								union
                                 SELECT  li.license_id, li.number_car, li.license_car
 	                                , dpi.dpi_id as id_of_table, 'domestic_product_insurance' as _table, dpi.status as status
 	                                FROM [TT1995].[dbo].[license] li
 	                                inner join domestic_product_insurance dpi on li.license_id = dpi.license_id
 	                                where  (dpi.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or dpi.status IS NULL)
-                                union
+									and year(dpi.end_date) = " & year & "
+								union
                                 SELECT  li.license_id, li.number_car, li.license_car
 	                                , ei.ei_id as id_of_table, 'environment_insurance' as _table, ei.status as status
 	                                FROM [TT1995].[dbo].[license] li
 	                                inner join environment_insurance ei on li.license_id = ei.license_id
 	                                where  (ei.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or ei.status IS NULL)
-                                union
+									and year(ei.end_date) = " & year & "
+								union
                                 SELECT  li.license_id, li.number_car, li.license_car
 	                                , lv8.lv8_id as id_of_table, 'license_v8' as _table, lv8.lv8_status as status
 	                                FROM [TT1995].[dbo].[license] li
 	                                inner join license_v8 lv8 on li.license_id = lv8.license_id
 	                                where  (lv8.lv8_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or lv8.lv8_status IS NULL)
-                                union
+									and year(lv8.lv8_expire) = " & year & "
+								union
                                 SELECT '' as license_id, '' as number_car, '' as license_car,lc.lc_id as id_of_table, 'license_cambodia' as _table, lc.lc_status as status
 	                                FROM  license_cambodia lc 
 	                                where  (lc.lc_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or lc.lc_status IS NULL)
-                                union
+									and year(lc.lc_expire) = " & year & "
+								union
                                 SELECT '' as license_id, '' as number_car, '' as license_car,lmr.lmr_id as id_of_table, 'license_mekong_river' as _table, lmr.lmr_status as status
 	                                FROM license_mekong_river lmr 
 	                                where  (lmr.lmr_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or lmr.lmr_status IS NULL)
-                                union
+									and year(lmr.lmr_expire) = " & year & "
+								union
                                 SELECT '' as license_id, '' as number_car, '' as license_car,bi.business_id as id_of_table, 'business_in' as _table, bi.business_status as status
 	                                FROM  business_in bi 
 	                                where  (bi.business_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or bi.business_status IS NULL)
-                                union
+									and year(bi.business_expire) = " & year & "
+								union
                                 SELECT '' as license_id, '' as number_car, '' as license_car,bo.business_id as id_of_table, 'business_in' as _table, bo.business_status as status
 	                                FROM  business_out bo 
-	                                where  (bo.business_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or bo.business_status IS NULL) ) _data ) _data2
+	                                where  (bo.business_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'ตรวจ GPS', N'เสร็จสมบูรณ์') or bo.business_status IS NULL) 
+									and year(bo.business_expire) = " & year & "
+									) _data ) _data2
 	                                group by _data2.status2
+                                    
+                                    
                                     ")
         End Function
 
-        Public Function GenSqlForStatus(filter, TableSelectIn)
-            Dim StrSplit As String() = filter.Split(",")
-            Dim StrIn As String = ""
-            Dim IsNull As String = ""
-            For i As Integer = 0 To StrSplit.Length - 1
-                If (StrSplit(i) = "NULL") Then
-                    IsNull = TableSelectIn & " is null"
-                Else
-                    If (StrIn = "") Then
-                        StrIn = TableSelectIn & " in (N'" & StrSplit(i) & "'"
-                    Else
-                        StrIn = StrIn & ",N'" & StrSplit(i) & "'"
-                    End If
-                End If
-            Next
-            If (StrIn <> "") Then
-                StrIn = StrIn & ") "
-            End If
-
-            If (StrIn <> "") And (IsNull <> "") Then
-                IsNull = " or " & IsNull
-            End If
-
-            Return "(" & StrIn & " " & IsNull & ")"
-        End Function
-
-        Public Function GetStackedBarTabien(filter)
+        Public Function GetStackedBarTabien(filter, year)
             Return GbFn.GetData("
                                    	select  _data.month_expired,
 		sum(_data.tax_qty) as tax_qty,  
@@ -4167,17 +4795,17 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 	from(
 		SELECT  DATENAME(month, tax.tax_expire) as month_expired, COUNT(MONTH(tax.tax_expire)) as tax_qty, 0 as ai_qty, 0 as mi_qty,sum(tax.tax_rate) as price
 		  FROM [TT1995].[dbo].[tax] tax 
-		  where (" & GenSqlForStatus(filter, "tax.tax_status") & ") 
+		  where (" & GenSqlForStatus(filter, "tax.tax_status") & ") and year(tax.tax_expire) = " & year & "
 		  group by tax.tax_status, DATENAME(month, tax.tax_expire)
 		Union
 		SELECT  DATENAME(month, ai.end_date) as month_expired, 0 as tax_qty, COUNT(MONTH(ai.end_date)) as ai_qty, 0 as mi_qty,sum(ai.price) as price
 		  FROM [TT1995].[dbo].[act_insurance] ai
-		  where (" & GenSqlForStatus(filter, "ai.status") & ") 
+		  where (" & GenSqlForStatus(filter, "ai.status") & ") and year(ai.end_date) = " & year & "
 		  group by ai.status, DATENAME(month, ai.end_date)
 		Union
 		SELECT  DATENAME(month, mi.end_date) as month_expired, 0 as tax_qty, 0 as ai_qty, COUNT(MONTH(mi.end_date)) as mi_qty,sum(mi.current_cowrie) as price
 		  FROM [TT1995].[dbo].[main_insurance] mi
-		  where (" & GenSqlForStatus(filter, "mi.status") & ") 
+		  where (" & GenSqlForStatus(filter, "mi.status") & ")  and year(mi.end_date) = " & year & "
 		  group by mi.status, DATENAME(month, mi.end_date)
 		
 	) _data 
@@ -4199,7 +4827,7 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 
         End Function
 
-        Public Function GetStackedBarOther(filter)
+        Public Function GetStackedBarOther(filter, year)
             Return GbFn.GetData("
                                     select  _data.month_expired,
 		                                sum(_data.dpi_qty) as dpi_qty,  
@@ -4214,43 +4842,43 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 		                                SELECT  DATENAME(month, dpi.end_date) as month_expired, COUNT(MONTH(dpi.end_date)) as dpi_qty, 0 as ei_qty, 0 as lv8_qty, 0 as lc_qty, 0 as lmr_qty, 0 as bi_qty, 0 as bo_qty
 			                                ,sum(dpi.current_cowrie) as price
 		                                  FROM [TT1995].[dbo].[domestic_product_insurance] dpi 
-		                                  where (" & GenSqlForStatus(filter, "dpi.status") & ") 
+		                                  where (" & GenSqlForStatus(filter, "dpi.status") & ") and year(dpi.end_date) = " & year & "
 		                                  group by dpi.status, DATENAME(month, dpi.end_date)
 		                                Union
 		                                SELECT  DATENAME(month, ei.end_date) as month_expired,0 as dpi_qty, COUNT(MONTH(ei.end_date)) as ei_qty, 0 as lv8_qty, 0 as lc_qty, 0 as lmr_qty, 0 as bi_qty, 0 as bo_qty
 			                                ,sum(ei.current_cowrie) as price
 		                                  FROM [TT1995].[dbo].[environment_insurance] ei
-		                                  where (" & GenSqlForStatus(filter, "ei.status") & ") 
+		                                  where (" & GenSqlForStatus(filter, "ei.status") & ") and year(ei.end_date) = " & year & "
 		                                  group by ei.status, DATENAME(month, ei.end_date)
 		                                Union
 		                                SELECT  DATENAME(month, lv8.lv8_expire) as month_expired,0 as dpi_qty, 0 as ei_qty, COUNT(MONTH(lv8.lv8_expire)) as lv8_qty, 0 as lc_qty, 0 as lmr_qty, 0 as bi_qty, 0 as bo_qty
 			                                ,'0' as price
 		                                  FROM [TT1995].[dbo].[license_v8] lv8 
-		                                  where  (" & GenSqlForStatus(filter, "lv8.lv8_status") & ") 
+		                                  where  (" & GenSqlForStatus(filter, "lv8.lv8_status") & ")  and year(lv8.lv8_expire) = " & year & "
 		                                  group by lv8.lv8_status, DATENAME(month, lv8.lv8_expire)
 		                                Union
 		                                SELECT  DATENAME(month, lc.lc_expire) as month_expired,0 as dpi_qty, 0 as ei_qty, 0 as lv8_qty, COUNT(lc.lc_expire) as lc_qty, 0 as lmr_qty, 0 as bi_qty, 0 as bo_qty
 			                                ,'0' as price
 		                                  FROM [TT1995].[dbo].[license_cambodia] lc
-		                                  where  (" & GenSqlForStatus(filter, "lc.lc_status") & ") 
+		                                  where  (" & GenSqlForStatus(filter, "lc.lc_status") & ") and year(lc.lc_expire) = " & year & "
 		                                  group by lc.lc_status, DATENAME(month, lc.lc_expire)
 		                                Union
 		                                SELECT  DATENAME(month, lmr.lmr_expire) as month_expired,0 as dpi_qty, 0 as ei_qty, 0 as lv8_qty, 0 as lc_qty, COUNT(lmr.lmr_expire) as lmr_qty, 0 as bi_qty, 0 as bo_qty
 			                                ,'0' as price
 		                                  FROM [TT1995].[dbo].[license_mekong_river] lmr
-		                                  where  (" & GenSqlForStatus(filter, "lmr.lmr_status") & ") 
+		                                  where  (" & GenSqlForStatus(filter, "lmr.lmr_status") & ") and year(lmr.lmr_expire) = " & year & "
 		                                  group by lmr.lmr_status, DATENAME(month, lmr.lmr_expire)
 		                                Union
 		                                SELECT  DATENAME(month, bi.business_expire) as month_expired,0 as dpi_qty, 0 as ei_qty, 0 as lv8_qty, 0 as lc_qty, 0 as lmr_qty, COUNT(bi.business_expire) as bi_qty, 0 as bo_qty
 			                                ,'0' as price
 		                                  FROM [TT1995].[dbo].[business_in] bi
-		                                  where  (" & GenSqlForStatus(filter, "bi.business_status") & ") 
+		                                  where  (" & GenSqlForStatus(filter, "bi.business_status") & ") and year(bi.business_expire) = " & year & "
 		                                  group by bi.business_status, DATENAME(month, bi.business_expire)
 		                                Union
 		                                SELECT  DATENAME(month, bo.business_expire) as month_expired,0 as dpi_qty, 0 as ei_qty, 0 as lv8_qty, 0 as lc_qty, 0 as lmr_qty, 0 as bi_qty, COUNT(bo.business_expire) as bo_qty
 			                                ,'0' as price
 		                                  FROM [TT1995].[dbo].[business_out] bo
-		                                  where  (" & GenSqlForStatus(filter, "bo.business_status") & ") 
+		                                  where  (" & GenSqlForStatus(filter, "bo.business_status") & ")  and year(bo.business_expire) = " & year & "
 		                                  group by bo.business_status, DATENAME(month, bo.business_expire)
 		
 	                                ) _data 
@@ -4271,7 +4899,7 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
                     ")
         End Function
 
-        Public Function GetStackedBarEnterFactory(filter)
+        Public Function GetStackedBarEnterFactory(filter, year)
             Return GbFn.GetData("
                                     	select  _data.month_expired, 
 		sum(_data.lf_qty) as lf_qty,  
@@ -4280,12 +4908,12 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
 	from(
 		SELECT DATENAME(month, lf.expire_date) as month_expired, COUNT(MONTH(lf.expire_date)) as lf_qty, 0 as lcf_qty, 0 as price
 		  FROM [TT1995].[dbo].[license_factory] lf 
-		  where (" & GenSqlForStatus(filter, "lf.license_factory_status") & ") 
+		  where (" & GenSqlForStatus(filter, "lf.license_factory_status") & ") and year(lf.expire_date) = " & year & "
 		  group by lf.license_factory_status, DATENAME(month, lf.expire_date)
 		Union
 		SELECT  DATENAME(month, lcf.expire_date) as month_expired, COUNT(MONTH(lcf.expire_date)) as lf_qty, 0 as lcf_qty, 0 as price
 		  FROM [TT1995].[dbo].[license_car_factory] lcf
-		  where (" & GenSqlForStatus(filter, "lcf.status") & ") 
+		  where (" & GenSqlForStatus(filter, "lcf.status") & ") and year(lcf.expire_date) = " & year & "
 		  group by lcf.status, DATENAME(month, lcf.expire_date)
 	) _data 
 	group by _data.month_expired
@@ -4305,6 +4933,241 @@ SELECT N'ใบอนุญาต(วอ.8)' as kind, lv8_number as name_file, [
                                 ")
         End Function
 
+        Public Function GetDataDetailTabien(ByVal year As String)
+
+            Return GbFn.GetData("
+                    SELECT  DATENAME(month, tax.tax_expire) as month_expired,tax.tax_startdate as start, tax.tax_expire as expire,
+                        N'ภาษี' as table_name, li.number_car, li.license_car,
+							case 
+                                when tax.tax_status is null then 'NULL'
+                                else tax.tax_status
+                            end status
+	                        FROM [TT1995].[dbo].[tax] tax 
+	                        inner join license li on li.license_id = tax.license_id
+	                        where ((tax.tax_status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or tax.tax_status is null)) and year(tax.tax_expire) = " & year & "
+                        Union
+                        SELECT  DATENAME(month, ai.end_date) as month_expired,ai.start_date as start, ai.end_date as expire,
+                        N'ประกัน พรบ' as table_name, li.number_car, li.license_car,
+							case 
+                                when ai.status is null then 'NULL'
+                                else ai.status
+                            end status
+	                        FROM [TT1995].[dbo].[act_insurance] ai
+	                        inner join license li on li.license_id = ai.license_id
+	                        where ((ai.status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or ai.status is null)) and year(ai.end_date) = " & year & "
+                        Union
+                        SELECT  DATENAME(month, mi.end_date) as month_expired,mi.start_date as start, mi.end_date as expire,
+                        N'ประกันภัยรถยนต์' as table_name, li.number_car, li.license_car, 
+							case 
+                                when mi.status is null then 'NULL'
+                                else mi.status
+                            end status
+	                        FROM [TT1995].[dbo].[main_insurance] mi
+	                        inner join license li on li.license_id = mi.license_id
+	                        where ((mi.status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or mi.status is null))  and year(mi.end_date) = " & year & "
+            ")
+        End Function
+
+        Public Function GetDataDetailOther(ByVal year As String)
+            Return GbFn.GetData("
+                       
+                        SELECT  DATENAME(month, dpi.end_date) as month_expired,
+                        dpi.start_date as start,
+                        dpi.end_date as expire,
+                        N'ประกันภัยสินค้าภายในประเทศ' as table_name,
+                        li.number_car,
+                        li.license_car,
+                        case 
+	                        when dpi.status is null then 'NULL'
+	                        else dpi.status
+                        end status,
+                        FORMAT(dpi.current_cowrie, 'C', 'th-TH') as price,
+                        NULL as 'number',
+                        NULL as 'number_car_head',
+                        NULL as 'license_car_head',
+                        NULL as 'number_car_tail',
+                        NULL as 'license_car_tail',
+                        NULL as 'shaft',
+                        NULL as 'brand_car',
+                        NULL as 'number_body',
+                        '' as 'number_engine',
+                        NULL as 'style_car'
+	                        FROM [TT1995].[dbo].[domestic_product_insurance] dpi 
+	                        inner join license li on li.license_id = dpi.license_id
+	                        where ((dpi.status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or dpi.status is null)) and year(dpi.end_date) = " & year & "
+		                                  
+                        UNION
+                        SELECT  DATENAME(month, ei.end_date) as month_expired
+                        ,ei.start_date as start,
+                        ei.end_date as expire,
+                        N'ประกันภัยสิ่งแวดล้อม' as table_name,
+                        li.number_car, li.license_car,
+                        case 
+	                        when ei.status is null then 'NULL'
+	                        else ei.status
+                        end status,
+                        FORMAT(ei.current_cowrie, 'C', 'th-TH') as price,
+                        NULL as 'number',
+                        NULL as 'number_car_head',
+                        NULL as 'license_car_head',
+                        NULL as 'number_car_tail',
+                        NULL as 'license_car_tail',
+                        NULL as 'shaft',
+                        NULL as 'brand_car',
+                        NULL as 'number_body',
+                        '' as 'number_engine',
+                        NULL as 'style_car'
+	                        FROM [TT1995].[dbo].[environment_insurance] ei
+	                        inner join license li on li.license_id = ei.license_id
+	                        where ((ei.status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or ei.status is null)) and year(ei.end_date) = " & year & "
+		                                  
+                        UNION
+                        SELECT  DATENAME(month, lv8.lv8_expire) as month_expired,
+                        lv8.lv8_start as start,
+                        lv8.lv8_expire as expire,
+                        N'ใบอนุญาต วอ.8' as table_name, 
+                        li.number_car,
+                        li.license_car,
+                        case 
+	                        when lv8.lv8_status is null then 'NULL'
+	                        else lv8.lv8_status
+                        end status,
+                        FORMAT(0, 'C', 'th-TH') as price,
+                        NULL as 'number',
+                        NULL as 'number_car_head',
+                        NULL as 'license_car_head',
+                        NULL as 'number_car_tail',
+                        NULL as 'license_car_tail',
+                        NULL as 'shaft',
+                        NULL as 'brand_car',
+                        NULL as 'number_body',
+                        NULL as 'number_engine',
+                        NULL as 'style_car'
+	                        FROM [TT1995].[dbo].[license_v8] lv8
+	                        inner join license li on li.license_id = lv8.license_id
+	                        where  ((lv8.lv8_status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or lv8.lv8_status is null))  and year(lv8.lv8_expire) = " & year & "
+		                                  
+                        UNION
+                        SELECT  DATENAME(month, lc.lc_expire ) as month_expired,
+	                        lc.lc_start as start,
+	                        lc.lc_expire as expire,
+	                        N'ใบอนุญาตกัมพูชา' as table_name,
+	                        NULL as 'number_car',
+	                        NULL as 'license_car',
+	                        case 
+		                        when lc.lc_status is null then 'NULL'
+		                        else lc.lc_status
+	                        end status,
+	                        FORMAT(0, 'C', 'th-TH') as price,
+	                        lc.lc_number as number,
+	                        li.number_car as number_car_head,
+	                        li.license_car as license_car_head,
+	                        li2.number_car as number_car_tail,
+	                        li2.license_car as license_car_tail,
+	                        li2.shaft,
+	                        NULL as 'brand_car',
+	                        NULL as 'number_body',
+	                        '' as 'number_engine',
+	                        NULL as 'style_car'
+	                        FROM [TT1995].[dbo].[license_cambodia] lc
+	                        left join license_cambodia_permission lcp on lcp.lc_id = lc.lc_id
+	                        full join license li on li.license_id = lcp.license_id_head
+	                        full join license li2 on li2.license_id = lcp.license_id_tail
+	                        where  ((lc.lc_status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or lc.lc_status is null)) and year(lc.lc_expire) = " & year & "  
+		                                  
+                        UNION
+                        SELECT  DATENAME(month, lmr.lmr_expire ) as month_expired,
+	                        lmr.lmr_start as start,
+	                        lmr.lmr_expire as expire,
+	                        N'ใบอนุญาตลุ่มน้ำโขง' as table_name,
+	                        NULL as 'number_car',
+	                        NULL as 'license_car',
+	                        case 
+		                        when lmr.lmr_status is null then 'NULL'
+		                        else lmr.lmr_status
+	                        end status,
+	                        FORMAT(0, 'C', 'th-TH') as price,
+	                        lmr.lmr_number as number,
+	                        li.number_car as number_car_head,
+	                        li.license_car as license_car_head,
+	                        li2.number_car as number_car_tail,
+	                        li2.license_car as license_car_tail,
+	                        li2.shaft,
+	                        NULL as 'brand_car',
+	                        NULL as 'number_body',
+	                        '' as 'number_engine',
+	                        NULL as 'style_car'
+	                        FROM [TT1995].[dbo].[license_mekong_river] lmr
+	                        left join license_mekong_river_permission lmrp on lmrp.lmr_id = lmr.lmr_id
+	                        full join license li on li.license_id = lmrp.license_id_head
+	                        full join license li2 on li2.license_id = lmrp.license_id_tail
+	                        where  ((lmr.lmr_status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or lmr.lmr_status is null)) and year(lmr.lmr_expire) = " & year & "  
+		                                  
+                        UNION
+                        SELECT  DATENAME(month, bi.business_expire ) as month_expired,
+                        bi.business_start as start, 
+                        bi.business_expire as expire,
+                        N'ประกอบการในประเทศ' as table_name,
+                        li.number_car, 
+                        li.license_car,
+                        case 
+	                        when bi.business_status is null then 'NULL'
+	                        else bi.business_status
+                        end status,
+                        FORMAT(0, 'C', 'th-TH') as price,
+                        bi.business_number as number, 
+                        NULL as 'number_car_head', 
+                        NULL as 'license_car_head', 
+                        NULL as 'number_car_tail', 
+                        NULL as 'license_car_tail', 
+                        NULL as 'shaft',
+                        li.brand_car,
+                        li.number_body,
+                        li.number_engine,
+                        li.style_car
+                        FROM [TT1995].[dbo].[business_in] bi
+                        left join business_in_permission bip on bip.business_id = bi.business_id
+                        full join license li on li.license_id = bip.license_id
+                        where  ((bi.business_status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or bi.business_status is null)) and year(bi.business_expire) = " & year & "
+		                                  
+                        UNION
+                        SELECT  DATENAME(month, bo.business_expire ) as month_expired,
+                        bo.business_start as start, 
+                        bo.business_expire as expire,
+                        N'ประกอบนอกในประเทศ' as table_name,
+                        li.number_car, 
+                        li.license_car,
+                        case 
+	                        when bo.business_status is null then 'NULL'
+	                        else bo.business_status
+                        end status,
+                        FORMAT(0, 'C', 'th-TH') as price,
+                        bo.business_number as number, 
+                        NULL as 'number_car_head', 
+                        NULL as 'license_car_head', 
+                        NULL as 'number_car_tail', 
+                        NULL as 'license_car_tail', 
+                        NULL as 'shaft',
+                        li.brand_car,
+                        li.number_body,
+                        li.number_engine,
+                        li.style_car
+                        FROM [TT1995].[dbo].[business_out] bo
+                        left join business_out_permission bop on bop.business_id = bo.business_id
+                        full join license li on li.license_id = bop.license_id
+                        where  ((bo.business_status in (N'ขาดต่อ',N'จัดเตรียมเอกสาร',N'ตรวจ GPS',N'ยังไม่ได้ดำเนินการ',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์')   or bo.business_status is null)) and year(bo.business_expire) = " & year & "
+")
+        End Function
+
+        Public Function GetDataDetailEnterFactory(ByVal year As String)
+            Return GbFn.GetData("
+                
+")
+        End Function
+
+#End Region
+
+#Region "third Step"
         Public Function GetFleetCategoryDriver()
             Return GbFn.GetData("select data_fleet.fleet,COUNT(data_fleet.fleet) as qty from (
                                     select case 
@@ -4344,7 +5207,7 @@ SELECT passport.id_no as id_no,driver.driver_name,driver.driver_name2,N'พา�
                 ")
         End Function
 
-        Public Function GetStatusCategoryDriver()
+        Public Function GetStatusCategoryDriver(ByVal year As String)
             Return GbFn.GetData("
                 select _data2.status2 as status,count(_data2.status2) as qty from (
                                 select _data.*, case 
@@ -4355,34 +5218,34 @@ SELECT passport.id_no as id_no,driver.driver_name,driver.driver_name2,N'พา�
                                 from (
 SELECT  dl.dl_id as id_of_table, 'driving_license' as _table, dl.status as status
 	    FROM [TT1995].[dbo].driving_license dl
-	    where  (dl.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dl.status IS NULL)
+	    where  (dl.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dl.status IS NULL) and year(dl.status) = " & year & "
 union
 SELECT  dldot.dldot_id as id_of_table, 'driving_license_dangerous_objects_transportation' as _table, dldot.status as status
 	    FROM [TT1995].[dbo].driving_license_dangerous_objects_transportation dldot
-	    where  (dldot.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dldot.status IS NULL)
+	    where  (dldot.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dldot.status IS NULL) and year(dldot.expire_date) = " & year & "
 union
 SELECT  dlngt.dlngt_id as id_of_table, 'driving_license_natural_gas_transportation' as _table, dlngt.status as status
 	    FROM [TT1995].[dbo].driving_license_natural_gas_transportation dlngt
-	    where  (dlngt.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dlngt.status IS NULL)
+	    where  (dlngt.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dlngt.status IS NULL) and year(dlngt.expire_date) = " & year & "
 union
 SELECT  dlot.dlot_id as id_of_table, 'driving_license_oil_transportation' as _table, dlot.status as status
 	    FROM [TT1995].[dbo].driving_license_oil_transportation dlot
-	    where  (dlot.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dlot.status IS NULL)
+	    where  (dlot.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or dlot.status IS NULL) and year(dlot.expire_date) = " & year & "
 union
 SELECT  passport.pas_id as id_of_table, 'passport' as _table, passport.status as status
 	    FROM [TT1995].[dbo].passport
-	    where  (passport.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or passport.status IS NULL)
+	    where  (passport.status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or passport.status IS NULL) and year(passport.expire_date) = " & year & "
 union
 SELECT  lf.license_factory_id as id_of_table, 'license_factory' as _table, lf.license_factory_status as status
 	    FROM [TT1995].[dbo].license_factory lf
-	    where  (lf.license_factory_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or lf.license_factory_status IS NULL)
+	    where  (lf.license_factory_status in (N'ยังไม่ได้ดำเนินการ', N'ขาดต่อ', N'จัดเตรียมเอกสาร', N'ยื่นเอกสาร', N'เสร็จสมบูรณ์') or lf.license_factory_status IS NULL) and year(lf.expire_date) = " & year & "
 
 		) _data ) _data2
 	                                group by _data2.status2
             ")
         End Function
 
-        Public Function GetStackedBarDlDriver()
+        Public Function GetStackedBarDlDriver(ByVal year As String)
             Return GbFn.GetData("
                 select  _data.month_expired, 
 		sum(_data.dl_qty) as dl_qty,  
@@ -4396,37 +5259,37 @@ SELECT  lf.license_factory_id as id_of_table, 'license_factory' as _table, lf.li
 SELECT  DATENAME(month, dl.expire_date) as month_expired, COUNT(MONTH(dl.expire_date)) as dl_qty,
  0 as dldot_qty, 0 as dlngt_qty, 0 as dlot_qty, 0 as p_qty, 0 as lf_qty,0 as price
 		  FROM [TT1995].[dbo].driving_license dl 
-		  where (dl.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) 
+		  where (dl.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) and year(dl.status) = " & year & "
 		  group by dl.status, DATENAME(month, dl.expire_date)
 union
 SELECT  DATENAME(month, dldot.expire_date) as month_expired, 0 as dl_qty,
  COUNT(MONTH(dldot.expire_date)) as dldot_qty, 0 as dlngt_qty, 0 as dlot_qty, 0 as p_qty, 0 as lf_qty,0 as price
 		  FROM [TT1995].[dbo].driving_license_dangerous_objects_transportation dldot 
-		  where (dldot.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) 
+		  where (dldot.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) and year(dldot.expire_date) = " & year & "
 		  group by dldot.status, DATENAME(month, dldot.expire_date)
 union
 SELECT  DATENAME(month, dlngt.expire_date) as month_expired, 0 as dl_qty,
  0 as dldot_qty, COUNT(MONTH(dlngt.expire_date)) as dlngt_qty, 0 as dlot_qty, 0 as p_qty, 0 as lf_qty,0 as price
 		  FROM [TT1995].[dbo].driving_license_natural_gas_transportation dlngt
-		  where (dlngt.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) 
+		  where (dlngt.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) and year(dlngt.expire_date) = " & year & "
 		  group by dlngt.status, DATENAME(month, dlngt.expire_date)
 union
-SELECT  DATENAME(month, dldot.expire_date) as month_expired, 0 as dl_qty,
- 0 as dldot_qty, 0 as dlngt_qty, COUNT(MONTH(dldot.expire_date)) as dlot_qty, 0 as p_qty, 0 as lf_qty,0 as price
-		  FROM [TT1995].[dbo].driving_license_oil_transportation dldot
-		  where (dldot.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) 
-		  group by dldot.status, DATENAME(month, dldot.expire_date)
+SELECT  DATENAME(month, dlot.expire_date) as month_expired, 0 as dl_qty,
+ 0 as dldot_qty, 0 as dlngt_qty, COUNT(MONTH(dlot.expire_date)) as dlot_qty, 0 as p_qty, 0 as lf_qty,0 as price
+		  FROM [TT1995].[dbo].driving_license_oil_transportation dlot
+		  where (dlot.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) and year(dlot.expire_date) = " & year & "
+		  group by dlot.status, DATENAME(month, dlot.expire_date)
 union
 SELECT  DATENAME(month, p.expire_date) as month_expired, 0 as dl_qty,
  0 as dldot_qty, 0 as dlngt_qty, 0 as dlot_qty, COUNT(MONTH(p.expire_date)) as p_qty, 0 as lf_qty,0 as price
 		  FROM [TT1995].[dbo].passport p
-		  where (p.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) 
+		  where (p.status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) and year(p.expire_date) = " & year & "
 		  group by p.status, DATENAME(month, p.expire_date)
 union
 SELECT  DATENAME(month, lf.expire_date) as month_expired,0 as dl_qty,
  0 as dldot_qty, 0 as dlngt_qty, 0 as dlot_qty, 0 as p_qty,  COUNT(MONTH(lf.expire_date)) as lf_qty, 0 as price
 		  FROM [TT1995].[dbo].license_factory lf 
-		  where (lf.license_factory_status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) 
+		  where (lf.license_factory_status in (N'ยังไม่ได้ดำเนินการ',N'จัดเตรียมเอกสาร',N'ยื่นเอกสาร',N'เสร็จสมบูรณ์',N'ขาดต่อ')) and year(lf.expire_date) = " & year & "
 		  group by lf.license_factory_status, DATENAME(month, lf.expire_date)
 			) _data 
 	group by _data.month_expired
@@ -4446,6 +5309,7 @@ SELECT  DATENAME(month, lf.expire_date) as month_expired,0 as dl_qty,
             ")
 
         End Function
+#End Region
 
 #End Region
 

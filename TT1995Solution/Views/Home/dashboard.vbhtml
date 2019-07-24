@@ -53,6 +53,11 @@ End Code
                 <li class="nav-item">
                     <a class="nav-link" id="pills-driver-tab" data-toggle="pill" href="#pills-driver" role="tab" aria-controls="pills-contact" aria-selected="false">Driver</a>
                 </li>
+                <li class="nav-item">
+                    <div class="">
+                        <input class="form-control form-control" id="year" value="" autocomplete="off">
+                    </div>
+                </li>
             </ul>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-fleet-tabien" role="tabpanel" aria-labelledby="pills-fleet-tabien-tab">

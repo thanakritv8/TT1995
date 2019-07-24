@@ -1,17 +1,76 @@
 ﻿
 $(function () {
+    
+    $("#year").val((new Date).getFullYear());
+    
+    $('#year').datepicker({
+        format: "yyyy",
+        viewMode: "years",
+        minViewMode: "years",
+        autoclose: true,
+    });
+    var data_select_fleet = [];
+    var data_select_status = [];
 
+    function parseJsonDate(jsonDateString) {
+        return new Date(parseInt(jsonDateString.replace('/Date(', '')));
+    }
+
+    function GetDataDetailTabien() {
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetDataDetailTabien",
+            data: "{ year:" + "'" + $('#year').val() + "'}",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].start);
+                    data[i].start = d;
+
+                    var d = parseJsonDate(data[i].expire);
+                    data[i].expire = d;
+                }
+            }
+        }).responseJSON;
+    }
+
+    function GetDataDetailOther() {
+        return $.ajax({
+            type: "POST",
+            url: "../Home/GetDataDetailOther",
+            data: "{ year:" + "'" + $('#year').val() + "'}",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var d = parseJsonDate(data[i].start);
+                    data[i].start = d;
+
+                    var d = parseJsonDate(data[i].expire);
+                    data[i].expire = d;
+                }
+            }
+        }).responseJSON;
+    }
+
+    var DataDetailTabien = GetDataDetailTabien();
+    var DataDetailOther = GetDataDetailOther();
+    console.log(DataDetailOther);
     //#region First Step
     var base_chart_width = $('#chart-donut-fleet-category').width();
     
     var CarCategoty;
 
-    var data_select_fleet = [];
+    
     
     function GetFleetCategoryTabien() {
         return $.ajax({
             type: "POST",
             url: "../Home/GetFleetCategoryTabien",
+            
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
@@ -98,62 +157,6 @@ $(function () {
         }).responseJSON;
     }
 
-    var internal_call = [
-
-        {
-            "internal_call": "NULL",
-            "qty": 122
-        },
-        {
-            "internal_call": "สิบล้อโลออฟ",
-            "qty": 12
-        },
-        {
-            "internal_call": "สิบล้อดั๊ม",
-            "qty": 5
-        },
-        {
-            "internal_call": "หัวลาก",
-            "qty": 37
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง ก้าง 20' โลเบท",
-            "qty": 1
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง ก้าง 20' ดั๊ม",
-            "qty": 6
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง ก้าง 40' โลเบท",
-            "qty": 7
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง ก้าง 40' ดั๊ม",
-            "qty": 3
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง พื้น 20' โลเบท",
-            "qty": 11
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง พื้น 20' ดั๊ม",
-            "qty": 7
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง พื้น 40' โลเบท",
-            "qty": 7
-        },
-        {
-            "internal_call": "หางกึ่งพ่วง พื้น 40' ดั๊ม",
-            "qty": 5
-        },
-        {
-            "internal_call": "หางพ่วง",
-            "qty": 1
-        }
-    ];
-
     function GetCarCategoryTabien() {
         return $.ajax({
             type: "POST",
@@ -193,7 +196,7 @@ $(function () {
         },
         onPointClick: function (info) {
             console.log(info);
-            show_popup(info.target.data.internal_call);
+            show_popup(info.target.data.internal_call,'car-category');
         },
     }).dxChart("instance");
 
@@ -205,15 +208,50 @@ $(function () {
         title: "test"
     }).dxPopup("instance");
 
-    function show_popup(title) {
+    function show_popup(title, ChartType, arg1, arg2) {
         popup_history.option('title', title);
         popup_history._options.contentTemplate = function (content) {
             var maxHeight = Math.ceil($("#popup_history .dx-overlay-content").height() - 150);
             content.append("<div id='gridHistory' style='max-height: " + maxHeight + "px;' ></div>");
         }
         $("#popup_history").dxPopup("show");
+        if (ChartType == "car-category") {
+            show_datagrid_car_category(title);
+        } else if (ChartType == "tabien") {
+            show_datagrid_tabien(title, FilterStatusToTabien(arg1,arg2));
+        } else if (ChartType == "tabienAll") {
+            show_datagrid_tabien(title, DataDetailTabien);
+        } else if (ChartType == "other") {
+            show_datagrid_tabien(title, FilterStatusToOther(arg1, arg2));
+        }
+    }
+
+    function FilterStatusToTabien(table_name,month) {
+        var data = [];
+        $.each(data_select_status, function (key, value) {
+            var data_filter = DataDetailTabien.filter(function (arr) {
+                return arr.status == value && arr.month_expired == month && arr.table_name == table_name;
+            });
+            data = $.merge(data, data_filter);
+        });
+        return data;
+    }
+
+    function FilterStatusToOther(table_name, month) {
+        var data = [];
+        $.each(data_select_status, function (key, value) {
+            var data_filter = DataDetailOther.filter(function (arr) {
+                return arr.status == value && arr.month_expired == month && arr.table_name == table_name;
+            });
+            data = $.merge(data, data_filter);
+        });
+        console.log(data);
+        return data;
+    }
+
+    function show_datagrid_car_category(title,dataSource) {
         var gridHistory = $("#gridHistory").dxDataGrid({
-            dataSource: getDetailCarCategory(data_select_fleet,title),
+            dataSource: getDetailCarCategory(data_select_fleet, title),
             columns: [
                 {
                     dataField: "number_car",
@@ -267,37 +305,74 @@ $(function () {
         }).responseJSON;
     }
 
+
+
+    function show_datagrid_tabien(title,dataSource) {
+        var gridHistory = $("#gridHistory").dxDataGrid({
+            dataSource: dataSource,
+            columns: [
+                {
+                    dataField: "number_car",
+                    caption: "เบอร์รถ",
+                },
+                {
+                    dataField: "license_car",
+                    caption: "ทะเบียน",
+                },
+                {
+                    dataField: "status",
+                    caption: "สถานะ",
+                },
+                {
+                    dataField: "month_expired",
+                    caption: "เดือน"
+                },
+                {
+                    dataField: "expire",
+                    captin:"วันที่"
+                },
+                {
+                    dataField: "table_name",
+                    caption: "ตาราง",
+                }
+            ]
+            ,
+            showBorders: true,
+            height: 'auto',
+            scrolling: {
+                mode: "virtual"
+            },
+            export: {
+                enabled: true,
+                fileName: "data",
+            },
+            searchPanel: {
+                visible: true,
+                width: 240,
+                placeholder: "Search..."
+            },
+        }).dxDataGrid('instance');
+    }
+
     $("#button-car-category").dxButton({
         text: "Data All",
         // icon: "exportxlsx",
         visible: true,
         onClick: function () {
-            show_popup('Car Category');
+            show_popup('Car Category','car-category');
+            
         }
     });
 
     //#endregion First Step
     
-    //#region Second Step
-    var data_select_status = [];
-    function GetStatusTabien() {
-        return $.ajax({
-            type: "POST",
-            url: "../Home/GetStatusTabien",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            async: false,
-            success: function (data) {
-            }
-        }).responseJSON;
-    }
-
-    
+    //#region Second Step 
 
     function GetStatusTabien() {
         return $.ajax({
             type: "POST",
             url: "../Home/GetStatusTabien",
+            data: "{ year:" + "'" + $('#year').val() + "'}",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
@@ -309,7 +384,7 @@ $(function () {
     function GetStackedBarTabien(filter) {
         return $.ajax({
             type: "POST",
-            data: "{ filter:'" + filter + "'}",
+            data: "{ filter:'" + filter + "',year:"+ $('#year').val() +"}",
             url: "../Home/GetStackedBarTabien",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -322,7 +397,7 @@ $(function () {
     var chart_donut_tabien_status = $("#chart-donut-tabien-status").dxPieChart({
         size: {
             height: '100%',
-            width: '799'
+            width: base_chart_width
         },
         type: "doughnut",
         palette: 'Harmony Light',
@@ -372,7 +447,7 @@ $(function () {
     }).dxPieChart("instance");
 
     var data_chart_select_status = chart_donut_tabien_status.getAllSeries()[0]._points;
-    data_select_status = [];
+
     jQuery.each(data_chart_select_status, function (i, val) {
         if (val._currentStyle == 'selection') {
             data_select_status.push(val.argument);
@@ -417,7 +492,11 @@ $(function () {
             } else {
                 point.select();
             }
-            var data_chart_select = chart_donut_fleet_category.getAllSeries()[0]._points;
+
+            show_popup(e.target._options.name + '(' + e.target.aggument + ')', 'tabien', e.target._options.name, e.target.argument);
+            //console.log(e.target._options.name +' , '+ e.target.argument);
+            //console.log(e);
+            
             
         },
         legend: {
@@ -458,7 +537,7 @@ $(function () {
     function GetStackedBarOther(filter) {
         return $.ajax({
             type: "POST",
-            data: "{ filter:'" + filter + "'}",
+            data: "{ filter:'" + filter + "',year:" + $('#year').val() + "}",
             url: "../Home/GetStackedBarOther",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -509,8 +588,9 @@ $(function () {
             } else {
                 point.select();
             }
-            var data_chart_select = chart_donut_fleet_category.getAllSeries()[0]._points;
-
+            //var data_chart_select = chart_donut_fleet_category.getAllSeries()[0]._points;
+            show_popup(e.target._options.name + '(' + e.target.aggument + ')', 'other', e.target._options.name, e.target.argument);
+            //console.log(e.target._options.name +' , '+ e.target.argument);
         },
         legend: {
             horizontalAlignment: "right",
@@ -550,7 +630,7 @@ $(function () {
     function GetStackedBarEnterFactory(filter) {
         return $.ajax({
             type: "POST",
-            data: "{ filter:'" + filter + "'}",
+            data: "{ filter:'" + filter + "',year:" + $('#year').val() + "}",
             url: "../Home/GetStackedBarEnterFactory",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -622,7 +702,7 @@ $(function () {
                 text: "License"
             }
         },
-        title: "Main License",
+        title: "License Factory",
         argumentAxis: { // or valueAxis, or commonAxisSettings
             label: {
                 displayMode: "stagger",
@@ -634,8 +714,36 @@ $(function () {
         }
     }).dxChart("instance");
 
+    $("#button-book-tabien").dxButton({
+        text: "Data All",
+        // icon: "exportxlsx",
+        visible: true,
+        onClick: function () {
+            show_popup('Main License','tabienAll');
+        }
+    });
+
+    $("#button-book-other").dxButton({
+        text: "Data All",
+        // icon: "exportxlsx",
+        visible: true,
+        onClick: function () {
+            show_popup('Car Category', 'book-other');
+        }
+    });
+
+    $("#button-book-enter-factory").dxButton({
+        text: "Data All",
+        // icon: "exportxlsx",
+        visible: true,
+        onClick: function () {
+            show_popup('Car Category', 'book-enter-factory');
+        }
+    });
+
     //#endregion Second Step
 
+    //#region third Step
     function GetFleetCategoryDriver() {
         return $.ajax({
             type: "POST",
@@ -746,6 +854,7 @@ $(function () {
         return $.ajax({
             type: "POST",
             url: "../Home/GetStatusCategoryDriver",
+            data: "{year:" + $('#year').val() + "}",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
@@ -811,6 +920,7 @@ $(function () {
         return $.ajax({
             type: "POST",
             url: "../Home/GetStackedBarDlDriver",
+            data: "{year:" + $('#year').val() + "}",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
@@ -820,80 +930,133 @@ $(function () {
     }
 
     var chart_stacked_dl_driver = $("#chart-stacked-dl-driver").dxChart({
-            dataSource: GetStackedBarDlDriver(),
-            commonSeriesSettings: {
-                argumentField: "month_expired",
-                type: "stackedBar",
-            },
-            size: {
-                height: '100%',
-                width: base_chart_width
-            },
-            series: [
-                { valueField: "dl_qty", name: "ใบอนุญาตขับขี่", stack: "1", },
-                { valueField: "dldot_qty", name: "ใบอนุญาตขับขี่ขนส่งวัตถุอันตราย", stack: "1", },
-                { valueField: "dlngt_qty", name: "ใบอนุญาตขับขี่ขนส่งก๊าสธรรมชาติ", stack: "1", },
-                { valueField: "dlot_qty", name: "ใบอนุญาตขับขี่ขนส่งน้ำมัน", stack: "1", },
-                { valueField: "p_qty", name: "พาสสปอร์ต", stack: "1", },
-                {
-                    valueField: "lf_qty", name: "ใบอนุญาตโรงงาน", stack: "1", label: {
-                        visible: true,
-                        font: {
-                            size: '10',
-                        },
-                        customizeText: function (valueFromNameField) {
-                            console.log(valueFromNameField);
-                            //var data_filter = book_tabien.filter(function (arr) {
-                            //    return arr.month_expired == valueFromNameField.argument;
-                            //});
-                            return valueFromNameField.point.data.price;
-                        },
-                        position: 'outside'
-                    }
-                },
-            ],
-            onPointClick: function (e) {
-                var point = e.target;
-                if (point.isSelected()) {
-                    point.clearSelection();
-                } else {
-                    point.select();
-                }
-                console.log(e);
-
-            },
-            legend: {
-                horizontalAlignment: "right",
-                position: "inside",
-                border: { visible: true },
-                columnCount: 2,
-                customizeItems: function (items) {
-                    var sortedItems = [];
-
-                    items.forEach(function (item) {
-                        if (item.series.name.split(" ")[0] === "Male:") {
-                            sortedItems.splice(0, 0, item);
-                        } else {
-                            sortedItems.splice(3, 0, item);
-                        }
-                    });
-                    return sortedItems;
+        dataSource: GetStackedBarDlDriver(),
+        commonSeriesSettings: {
+            argumentField: "month_expired",
+            type: "stackedBar",
+        },
+        size: {
+            height: '100%',
+            width: base_chart_width
+        },
+        series: [
+            { valueField: "dl_qty", name: "ใบอนุญาตขับขี่", stack: "1", },
+            { valueField: "dldot_qty", name: "ใบอนุญาตขับขี่ขนส่งวัตถุอันตราย", stack: "1", },
+            { valueField: "dlngt_qty", name: "ใบอนุญาตขับขี่ขนส่งก๊าสธรรมชาติ", stack: "1", },
+            { valueField: "dlot_qty", name: "ใบอนุญาตขับขี่ขนส่งน้ำมัน", stack: "1", },
+            { valueField: "p_qty", name: "พาสสปอร์ต", stack: "1", },
+            {
+                valueField: "lf_qty", name: "ใบอนุญาตโรงงาน", stack: "1", label: {
+                    visible: true,
+                    font: {
+                        size: '10',
+                    },
+                    customizeText: function (valueFromNameField) {
+                        console.log(valueFromNameField);
+                        //var data_filter = book_tabien.filter(function (arr) {
+                        //    return arr.month_expired == valueFromNameField.argument;
+                        //});
+                        return valueFromNameField.point.data.price;
+                    },
+                    position: 'outside'
                 }
             },
-            valueAxis: {
-                title: {
-                    text: "License"
-                }
-            },
-            title: "Main License",
-            argumentAxis: { // or valueAxis, or commonAxisSettings
-                label: {
-                    displayMode: "stagger",
-                    staggeringSpacing: 10
-                }
-            },
-            tooltip: {
-                enabled: true
+        ],
+        onPointClick: function (e) {
+            var point = e.target;
+            if (point.isSelected()) {
+                point.clearSelection();
+            } else {
+                point.select();
             }
-        }).dxChart("instance");
+            console.log(e);
+
+        },
+        legend: {
+            horizontalAlignment: "right",
+            position: "inside",
+            border: { visible: true },
+            columnCount: 2,
+            customizeItems: function (items) {
+                var sortedItems = [];
+
+                items.forEach(function (item) {
+                    if (item.series.name.split(" ")[0] === "Male:") {
+                        sortedItems.splice(0, 0, item);
+                    } else {
+                        sortedItems.splice(3, 0, item);
+                    }
+                });
+                return sortedItems;
+            }
+        },
+        valueAxis: {
+            title: {
+                text: "License"
+            }
+        },
+        title: "Main License",
+        argumentAxis: { // or valueAxis, or commonAxisSettings
+            label: {
+                displayMode: "stagger",
+                staggeringSpacing: 10
+            }
+        },
+        tooltip: {
+            enabled: true
+        }
+    }).dxChart("instance");
+
+    $("#button-dl-category-driver").dxButton({
+        text: "Data All",
+        // icon: "exportxlsx",
+        visible: true,
+        onClick: function () {
+            show_popup('Car Category');
+        }
+    });
+
+    $("#button-dl-driver").dxButton({
+        text: "Data All",
+        // icon: "exportxlsx",
+        visible: true,
+        onClick: function () {
+            show_popup('Car Category');
+        }
+    });
+
+    //#endregion third Step
+
+    $("#year").change(function () {
+        //#region second Step
+
+        chart_donut_tabien_status.option('dataSource', GetStatusTabien());
+        chart_donut_tabien_status.refresh();
+        
+        chart_stacked_bar_tabien.option('dataSource', GetStackedBarTabien(data_select_status));
+        chart_stacked_bar_tabien.refresh();
+
+        DataDetailTabien = GetDataDetailTabien();
+
+        chart_stacked_bar_other.option('dataSource', GetStackedBarOther(data_select_status));
+        chart_stacked_bar_other.refresh();
+
+        DataDetailOther = GetDataDetailOther();
+
+        chart_stacked_bar_enter_factory.option('dataSource', GetStackedBarEnterFactory(data_select_status));
+        chart_stacked_bar_enter_factory.refresh();
+
+        
+
+        //#endregion second Step
+
+        //#region third Step
+        chart_donut_status_category_driver.option('dataSource', GetStatusCategoryDriver());
+        chart_donut_status_category_driver.refresh();
+
+        chart_stacked_dl_driver.option('dataSource', GetStackedBarDlDriver());
+        chart_stacked_dl_driver.refresh();
+        //#endregion third Step
+    });
+   
 });

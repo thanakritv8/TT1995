@@ -20,3 +20,8 @@
 [0717/102253.381:ERROR:process_info.cc(359)] UncheckedAllocate
 [0717/102715.615:ERROR:process_info.cc(359)] UncheckedAllocate
 [0722/141433.860:ERROR:process_info.cc(359)] UncheckedAllocate
+[0723/073906.000:ERROR:process_info.cc(359)] UncheckedAllocate
+[0723/093820.991:ERROR:process_info.cc(359)] UncheckedAllocate
+[0723/093821.163:WARNING:minidump_to_upload_parameters.cc(67)] duplicate annotation name metrics_client_id, discarding value af8ad4a7b6404524bbaa4532f5addb11
+[0723/123304.856:ERROR:process_info.cc(359)] UncheckedAllocate
+[0723/123322.294:ERROR:process_info.cc(359)] UncheckedAllocate

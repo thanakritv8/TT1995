@@ -21,7 +21,7 @@ function checkLogin() {
             document.getElementById('txtUsername').value = '';
             document.getElementById('txtPassword').value = '';
             if (data != '') {
-                window.location.href = '../Home/Index';
+                window.location.href = '../Home/dashboard';
             } else {
                 document.getElementById('lbError').innerHTML = "Please check the information."
             }

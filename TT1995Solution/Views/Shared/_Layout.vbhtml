@@ -10,7 +10,7 @@
     <link href="~/Content/vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="~/Content/css/jquery.steps.css" rel="stylesheet" />
-
+    <link href="~/Content/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     @*<link rel="stylesheet" type="text/css" href="~/Content/sb-admin.min.css" />*@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="~/Content/js/jquery_steps/lib/jquery.cookie-1.3.1.js"></script>
@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+    <script src="~/Content/js/bootstrap-datepicker.min.js"></script>
     <style>
         .bg-custom {
             background-color: rgb(0,128,0);
@@ -79,7 +80,7 @@
         </a>
     </li>
 
-    @If Session("1") <> 0 Or Session("3") <> 0 Or Session("4") <> 0 Then@*Or Session("6") <> 0*@
+    @If Session("1") <> 0 Or Session("3") <> 0 Or Session("4") <> 0 Or Session("36") <> 0 Then@*Or Session("6") <> 0*@
     @<li Class="nav-item dropdown">
         <a Class="nav-link dropdown-toggle d1" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i Class="fas fa-fw fa-folder"></i>
@@ -89,6 +90,7 @@
             @If Session("1") <> 0 Then@<a Then Class="dropdown-item" Href="../Home/License">เล่มทะเบียน</a>End If
             @If Session("3") <> 0 Then@<a Then Class="dropdown-item" href="../Home/Tax">ภาษี</a>End If
             @If Session("4") <> 0 Then@<a Class="dropdown-item" href="../Home/OfficerRecords">บันทึกเจ้าหน้าที่</a>End If
+            @If Session("36") <> 0 Then@<a Class="dropdown-item" href="../Home/license_car_factory">บอข. รถเข้าโรงงาน</a>End If
             @*@If Session("6") <> 0 Then@<a Class="dropdown-item" href="../Home/Driver">พขร</a>End If*@
         </div>
     </li>
